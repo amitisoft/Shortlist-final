@@ -1,0 +1,18 @@
+{
+  "record": {
+    "kinesis": {
+      "kinesisSchemaVersion": "1.0",
+      "partitionKey": "ashok@amitisoft.com",
+      "sequenceNumber": "49572901483532829550670411233864622100811201813724266498",
+      "data": "ZXlKbGJXRnBiQ0k2SW1GeWRXNUFZVzFwZEdrdWFXNGlMQ0psYldGcGJGTjFZbXBsWTNRaU9pSlVSVk5VSUV4cGJtc2lMQ0psYldGcGJFSnZaSGtpT2lKQ1QwUlpJRTlHSUVWTlFVbE1JaXdpYW05aVVHOXphWFJwYjI0aU9pSnFZWFpoSUdSbGRtVnNiM0JsY2lJc0ltTmhkR1ZuYjNKNUlqb2lhbUYyWVNKOQ==",
+      "approximateArrivalTimestamp": 1493908132.826
+    },
+    "eventSource": "aws:kinesis",
+    "eventVersion": "1.0",
+    "eventID": "shardId-000000000000:49572901483532829550670411233864622100811201813724266498",
+    "eventName": "aws:kinesis:record",
+    "invokeIdentityArn": "arn:aws:iam::151610303354:role/shortlist-project-dev-us-east-2-lambdaRole",
+    "awsRegion": "us-east-2",
+    "eventSourceARN": "arn:aws:kinesis:us-east-2:151610303354:stream/register-test-stream"
+  }
+}

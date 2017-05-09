@@ -1,0 +1,11 @@
+{
+  "body": {
+    "emails": [
+      "ashok@amitisoft.com"
+    ],
+    "category": "java",
+    "jobPosition": "java developer",
+    "emailSubject": "TEST Link",
+    "emailBody": "BODY OF EMAIL"
+  }
+}
