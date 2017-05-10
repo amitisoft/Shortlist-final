@@ -5,8 +5,7 @@ import {Question} from '../domain/question';
 import {UUID} from 'angular2-uuid';
 
 const AWS = require('aws-sdk');
-let uuid = UUID.UUID();
-
+let uuid = require('uuid');
 
 import DocumentClient = DynamoDB.DocumentClient;
 
@@ -26,7 +25,7 @@ export class createQuestionPaperserviceImpl {
 
         const qsnppr = [];
         let params: any = {};
-
+        let uuidd = uuid.v4();
         if (typeof data == "string") {
             data = JSON.parse(data);
             for (var item = 0; item < data.length; item++) {
@@ -34,7 +33,7 @@ export class createQuestionPaperserviceImpl {
                 let myObj = {
                     PutRequest: {
                         Item: {
-                            "Qsn_Ppr_Id": uuid,
+                            "Qsn_Ppr_Id": uuidd,
                             "Qsn_Id": data[item].QsnId,
                             "Category": data[item].Category
                         }
@@ -55,7 +54,7 @@ export class createQuestionPaperserviceImpl {
                 let myObj = {
                     PutRequest: {
                         Item: {
-                            "Qsn_Ppr_Id": uuid,
+                            "Qsn_Ppr_Id": uuidd,
                             "QsnId": data[item].QsnId,
                             "Category": data[item].Category
                         }

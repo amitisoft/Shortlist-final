@@ -49,7 +49,7 @@ export class BookingServiceImpl {
             },
             ExpressionAttributeValues: {
                 ':ca': data.category,
-                ':jp': data.jobPostion,
+                ':jp': data.jobPosition,
                 ':DOE': new Date().getTime(),
                 ':ts': "progress",
                 ':pt': data.paperType,
@@ -91,7 +91,7 @@ export class BookingServiceImpl {
                 ":v_test": "NotTaken"
             },
             Limit: 2,
-            ProjectionExpression: "candidateId, category,testStatus,bookingId",
+            ProjectionExpression: "candidateId, category,testStatus,bookingId,jobPosition",
             ScanIndexForward: false
         }
 
@@ -182,6 +182,7 @@ export class BookingServiceImpl {
                         bookinginfo.category = item.category;
                         bookinginfo.fullName = `${newArray[0].firstName} ${newArray[0].lastName}`;
                         bookinginfo.email = newArray[0].email;
+                        bookinginfo.jobPosition = item.jobPosition;
                         resultArray.push(bookinginfo);
                         //  console.log(" result", bookinginfo);
                         //     }

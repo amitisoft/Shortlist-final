@@ -5,7 +5,7 @@ import {Question} from '../domain/question';
 import { UUID } from 'angular2-uuid';
 
 const AWS = require('aws-sdk');
-let uuid = UUID.UUID();
+let uuid = require('uuid');
 
 console.log("uuuuuuuuuuuuuuuuu",uuid);
 
@@ -25,14 +25,15 @@ export class CreateQuestionServiceImpl {
     create(data: any): Observable<Question> {
         console.log("in CreateQuestionServiceImpl create()",typeof data);
         const documentClient = new DocumentClient();
-let params: any = {}; 
+let params: any = {};
+let uuidd = uuid.v4(); 
   if(typeof data == "string"){
 
       data = JSON.parse(data);
      params = {
             TableName: "question",
             Item: {
-                Qsn_id: uuid,
+                Qsn_id: uuidd,
                 Qsn:data["Qsn"],
                 Category: data["Category"],
                 Option1:data["Option1"],
@@ -49,7 +50,7 @@ let params: any = {};
    params = {
             TableName: "question",
             Item: {
-                Qsn_id: uuid,
+                Qsn_id: uuidd,
                 Qsn:data["Qsn"],
                 Category: data["Category"],
                 Option1:data["Option1"],

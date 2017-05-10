@@ -332,6 +332,7 @@ resources:
               Projection:
                 NonKeyAttributes:
                   - "category"
+                  - "jobPosition"
                 ProjectionType: "INCLUDE"
               ProvisionedThroughput:
                 ReadCapacityUnits: "5"
@@ -349,7 +350,7 @@ resources:
 
               Projection:
                 NonKeyAttributes:
-                  - "dateOfExam"
+                  - "DOE"
                 ProjectionType: "INCLUDE"
 
               ProvisionedThroughput:
