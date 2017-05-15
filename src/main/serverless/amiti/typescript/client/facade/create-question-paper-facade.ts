@@ -9,12 +9,13 @@ export class CreateQuestionPaperFacade {
         console.log("in CreateQuestionFacade constructor()");
     }
    
-    createQuestionPaper(data: any) : Observable<Question> {
-        // console.log("data----",data);
-        //  console.log("data type of----",typeof data);
-        //   let data1 = JSON.parse(data);
-        // console.log("data type of----",typeof data1);
-        return this.createQuestionPaperservice.createQuestionPaper(data);
+    createQuestionPaper(qsns:any,qsnPaperName:any) : Observable<Question> {
+        console.log("qsnPaperName........",qsnPaperName);
+        return this.createQuestionPaperservice.createQuestionPaper(qsns,qsnPaperName);
     } 
-
+   
+     getQuestionPapers(): Observable<Question[]> {
+        console.log("in categoryId getQuestionPapers()");
+        return this.createQuestionPaperservice.getAllQuestionPaperNames();
+    }
 }

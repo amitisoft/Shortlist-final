@@ -28,7 +28,6 @@ export class CreateQuestionServiceImpl {
 let params: any = {};
 let uuidd = uuid.v4(); 
   if(typeof data == "string"){
-
       data = JSON.parse(data);
      params = {
             TableName: "question",
@@ -41,7 +40,8 @@ let uuidd = uuid.v4();
                 Option3:data["Option3"],
                 Option4:data["Option4"],
                 Crct_ans:data["Crct_ans"],
-                Multi_flag:true
+                Multi_flag:true,
+                Date:new Date().toJSON().slice(0,10).replace(/-/g,'/')
             }
 
         };
@@ -58,7 +58,8 @@ let uuidd = uuid.v4();
                 Option3:data["Option3"],
                 Option4:data["Option4"],
                 Crct_ans:data["Crct_ans"],
-                Multi_flag:true
+                Multi_flag:true,
+                Date:new Date().toJSON().slice(0,10).replace(/-/g,'/')
             }
 
         };
@@ -91,7 +92,7 @@ console.log("parammmmmmmmmmmmmmmmmmmm00000000000000------------",data["Qsn"]);
 
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: "question",
-            ProjectionExpression: "Category, Qsn_id, Qsn",
+            ProjectionExpression: "Category, Qsn_id, Qsn,Date",
             KeyConditionExpression: "#Category = :categoryIdFilter",
             ExpressionAttributeNames:{
                 "#Category": "Category"

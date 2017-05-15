@@ -22,13 +22,14 @@ provider:
   stage: dev
   region: us-east-2
   environment:
-    ACCOUNT_ID: 151610303354
+    ACCOUNT_ID: 784455347771
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
     SEND_EMAIL_SNS: sendEmail
     QUESTION_LIST_TABLE: question
     QSNID_TABLE: questionPaper
+    QUESTION_PAPER_NAMES : "questionPaperNames"
     RESULT_TABLE: result
   iamRoleStatements:
     - Effect: Allow
@@ -69,6 +70,15 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QUESTION_LIST_TABLE}/*"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QUESTION_PAPER_NAMES}"  
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -171,6 +181,14 @@ functions:
           path: api/questionpaper
           method: post
           cors: true
+
+  getQuestionPaperNames:
+    handler: handler.getQuestionPaperNamesFunction
+    events:
+      - http:
+          path: api/getquestionpapernames
+          method: get
+          cors: true        
 
   createTestLinkFunction:
     handler: handler.createTestLinkFunction
@@ -443,3 +461,18 @@ resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
+
+      questionPaperNames:
+          Type: 'AWS::DynamoDB::Table'
+          DeletionPolicy: Retain
+          Properties:
+            TableName: ${self:provider.environment.QUESTION_PAPER_NAMES}
+            AttributeDefinitions:
+              - AttributeName: QsnPaper_id
+                AttributeType: S
+            KeySchema:
+              - AttributeName: QsnPaper_id
+                KeyType: HASH
+            ProvisionedThroughput:
+              ReadCapacityUnits: 2
+              WriteCapacityUnits: 2         

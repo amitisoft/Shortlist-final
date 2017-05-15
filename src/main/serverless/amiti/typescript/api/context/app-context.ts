@@ -30,7 +30,7 @@ export const AppProviders = [
     QuestionFacade,
     ResultServiceImpl,
     ResultFacade,
-     CreateQuestionFacade,
+    CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,
     createQuestionPaperserviceImpl

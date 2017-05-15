@@ -11,13 +11,14 @@
       "name": "aws",
       "runtime": "nodejs6.10",
       "environment": {
-        "ACCOUNT_ID": 151610303354,
+        "ACCOUNT_ID": 784455347771,
         "REGISTER_TEST_STREAM": "register-test-stream",
         "CANDIDATE_TABLE": "candidate",
         "BOOKING_TABLE": "booking",
         "SEND_EMAIL_SNS": "sendEmail",
         "QUESTION_LIST_TABLE": "question",
         "QSNID_TABLE": "questionPaper",
+        "QUESTION_PAPER_NAMES": "questionPaperNames",
         "RESULT_TABLE": "result"
       },
       "iamRoleStatements": [
@@ -79,6 +80,17 @@
             "dynamodb:GetItem",
             "dynamodb:PutItem",
             "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-2:*:table/questionPaperNames"
+        },
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
             "dynamodb:DeleteItem",
             "dynamodb:BatchWriteItem"
           ],
@@ -102,7 +114,7 @@
             "sns:Publish",
             "sns:Subscribe"
           ],
-          "Resource": "arn:aws:sns:us-east-2:151610303354:sendEmail"
+          "Resource": "arn:aws:sns:us-east-2:784455347771:sendEmail"
         },
         {
           "Effect": "Allow",
@@ -137,6 +149,12 @@
               "LogGroupName": "/aws/lambda/shortlist-project-dev-startTestDashboard"
             }
           },
+          "UpdateBookingAfterStartTestLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/shortlist-project-dev-updateBookingAfterStartTest"
+            }
+          },
           "GetAllQsnIdsFunctionLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
@@ -165,6 +183,12 @@
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
               "LogGroupName": "/aws/lambda/shortlist-project-dev-createQsnPaper"
+            }
+          },
+          "GetQuestionPaperNamesLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/shortlist-project-dev-getQuestionPaperNames"
             }
           },
           "CreateTestLinkFunctionLogGroup": {
@@ -244,6 +268,9 @@
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-startTestDashboard:*"
                           },
                           {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-updateBookingAfterStartTest:*"
+                          },
+                          {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-getAllQsnIdsFunction:*"
                           },
                           {
@@ -257,6 +284,9 @@
                           },
                           {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-createQsnPaper:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-getQuestionPaperNames:*"
                           },
                           {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-createTestLinkFunction:*"
@@ -288,6 +318,9 @@
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-startTestDashboard:*:*"
                           },
                           {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-updateBookingAfterStartTest:*:*"
+                          },
+                          {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-getAllQsnIdsFunction:*:*"
                           },
                           {
@@ -301,6 +334,9 @@
                           },
                           {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-createQsnPaper:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-getQuestionPaperNames:*:*"
                           },
                           {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-createTestLinkFunction:*:*"
@@ -377,6 +413,18 @@
                           "dynamodb:GetItem",
                           "dynamodb:PutItem",
                           "dynamodb:UpdateItem",
+                          "dynamodb:DeleteItem"
+                        ],
+                        "Resource": "arn:aws:dynamodb:us-east-2:*:table/questionPaperNames"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:Query",
+                          "dynamodb:Scan",
+                          "dynamodb:GetItem",
+                          "dynamodb:PutItem",
+                          "dynamodb:UpdateItem",
                           "dynamodb:DeleteItem",
                           "dynamodb:BatchWriteItem"
                         ],
@@ -400,7 +448,7 @@
                           "sns:Publish",
                           "sns:Subscribe"
                         ],
-                        "Resource": "arn:aws:sns:us-east-2:151610303354:sendEmail"
+                        "Resource": "arn:aws:sns:us-east-2:784455347771:sendEmail"
                       },
                       {
                         "Effect": "Allow",
@@ -423,7 +471,7 @@
                           "kinesis:ListStreams"
                         ],
                         "Resource": [
-                          "arn:aws:kinesis:us-east-2:151610303354:stream/register-test-stream"
+                          "arn:aws:kinesis:us-east-2:784455347771:stream/register-test-stream"
                         ]
                       }
                     ]
@@ -451,7 +499,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getAllCandidatesFunction",
               "Handler": "handler.getAllCandidatesFunction",
@@ -466,13 +514,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -482,14 +531,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetAllCandidatesFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "GetAllCandidatesFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetAllCandidatesFunctionLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "StartTestDashboardLambdaFunction": {
@@ -499,7 +548,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-startTestDashboard",
               "Handler": "handler.startTestDashboard",
@@ -514,13 +563,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -530,14 +580,63 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "StartTestDashboardLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "StartTestDashboardLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "StartTestDashboardLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
+            }
+          },
+          "UpdateBookingAfterStartTestLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
+              },
+              "FunctionName": "shortlist-project-dev-updateBookingAfterStartTest",
+              "Handler": "handler.updateBookingAfterStartTest",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "ACCOUNT_ID": 784455347771,
+                  "REGISTER_TEST_STREAM": "register-test-stream",
+                  "CANDIDATE_TABLE": "candidate",
+                  "BOOKING_TABLE": "booking",
+                  "SEND_EMAIL_SNS": "sendEmail",
+                  "QUESTION_LIST_TABLE": "question",
+                  "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
+                  "RESULT_TABLE": "result"
+                }
+              }
+            },
+            "DependsOn": [
+              "UpdateBookingAfterStartTestLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "UpdateBookingAfterStartTestLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UpdateBookingAfterStartTestLambdaFunction"
+              },
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "GetAllQsnIdsFunctionLambdaFunction": {
@@ -547,7 +646,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getAllQsnIdsFunction",
               "Handler": "handler.getAllQsnIdsFunction",
@@ -562,13 +661,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -578,14 +678,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetAllQsnIdsFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "GetAllQsnIdsFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetAllQsnIdsFunctionLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "UpdateResultFunctionLambdaFunction": {
@@ -595,7 +695,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-updateResultFunction",
               "Handler": "handler.updateResultFunction",
@@ -610,13 +710,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -626,14 +727,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "UpdateResultFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "UpdateResultFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UpdateResultFunctionLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "CreateQuestionFunctionLambdaFunction": {
@@ -643,7 +744,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-createQuestionFunction",
               "Handler": "handler.createQuestionFunction",
@@ -658,13 +759,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -674,14 +776,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "CreateQuestionFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "CreateQuestionFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateQuestionFunctionLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "GetQuestionByCategoryFunctionLambdaFunction": {
@@ -691,7 +793,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getQuestionByCategoryFunction",
               "Handler": "handler.getQuestionByCategoryFunction",
@@ -706,13 +808,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -722,14 +825,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetQuestionByCategoryFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "GetQuestionByCategoryFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetQuestionByCategoryFunctionLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "CreateQsnPaperLambdaFunction": {
@@ -739,7 +842,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-createQsnPaper",
               "Handler": "handler.createQuestionPaperFunction",
@@ -754,13 +857,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -770,14 +874,63 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "CreateQsnPaperLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "CreateQsnPaperLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateQsnPaperLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
+            }
+          },
+          "GetQuestionPaperNamesLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
+              },
+              "FunctionName": "shortlist-project-dev-getQuestionPaperNames",
+              "Handler": "handler.getQuestionPaperNamesFunction",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "ACCOUNT_ID": 784455347771,
+                  "REGISTER_TEST_STREAM": "register-test-stream",
+                  "CANDIDATE_TABLE": "candidate",
+                  "BOOKING_TABLE": "booking",
+                  "SEND_EMAIL_SNS": "sendEmail",
+                  "QUESTION_LIST_TABLE": "question",
+                  "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
+                  "RESULT_TABLE": "result"
+                }
+              }
+            },
+            "DependsOn": [
+              "GetQuestionPaperNamesLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "GetQuestionPaperNamesLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetQuestionPaperNamesLambdaFunction"
+              },
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "CreateTestLinkFunctionLambdaFunction": {
@@ -787,7 +940,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-createTestLinkFunction",
               "Handler": "handler.createTestLinkFunction",
@@ -802,13 +955,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -818,14 +972,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "CreateTestLinkFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "CreateTestLinkFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateTestLinkFunctionLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "GetCandidateHomePageInfoLambdaFunction": {
@@ -835,7 +989,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getCandidateHomePageInfo",
               "Handler": "handler.getCandidateHomePageInfo",
@@ -850,13 +1004,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -866,14 +1021,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetCandidateHomePageInfoLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "GetCandidateHomePageInfoLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetCandidateHomePageInfoLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "UpdateCandidateInfoLambdaFunction": {
@@ -883,7 +1038,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-updateCandidateInfo",
               "Handler": "handler.updateCandidateInfo",
@@ -898,13 +1053,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -914,14 +1070,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "UpdateCandidateInfoLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "UpdateCandidateInfoLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UpdateCandidateInfoLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "RegisterCandidatesAndEmailPostRegistrationLambdaFunction": {
@@ -931,7 +1087,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-registerCandidatesAndEmailPostRegistration",
               "Handler": "handler.registerCandidatesAndEmailPostRegistration",
@@ -946,13 +1102,14 @@
               "Timeout": 6,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -962,14 +1119,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "RegisterCandidatesAndEmailPostRegistrationLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "RegisterCandidatesAndEmailPostRegistrationLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "ProcessRegistrationStreamLambdaFunction": {
@@ -979,7 +1136,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-processRegistrationStream",
               "Handler": "handler.processRegistrationStream",
@@ -994,13 +1151,14 @@
               "Timeout": 20,
               "Environment": {
                 "Variables": {
-                  "ACCOUNT_ID": 151610303354,
+                  "ACCOUNT_ID": 784455347771,
                   "REGISTER_TEST_STREAM": "register-test-stream",
                   "CANDIDATE_TABLE": "candidate",
                   "BOOKING_TABLE": "booking",
                   "SEND_EMAIL_SNS": "sendEmail",
                   "QUESTION_LIST_TABLE": "question",
                   "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
                   "RESULT_TABLE": "result"
                 }
               }
@@ -1010,14 +1168,14 @@
               "streamExecutionRole"
             ]
           },
-          "ProcessRegistrationStreamLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0": {
+          "ProcessRegistrationStreamLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ProcessRegistrationStreamLambdaFunction"
               },
-              "CodeSha256": "QLyengoPc+TN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0="
+              "CodeSha256": "Gt/a0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8="
             }
           },
           "ApiGatewayRestApi": {
@@ -1060,6 +1218,18 @@
                 "Ref": "ApiGatewayResourceApi"
               },
               "PathPart": "starttestdashboard",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceApiUpdatebookingafterstarttest": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceApi"
+              },
+              "PathPart": "updateBookingAfterStartTest",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -1120,6 +1290,18 @@
                 "Ref": "ApiGatewayResourceApi"
               },
               "PathPart": "questionpaper",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceApiGetquestionpapernames": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceApi"
+              },
+              "PathPart": "getquestionpapernames",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -1481,6 +1663,52 @@
               }
             }
           },
+          "ApiGatewayMethodApiUpdatebookingafterstarttestOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiUpdatebookingafterstarttest"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayMethodApiAllqsnidsPaperidPaperidVarQsnnoQsnnoVarCategoryCategoryVarOptions": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -1705,6 +1933,52 @@
               },
               "ResourceId": {
                 "Ref": "ApiGatewayResourceApiQuestionpaper"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodApiGetquestionpapernamesOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiGetquestionpapernames"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -1971,6 +2245,44 @@
               "MethodResponses": []
             }
           },
+          "ApiGatewayMethodApiUpdatebookingafterstarttestPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiUpdatebookingafterstarttest"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "UpdateBookingAfterStartTestLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
           "ApiGatewayMethodApiAllqsnidsPaperidPaperidVarQsnnoQsnnoVarCategoryCategoryVarGet": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -2161,6 +2473,44 @@
               "MethodResponses": []
             }
           },
+          "ApiGatewayMethodApiGetquestionpapernamesGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiGetquestionpapernames"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "GetQuestionPaperNamesLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
           "ApiGatewayMethodApiTestlinkPost": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -2313,7 +2663,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1494246202714": {
+          "ApiGatewayDeployment1494584176564": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -2324,11 +2674,13 @@
             "DependsOn": [
               "ApiGatewayMethodApiAllcandidatesGet",
               "ApiGatewayMethodApiStarttestdashboardCandidateidCandidateidVarBookingidBookingidVarTeststatusTeststatusVarGet",
+              "ApiGatewayMethodApiUpdatebookingafterstarttestPost",
               "ApiGatewayMethodApiAllqsnidsPaperidPaperidVarQsnnoQsnnoVarCategoryCategoryVarGet",
               "ApiGatewayMethodApiUpdateresultPost",
               "ApiGatewayMethodApiCreatequestionPost",
               "ApiGatewayMethodApiGetquestionbycategoryCategoryCategoryVarLastqsnidLastqsnidVarGet",
               "ApiGatewayMethodApiQuestionpaperPost",
+              "ApiGatewayMethodApiGetquestionpapernamesGet",
               "ApiGatewayMethodApiTestlinkPost",
               "ApiGatewayMethodApiCandidatehomepageCandidateinfoCandidateinfoVarGet",
               "ApiGatewayMethodApiUpdatecandidatePost",
@@ -2374,6 +2726,39 @@
               "FunctionName": {
                 "Fn::GetAtt": [
                   "StartTestDashboardLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "UpdateBookingAfterStartTestLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UpdateBookingAfterStartTestLambdaFunction",
                   "Arn"
                 ]
               },
@@ -2566,6 +2951,39 @@
               }
             }
           },
+          "GetQuestionPaperNamesLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetQuestionPaperNamesLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
           "CreateTestLinkFunctionLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
@@ -2703,7 +3121,7 @@
             "DependsOn": "streamExecutionRole",
             "Properties": {
               "BatchSize": 10,
-              "EventSourceArn": "arn:aws:kinesis:us-east-2:151610303354:stream/register-test-stream",
+              "EventSourceArn": "arn:aws:kinesis:us-east-2:784455347771:stream/register-test-stream",
               "FunctionName": {
                 "Fn::GetAtt": [
                   "ProcessRegistrationStreamLambdaFunction",
@@ -2791,7 +3209,7 @@
                           "logs:CreateLogStream",
                           "logs:PutLogEvents"
                         ],
-                        "Resource": "arn:aws:logs:us-east-2:151610303354:log-group:/aws/lambda/*:*:*"
+                        "Resource": "arn:aws:logs:us-east-2:784455347771:log-group:/aws/lambda/*:*:*"
                       },
                       {
                         "Effect": "Allow",
@@ -2805,7 +3223,7 @@
                           "logs:CreateLogStream",
                           "logs:PutLogEvents"
                         ],
-                        "Resource": "arn:aws:kinesis:us-east-2:151610303354:stream/register-test-stream"
+                        "Resource": "arn:aws:kinesis:us-east-2:784455347771:stream/register-test-stream"
                       }
                     ]
                   }
@@ -2861,7 +3279,8 @@
                   ],
                   "Projection": {
                     "NonKeyAttributes": [
-                      "category"
+                      "category",
+                      "jobPosition"
                     ],
                     "ProjectionType": "INCLUDE"
                   },
@@ -2884,7 +3303,7 @@
                   ],
                   "Projection": {
                     "NonKeyAttributes": [
-                      "dateOfExam"
+                      "DOE"
                     ],
                     "ProjectionType": "INCLUDE"
                   },
@@ -3036,6 +3455,29 @@
                 "WriteCapacityUnits": 2
               }
             }
+          },
+          "questionPaperNames": {
+            "Type": "AWS::DynamoDB::Table",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "TableName": "questionPaperNames",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "QsnPaper_id",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "QsnPaper_id",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 2,
+                "WriteCapacityUnits": 2
+              }
+            }
           }
         },
         "Outputs": {
@@ -3047,73 +3489,85 @@
           "GetAllCandidatesFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetAllCandidatesFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "GetAllCandidatesFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "StartTestDashboardLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "StartTestDashboardLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "StartTestDashboardLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
+            }
+          },
+          "UpdateBookingAfterStartTestLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UpdateBookingAfterStartTestLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "GetAllQsnIdsFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetAllQsnIdsFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "GetAllQsnIdsFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "UpdateResultFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UpdateResultFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "UpdateResultFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "CreateQuestionFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateQuestionFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "CreateQuestionFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "GetQuestionByCategoryFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetQuestionByCategoryFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "GetQuestionByCategoryFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "CreateQsnPaperLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateQsnPaperLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "CreateQsnPaperLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
+            }
+          },
+          "GetQuestionPaperNamesLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetQuestionPaperNamesLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "CreateTestLinkFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateTestLinkFunctionLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "CreateTestLinkFunctionLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "GetCandidateHomePageInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetCandidateHomePageInfoLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "GetCandidateHomePageInfoLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "UpdateCandidateInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UpdateCandidateInfoLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "UpdateCandidateInfoLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "RegisterCandidatesAndEmailPostRegistrationLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "ProcessRegistrationStreamLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ProcessRegistrationStreamLambdaVersionQLyengoPcTN1Mo9QrKsEnnzKg50Dy2qf67T0AfKDC0"
+              "Ref": "ProcessRegistrationStreamLambdaVersionGta0vhMuzpy8oNJqj1wQmNzlYE1R5p2sGGcCfrnCE8"
             }
           },
           "ServiceEndpoint": {
@@ -3216,6 +3670,38 @@
           }
         ],
         "name": "shortlist-project-dev-startTestDashboard",
+        "package": {},
+        "vpc": {}
+      },
+      "updateBookingAfterStartTest": {
+        "handler": "handler.updateBookingAfterStartTest",
+        "events": [
+          {
+            "http": {
+              "path": "api/updateBookingAfterStartTest",
+              "method": "post",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "shortlist-project-dev-updateBookingAfterStartTest",
         "package": {},
         "vpc": {}
       },
@@ -3379,6 +3865,38 @@
         "package": {},
         "vpc": {}
       },
+      "getQuestionPaperNames": {
+        "handler": "handler.getQuestionPaperNamesFunction",
+        "events": [
+          {
+            "http": {
+              "path": "api/getquestionpapernames",
+              "method": "get",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "shortlist-project-dev-getQuestionPaperNames",
+        "package": {},
+        "vpc": {}
+      },
       "createTestLinkFunction": {
         "handler": "handler.createTestLinkFunction",
         "events": [
@@ -3514,7 +4032,7 @@
         "events": [
           {
             "stream": {
-              "arn": "arn:aws:kinesis:us-east-2:151610303354:stream/register-test-stream",
+              "arn": "arn:aws:kinesis:us-east-2:784455347771:stream/register-test-stream",
               "batchSize": 10,
               "startingPosition": "LATEST",
               "enabled": true
@@ -3605,7 +4123,7 @@
                         "logs:CreateLogStream",
                         "logs:PutLogEvents"
                       ],
-                      "Resource": "arn:aws:logs:us-east-2:151610303354:log-group:/aws/lambda/*:*:*"
+                      "Resource": "arn:aws:logs:us-east-2:784455347771:log-group:/aws/lambda/*:*:*"
                     },
                     {
                       "Effect": "Allow",
@@ -3619,7 +4137,7 @@
                         "logs:CreateLogStream",
                         "logs:PutLogEvents"
                       ],
-                      "Resource": "arn:aws:kinesis:us-east-2:151610303354:stream/register-test-stream"
+                      "Resource": "arn:aws:kinesis:us-east-2:784455347771:stream/register-test-stream"
                     }
                   ]
                 }
@@ -3675,7 +4193,8 @@
                 ],
                 "Projection": {
                   "NonKeyAttributes": [
-                    "category"
+                    "category",
+                    "jobPosition"
                   ],
                   "ProjectionType": "INCLUDE"
                 },
@@ -3698,7 +4217,7 @@
                 ],
                 "Projection": {
                   "NonKeyAttributes": [
-                    "dateOfExam"
+                    "DOE"
                   ],
                   "ProjectionType": "INCLUDE"
                 },
@@ -3850,14 +4369,37 @@
               "WriteCapacityUnits": 2
             }
           }
+        },
+        "questionPaperNames": {
+          "Type": "AWS::DynamoDB::Table",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "TableName": "questionPaperNames",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "QsnPaper_id",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "QsnPaper_id",
+                "KeyType": "HASH"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 2,
+              "WriteCapacityUnits": 2
+            }
+          }
         }
       },
       "Outputs": {}
     },
-    "artifact": "D:\\shortlist-final\\src\\main\\serverless\\amiti\\build\\.serverless\\shortlist-project.zip"
+    "artifact": "D:\\s\\ShortList-final\\Shortlist-final\\src\\main\\serverless\\amiti\\build\\.serverless\\shortlist-project.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/shortlist-project/dev/1494246202652-2017-05-08T12:23:22.652Z",
+    "artifactDirectoryName": "serverless/shortlist-project/dev/1494584176498-2017-05-12T10:16:16.498Z",
     "artifact": "shortlist-project.zip"
   }
 }
