@@ -25,6 +25,7 @@ export class BookingServiceImpl {
     /**
      * isLinkActive()
      * Candidate click on TestLink Before test
+     * @param pathParameter 
      */
      isLinkActive(pathParameter:any): Observable<boolean> {
       let decodedData = JSON.parse(new Buffer(pathParameter.testLinkinfo, 'base64').toString('ascii'));

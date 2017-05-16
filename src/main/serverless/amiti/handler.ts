@@ -11,12 +11,13 @@ import {updateResultHandler} from './typescript/client/web/update-Result-handler
 import {CreateQuestionHandler} from './typescript/client/web/create-question-handler';
 import {QuestionPaperHandler} from './typescript/client/web/question-paper-handler';
 import {TestLinkHandler} from './typescript/client/web/test-link-handler';
+import {GetBookingHandler} from './typescript/client/web/get-booking-handler';
 
+
+exports.gettestStausInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetBookingHandler.isActiveLink);
 
 // exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.getAllCandidates);
-// exports.registerCandidate = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidate);
-
-
+//exports.registerCandidate = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidate);
 //exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
 //exports.processRegistrationStream = StreamExecutionContextImpl.createMergedStreamHandler(AppProviders, GetCandidateHandler.processRegistrationStream);
 
@@ -30,7 +31,7 @@ import {TestLinkHandler} from './typescript/client/web/test-link-handler';
 
 
 // exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(AppProviders, QuestionPaperHandler.createQuestionPaper);
- exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(AppProviders, CreateQuestionHandler.createQuestion);
+ //exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(AppProviders, CreateQuestionHandler.createQuestion);
 // exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(AppProviders, CreateQuestionHandler.getQuestionByCategory);
 
  //exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(AppProviders, TestLinkHandler.findCandidateByEmailId);

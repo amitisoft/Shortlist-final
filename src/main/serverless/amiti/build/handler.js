@@ -49,9 +49,10 @@ module.exports =
 	__webpack_require__(1);
 	var app_context_1 = __webpack_require__(2);
 	var execution_context_impl_1 = __webpack_require__(379);
-	var create_question_handler_1 = __webpack_require__(381);
+	var get_booking_handler_1 = __webpack_require__(381);
+	exports.gettestStausInfo = execution_context_impl_1.ExecutionContextImpl.createHttpHandler(app_context_1.AppProviders, get_booking_handler_1.GetBookingHandler.isActiveLink);
 	// exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.getAllCandidates);
-	// exports.registerCandidate = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidate);
+	//exports.registerCandidate = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidate);
 	//exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
 	//exports.processRegistrationStream = StreamExecutionContextImpl.createMergedStreamHandler(AppProviders, GetCandidateHandler.processRegistrationStream);
 	//  exports.startTestDashboard = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.startTestDashboard);
@@ -60,7 +61,7 @@ module.exports =
 	//  exports.getAllQsnIdsFunction = ExecutionContextImpl.createHttpHandler(AppProviders, GetQsnHandler.getQsn);
 	//  exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(AppProviders, updateResultHandler.updateResult);
 	// exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(AppProviders, QuestionPaperHandler.createQuestionPaper);
-	exports.createQuestionFunction = execution_context_impl_1.ExecutionContextImpl.createHttpHandler(app_context_1.AppProviders, create_question_handler_1.CreateQuestionHandler.createQuestion);
+	//exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(AppProviders, CreateQuestionHandler.createQuestion);
 	// exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(AppProviders, CreateQuestionHandler.getQuestionByCategory);
 	//exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(AppProviders, TestLinkHandler.findCandidateByEmailId);
 	//exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(AppProviders, QuestionPaperHandler.getQuestionPaperNames); 
@@ -1259,7 +1260,7 @@ module.exports =
 	var notification_service_1 = __webpack_require__(356);
 	var registration_1 = __webpack_require__(359);
 	aws_sdk_1.config.update({
-	    region: "us-east-2"
+	    region: " us-east-1"
 	});
 	var kinesis = new aws_sdk_1.Kinesis(aws_sdk_1.config);
 	var CandidateServiceImpl = (function () {
@@ -41270,7 +41271,7 @@ module.exports =
 	var path = __webpack_require__(357);
 	var fs = __webpack_require__(358);
 	var emailConfig = {
-	    region: 'us-east-2'
+	    region: ' us-east-1'
 	};
 	var NotificationServiceImpl = (function () {
 	    function NotificationServiceImpl() {
@@ -41444,11 +41445,48 @@ module.exports =
 	var DocumentClient = aws_sdk_1.DynamoDB.DocumentClient;
 	var AWS = __webpack_require__(353);
 	AWS.config.update({
-	    region: "us-east-2"
+	    region: " us-east-1"
 	});
 	var BookingServiceImpl = (function () {
 	    function BookingServiceImpl() {
 	    }
+	    /**
+	     * isLinkActive()
+	     * Candidate click on TestLink Before test
+	     * @param pathParameter
+	     */
+	    BookingServiceImpl.prototype.isLinkActive = function (pathParameter) {
+	        var decodedData = JSON.parse(new Buffer(pathParameter.testLinkinfo, 'base64').toString('ascii'));
+	        console.log("in is active method", decodedData.bookingId);
+	        var queryParams = {
+	            TableName: "booking",
+	            KeyConditionExpression: "#bookingId = :bookingIdData",
+	            ExpressionAttributeNames: {
+	                "#bookingId": "bookingId",
+	            },
+	            ExpressionAttributeValues: {
+	                ":bookingIdData": decodedData.bookingId,
+	            },
+	            ProjectionExpression: "candidateId,bookingId,testStatus",
+	            ScanIndexForward: false
+	        };
+	        var documentClient = new DocumentClient();
+	        return rxjs_1.Observable.create(function (observer) {
+	            documentClient.query(queryParams, function (err, data) {
+	                if (err) {
+	                    observer.error(err);
+	                    throw err;
+	                }
+	                // check testStatus
+	                console.log("testStatus", data);
+	                if (data.Items[0].testStatus === "NotTaken") {
+	                    observer.next(false);
+	                    observer.complete();
+	                    return;
+	                }
+	            });
+	        });
+	    };
 	    /**
 	     * updateBookingAfterStartTest
 	     * Hr click on starttest button
@@ -41877,7 +41915,7 @@ module.exports =
 	        var mydata = (JSON.parse(JSON.stringify(result)));
 	        //console.log("emailids", mydata.result.emailids);
 	        var emailConfig = {
-	            region: 'us-east-2'
+	            region: ' us-east-1'
 	        };
 	        var that = this;
 	        //console.log('that:' + JSON.stringify(that));
@@ -42012,8 +42050,11 @@ module.exports =
 	        return this.bookingService.candidateTokenChecking(data, pathParameter);
 	    };
 	    /**
-	     * ashok
-	     */
+	    * Check link  Active or inActive
+	    */
+	    BookingFacade.prototype.isLinkActive = function (pathParameter) {
+	        return this.bookingService.isLinkActive(pathParameter);
+	    };
 	    BookingFacade.prototype.findByCandidateId = function (candidateId, data) {
 	        console.log("in BookingFacade findByCandidateId()");
 	        return this.bookingService.findByCandidateId(candidateId, data);
@@ -42047,7 +42088,7 @@ module.exports =
 	var AWS = __webpack_require__(353);
 	var DocumentClient = aws_sdk_1.DynamoDB.DocumentClient;
 	AWS.config.update({
-	    region: "us-east-2"
+	    region: " us-east-1"
 	});
 	var QsnIdsServiceImpl = (function () {
 	    function QsnIdsServiceImpl() {
@@ -42157,7 +42198,7 @@ module.exports =
 	var AWS = __webpack_require__(353);
 	var DocumentClient = aws_sdk_1.DynamoDB.DocumentClient;
 	AWS.config.update({
-	    region: "us-east-2"
+	    region: " us-east-1"
 	});
 	var QuestionServiceImpl = (function () {
 	    function QuestionServiceImpl() {
@@ -42274,7 +42315,7 @@ module.exports =
 	var AWS = __webpack_require__(353);
 	var DocumentClient = aws_sdk_1.DynamoDB.DocumentClient;
 	AWS.config.update({
-	    region: "us-east-2"
+	    region: " us-east-1"
 	});
 	var ResultServiceImpl = (function () {
 	    function ResultServiceImpl() {
@@ -42440,7 +42481,7 @@ module.exports =
 	console.log("uuuuuuuuuuuuuuuuu", uuid);
 	var DocumentClient = aws_sdk_1.DynamoDB.DocumentClient;
 	AWS.config.update({
-	    region: "us-east-2"
+	    region: " us-east-1"
 	});
 	var CreateQuestionServiceImpl = (function () {
 	    function CreateQuestionServiceImpl() {
@@ -42827,7 +42868,7 @@ module.exports =
 	var uuid = __webpack_require__(372);
 	var DocumentClient = aws_sdk_1.DynamoDB.DocumentClient;
 	AWS.config.update({
-	    region: "us-east-2"
+	    region: " us-east-1"
 	});
 	var createQuestionPaperserviceImpl = (function () {
 	    function createQuestionPaperserviceImpl() {
@@ -43054,38 +43095,27 @@ module.exports =
 /* 381 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	/**
+	 * Created by Shyamal.Upadhyaya on 08/05/17.
+	 */
 	"use strict";
-	var create_question_facade_1 = __webpack_require__(370);
-	var CreateQuestionHandler = (function () {
-	    function CreateQuestionHandler() {
+	var booking_facade_1 = __webpack_require__(363);
+	var GetBookingHandler = (function () {
+	    function GetBookingHandler() {
 	    }
-	    CreateQuestionHandler.createQuestion = function (httpContext, injector) {
-	        console.log("CreateQuestionHandler");
-	        var body = httpContext.getRequestBody();
-	        console.log("pathParameters-----", body);
-	        injector.get(create_question_facade_1.CreateQuestionFacade).createQuestion(body)
+	    GetBookingHandler.isActiveLink = function (httpContext, injector) {
+	        var pathParameters = httpContext.getPathParameters();
+	        console.log(JSON.stringify(pathParameters));
+	        injector.get(booking_facade_1.BookingFacade).isLinkActive(pathParameters)
 	            .subscribe(function (result) {
 	            httpContext.ok(200, result);
 	        }, function (err) {
 	            httpContext.fail(err, 500);
 	        });
 	    };
-	    CreateQuestionHandler.getQuestionByCategory = function (httpContext, injector) {
-	        var pathParam = httpContext.getPathParameters();
-	        console.log("pathParameters-----??????????", pathParam);
-	        var categoryId = pathParam["Category"];
-	        var lastqsnid = pathParam["LastqsnId"];
-	        console.log("lastqsnid......", lastqsnid);
-	        injector.get(create_question_facade_1.CreateQuestionFacade).findbyCategory(categoryId, lastqsnid)
-	            .subscribe(function (result) {
-	            httpContext.ok(200, result);
-	        }, function (err) {
-	            httpContext.fail(err, 500);
-	        });
-	    };
-	    return CreateQuestionHandler;
+	    return GetBookingHandler;
 	}());
-	exports.CreateQuestionHandler = CreateQuestionHandler;
+	exports.GetBookingHandler = GetBookingHandler;
 
 
 /***/ })
