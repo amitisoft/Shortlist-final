@@ -59,10 +59,15 @@ export class BookingFacade {
     }
 
 
-    /**
-     * ashok
-     */
 
+ 
+
+  /**
+  * Check link  Active or inActive
+  */
+      isLinkActive(pathParameter: any):  Observable<boolean>{
+        return this.bookingService.isLinkActive(pathParameter);
+    }
     findByCandidateId(candidateId: string, data: any): Observable<Booking[]> {
         console.log("in BookingFacade findByCandidateId()");
         return this.bookingService.findByCandidateId(candidateId, data);

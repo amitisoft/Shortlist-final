@@ -11,8 +11,8 @@
     "eventVersion": "1.0",
     "eventID": "shardId-000000000000:49572901483532829550670411233864622100811201813724266498",
     "eventName": "aws:kinesis:record",
-    "invokeIdentityArn": "arn:aws:iam::151610303354:role/shortlist-project-dev-us-east-2-lambdaRole",
+    "invokeIdentityArn": "arn:aws:iam::675565166163:role/shortlist-project-dev-us-east-1-lambdaRole",
     "awsRegion": "us-east-2",
-    "eventSourceARN": "arn:aws:kinesis:us-east-2:151610303354:stream/register-test-stream"
+    "eventSourceARN": "arn:aws:kinesis:us-east-1:675565166163:stream/register-test-stream"
   }
 }

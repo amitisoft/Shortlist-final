@@ -20,9 +20,9 @@ provider:
   name: aws
   runtime: nodejs6.10
   stage: dev
-  region: us-east-2
+  region: us-east-1
   environment:
-    ACCOUNT_ID: 784455347771
+    ACCOUNT_ID: 675565166163
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
@@ -106,7 +106,7 @@ provider:
     - Effect: Allow
       Action:
         - execute-api:Invoke
-      Resource: "arn:aws:execute-api:us-east-2:*:*"
+      Resource: "arn:aws:execute-api:us-east-1:*:*"
 
     - "Effect": "Allow"
       "Action": "SES:SendEmail"
@@ -120,7 +120,7 @@ functions:
       - http:
           path: api/allcandidates
           method: get
-         # authorizer: arn:aws:lambda:us-east-2:151610303354:function:hr-auth-master-dev-authorize
+         # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
           cors: true
   startTestDashboard:
     handler: handler.startTestDashboard
@@ -128,7 +128,7 @@ functions:
       - http:
           path: api/starttestdashboard/candidateId/{candidateId}/bookingId/{bookingId}/testStatus/{testStatus}
           method: get
-         # authorizer: arn:aws:lambda:us-east-2:151610303354:function:hr-auth-master-dev-authorize
+         # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
           cors: true
 
   updateBookingAfterStartTest:
@@ -137,7 +137,7 @@ functions:
       - http:
           path: api/updateBookingAfterStartTest
           method: post
-         # authorizer: arn:aws:lambda:us-east-2:151610303354:function:hr-auth-master-dev-authorize
+         # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
           cors: true
 
   getAllQsnIdsFunction:
@@ -146,7 +146,7 @@ functions:
       - http:
           path: api/allQsnIds/PaperId/{PaperId}/QsnNo/{QsnNo}/Category/{Category}
           method: get
-#          authorizer: arn:aws:lambda:us-east-2:917291829364:function:hr-auth-master-dev-authorize
+#          authorizer: arn:aws:lambda: us-east-1:917291829364:function:hr-auth-master-dev-authorize
           cors: true
 
   updateResultFunction:
@@ -155,7 +155,7 @@ functions:
       - http:
           path: api/updateResult
           method: post
-#          authorizer: arn:aws:lambda:us-east-2:917291829364:function:hr-auth-master-dev-authorize
+#          authorizer: arn:aws:lambda: us-east-1:917291829364:function:hr-auth-master-dev-authorize
           cors: true
 
   createQuestionFunction:
@@ -203,6 +203,14 @@ functions:
     events:
       - http:
           path: api/candidatehomePage/candidateinfo/{candidateinfo}
+          method: get
+          cors: true
+
+  gettestStausInfo:
+    handler: handler.gettestStausInfo
+    events:
+      - http:
+          path: api/testLinkinfo/{testLinkinfo}
           method: get
           cors: true
 

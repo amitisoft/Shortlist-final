@@ -11,7 +11,7 @@ var AWS = require("aws-sdk");
 
 
 AWS.config.update({
-    region: "us-east-2"
+    region: " us-east-1"
 });
 
 @Injectable()
@@ -19,6 +19,44 @@ export class BookingServiceImpl {
 
     constructor() {
 
+    }
+    
+    
+    /**
+     * isLinkActive()
+     * Candidate click on TestLink Before test
+     */
+     isLinkActive(pathParameter:any): Observable<boolean> {
+      let decodedData = JSON.parse(new Buffer(pathParameter.testLinkinfo, 'base64').toString('ascii'));
+      console.log("in is active method",decodedData.bookingId);
+        const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: "booking",
+            KeyConditionExpression: "#bookingId = :bookingIdData",
+            ExpressionAttributeNames: {
+                "#bookingId": "bookingId",
+               },
+            ExpressionAttributeValues: {
+                ":bookingIdData": decodedData.bookingId,
+                 },
+            ProjectionExpression: "candidateId,bookingId,testStatus",
+            ScanIndexForward: false
+        }
+        const documentClient = new DocumentClient();
+        return Observable.create((observer: Observer<boolean>) => {
+               documentClient.query(queryParams, (err, data: any) => {
+                if (err) {
+                    observer.error(err);
+                    throw err;
+                }
+                // check testStatus
+                 console.log("testStatus", data);
+                if (data.Items[0].testStatus === "NotTaken") {
+                    observer.next(false);
+                    observer.complete();
+                    return;
+                }
+                });
+        });
     }
 
     /**
@@ -478,7 +516,7 @@ export class BookingServiceImpl {
         const mydata = (JSON.parse(JSON.stringify(result)));
         //console.log("emailids", mydata.result.emailids);
         const emailConfig = {
-            region: 'us-east-2'
+            region: ' us-east-1'
         };
         let that = this;
         //console.log('that:' + JSON.stringify(that));

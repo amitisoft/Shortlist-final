@@ -10,7 +10,7 @@ let uuid = require('uuid');
 import DocumentClient = DynamoDB.DocumentClient;
 
 AWS.config.update({
-    region: "us-east-2"
+    region: " us-east-1"
 });
 
 @Injectable()

@@ -10,6 +10,7 @@
   "dependencies": {
     "@angular/core": "^4.0.1",
     "@types/node-uuid": "0.0.28",
+    "angular2-uuid": "^1.1.1",
     "async": "^2.3.0",
     "aws-sdk": "^2.9.0",
     "axios": "^0.16.1",
@@ -19,7 +20,7 @@
     "parallel-transform": "^1.1.0",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.3.0",
-    "angular2-uuid": "^1.1.1"
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "@types/async": "^2.0.40",

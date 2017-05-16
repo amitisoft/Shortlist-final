@@ -1,12 +1,11 @@
 {
 	"body": {
-		 "Qsn":"Qsn111111",
-		 "Category": "UI",
-		 "Option1":"Option1",
-		 "Option2":"Option2",
-		 "Option3":"Option3",
-		 "Option4":"Option4",
-		 "Crct_ans":"Option2",
-		 "Multi_flag":"true"
+		"emails": [
+		"kiran@amitisoft.com"
+		],
+	"emailSubject": "Interview for Java developer",
+	"jobPosition": "Java developer",
+	"emailBody": " TestLink",
+	"category": "Java"
 	}
 }

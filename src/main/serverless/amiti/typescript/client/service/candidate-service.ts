@@ -17,7 +17,7 @@ import {PartitionKey, PutRecordsRequestEntry, PutRecordsResultEntry} from "aws-s
 import {StreamRecord, StreamRecordImpl} from "../../api/stream/stream-record-impl";
 
 config.update({
-    region: "us-east-2"
+    region: " us-east-1"
 });
 const kinesis = new Kinesis(config);
 export interface NotificationMessage {

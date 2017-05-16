@@ -95,8 +95,7 @@ export class GetCandidateHandler {
             });
     }
 
-
-    static getCandidateHomePageInfo(httpContext:HttpContextImpl,injector:Injector) : void {
+       static getCandidateHomePageInfo(httpContext:HttpContextImpl,injector:Injector) : void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
