@@ -5,7 +5,7 @@
     "typeRoots": [
       "./node_modules/@types"
     ],
-    "rootDir": "../../../../",
+    "rootDir": "./",
     "outDir": "./build",
     "noImplicitAny": false,
     "sourceMap": false,
