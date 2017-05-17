@@ -3,3 +3,4 @@ export class CandidateDto {
     email: string;
     fullName: string;
 }
+

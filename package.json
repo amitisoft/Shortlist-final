@@ -4,7 +4,8 @@
   "description": "Dummy Template for DynamoDB, API and Lambda functions",
   "scripts": {
     "ci-install": "npm install",
-    "build:webpack": "rimraf ./build && serverless webpack --out build -d"
+    "build:webpack": "rimraf ./build && serverless webpack --out build -d",
+    "build:tsc": "rimraf ./build && tsc"
   },
   "main": "handler.js",
   "dependencies": {
@@ -34,7 +35,7 @@
     "aws-lambda-local": "^1.0.14",
     "aws-sdk-typescript": "0.0.3",
     "chai": "^3.5.0",
-    "codelyzer": "0.0.28",
+    "codelyzer": "3.0.1",
     "copy-webpack-plugin": "^4.0.1",
     "json-loader": "^0.5.4",
     "mocha": "^3.2.0",
@@ -47,7 +48,8 @@
     "string-replace-loader": "^1.0.5",
     "ts-loader": "^2.0.0",
     "ts-node": "^2.1.0",
-    "tslint": "^4.4.2",
+    "tslint": "^5.0.0",
+    "tslint-loader": "^3.5.3",
     "typescript": "2.1.5",
     "webpack-node-externals": "^1.5.4",
     "webpack-shell-plugin": "^0.5.0"

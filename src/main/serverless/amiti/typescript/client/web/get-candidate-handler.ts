@@ -1,10 +1,8 @@
-import {CandidateFacade} from '../facade/candidate-facade';
-import {BookingFacade} from '../facade/booking-facade';
-import {Injector} from '@angular/core';
-import {HttpContextImpl} from "../../api/http/http-context-impl";
-import {RegisterCandidateInputParams} from "../service/candidate-service";
-import {LambdaContextImpl} from "../../api/lambda/lambda-context-impl";
-import {StreamContextImpl} from "../../api/stream/stream-context-impl";
+import { CandidateFacade } from '../facade/candidate-facade';
+import { BookingFacade } from '../facade/booking-facade';
+import { Injector } from '@angular/core';
+import { HttpContextImpl } from '../../api/http/http-context-impl';
+import { StreamContextImpl } from '../../api/stream/stream-context-impl';
 
 export class GetCandidateHandler {
 
@@ -12,8 +10,7 @@ export class GetCandidateHandler {
         console.log(`record in processRegistrationStream: ${JSON.stringify(streamContext.getRecord())}`);
         console.log(`partition key in processRegistrationStream: ${JSON.stringify(streamContext.getRecord().getPartitionKey())}`);
         console.log(`payload in processRegistrationStream: ${JSON.stringify(streamContext.getRecord().getPayload())}`);
-        if(streamContext.getRecord().getPayload() !== null)
-        {
+        if (streamContext.getRecord().getPayload() !== null) {
             injector.get(CandidateFacade).registerCandidate(streamContext.getRecord().getPayload());
         }
 
@@ -21,7 +18,7 @@ export class GetCandidateHandler {
 
     static registerCandidatesAndEmailPostRegistration(httpContext: HttpContextImpl, injector: Injector): void {
         let requestBody = httpContext.getRequestBody();
-        console.log(`request body received ${JSON.stringify(requestBody)}`)
+        console.log(`request body received ${JSON.stringify(requestBody)}`);
         console.log(`input in register candidate ${JSON.stringify(requestBody)}`);
         injector.get(CandidateFacade).registerCandidatesAndEmailPostRegistration(requestBody)
             .subscribe(result => {
@@ -35,7 +32,7 @@ export class GetCandidateHandler {
 
     static registerCandidate(httpContext: HttpContextImpl, injector: Injector): void {
         let requestBody = httpContext.getRequestBody();
-        console.log(`request body received ${JSON.stringify(requestBody)}`)
+        console.log(`request body received ${JSON.stringify(requestBody)}`);
         console.log(`input in register candidate ${JSON.stringify(requestBody)}`);
         injector.get(CandidateFacade).registerCandidate(requestBody);
     }
@@ -57,55 +54,45 @@ export class GetCandidateHandler {
 
         let candidateId = pathParameters.id;
 
-        injector.get(CandidateFacade).findbyId(candidateId)
+        injector.get(CandidateFacade).findById(candidateId)
             .subscribe(result => {
                 httpContext.ok(200, result);
             }, err => {
                 httpContext.fail(err, 500);
             });
-
-        // injector.get(CandidateFacade).findbyId(candidateId)
-        //     .subscribe(result => {
-        //         injector.get(CandidateFacade).findbyEmail(candidateId)
-        //             .subscribe(result => {
-        //                 httpContext.ok(200, result);
-        //             });
-        //     },  err => {
-        //         httpContext.fail(err, 500);
-        //     });
     }
 
 
-    static startTestDashboard(httpContext:HttpContextImpl,injector:Injector) : void {
+    static startTestDashboard(httpContext: HttpContextImpl, injector: Injector): void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
         injector.get(BookingFacade).getWhoNotTakenTest(pathParameters)
             .subscribe(result => {
-                console.log("myresult = ",result);
-                injector.get(BookingFacade).getAllCandidateInfoWhoNotTakenTest(result)      //getAllBookings
+                console.log('myresult = ', result);
+                injector.get(BookingFacade).getAllCandidateInfoWhoNotTakenTest(result)
                     .subscribe(result1 => {
-                        console.log("myresult = ",result1);
+                        console.log('myresult = ', result1);
                         httpContext.ok(200, result1);
                     });
                 //  httpContext.ok(200, result);
-            },  err => {
+            }, err => {
                 httpContext.fail(err, 500);
             });
     }
 
-       static getCandidateHomePageInfo(httpContext:HttpContextImpl,injector:Injector) : void {
+    static getCandidateHomePageInfo(httpContext: HttpContextImpl, injector: Injector): void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
         injector.get(BookingFacade).getCandidateHomePageInfo(pathParameters)
             .subscribe(result => {
-                    console.log("myresult = ",result);
-                    injector.get(BookingFacade).candidateTokenChecking(result,pathParameters)      //getAllBookings
+                    console.log('myresult = ', result);
+                    injector.get(BookingFacade).candidateTokenChecking(result, pathParameters)
                         .subscribe(result1 => {
-                            console.log("myresult = ",result1);
+                            console.log('myresult = ', result1);
                             httpContext.ok(200, result1);
                         });
                 },
@@ -114,17 +101,17 @@ export class GetCandidateHandler {
                 });
     }
 
-    static updateBookingAfterStartTest(httpContext:HttpContextImpl,injector:Injector) : void {
+    static updateBookingAfterStartTest(httpContext: HttpContextImpl, injector: Injector): void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
         let data = httpContext.getRequestBody();
-        console.log("pathParameters = ",data);
+        console.log('pathParameters = ', data);
         injector.get(BookingFacade).updateBookingAfterStartTest(data)
             .subscribe(result => {
                 httpContext.ok(200, result);
-            },  err => {
+            }, err => {
                 httpContext.fail(err, 500);
             });
     }

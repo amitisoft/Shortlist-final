@@ -1,6 +1,6 @@
-import {ReflectiveInjector} from "@angular/core";
-import {Callback, Context} from "aws-lambda";
-import {HttpHandler, HttpContextImpl, LambdaHandler} from '../http/http-context-impl';
+import { ReflectiveInjector } from '@angular/core';
+import { Callback, Context } from 'aws-lambda';
+import { HttpHandler, HttpContextImpl, LambdaHandler } from '../http/http-context-impl';
 
 export class ExecutionContextImpl {
 
@@ -19,9 +19,6 @@ export class ExecutionContextImpl {
                 console.error(e);
                 httpContext.fail(e, 500);
             }
-
-        }
-
+        };
     }
-
 }

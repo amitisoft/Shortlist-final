@@ -1,14 +1,14 @@
-/**
- * Created by Shyamal.Upadhyaya on 30/04/17.
- */
+import { Injector } from '@angular/core';
+import { StreamRecord } from './stream-record-impl';
+import { Callback, Context } from 'aws-lambda';
 
-import {Injector} from "@angular/core";
-import { StreamRecordImpl, StreamRecord } from './stream-record-impl'
-import {Callback, Context} from "aws-lambda";
+export interface StreamLambdaHandler {
+    (event: any, context: Context, callback: Callback): void;
+}
 
-export interface StreamLambdaHandler { (event: any, context: Context, callback: Callback):void }
-
-export interface StreamHandler { (context:StreamContextImpl, injector:Injector):void }
+export interface StreamHandler {
+    (context: StreamContextImpl, injector: Injector): void;
+}
 
 export class StreamContextImpl {
 
@@ -16,12 +16,12 @@ export class StreamContextImpl {
 
     }
 
-    getRecord():StreamRecord {
+    getRecord(): StreamRecord {
         return this.streamRecord;
     }
 
     ok() {
-        console.log("payload received" + JSON.stringify(this.getRecord().getPayload()));
+        console.log(`payload received ${JSON.stringify(this.getRecord().getPayload())}`);
         this.observer.next(this.getRecord());
         this.observer.complete();
     }

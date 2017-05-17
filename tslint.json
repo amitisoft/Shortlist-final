@@ -74,7 +74,6 @@
       true,
       "check-module"
     ],
-
     "eofline": true,
     "indent": [
       true,

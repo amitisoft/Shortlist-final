@@ -5,4 +5,4 @@ export class ResultDto {
     curct_ans: string;
     cand_ans: string;
     score: string;
-   }
+}

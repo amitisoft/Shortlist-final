@@ -1,11 +1,13 @@
-import {Injector} from "@angular/core";
-import {Callback, Context} from "aws-lambda";
+import { Injector } from '@angular/core';
+import { Callback, Context } from 'aws-lambda';
 
 
-export interface LambdaHandler { (event: any, context: Context, callback: Callback): void
+export interface LambdaHandler {
+    (event: any, context: Context, callback: Callback): void;
 }
 
-export interface HttpHandler { (context: HttpContextImpl, injector: Injector): void
+export interface HttpHandler {
+    (context: HttpContextImpl, injector: Injector): void;
 }
 
 export class HttpContextImpl {
@@ -24,13 +26,12 @@ export class HttpContextImpl {
             },
             body: null
         };
-        console.log("response....",response);
         if (response) {
             console.log(`in http ok with response ${response}`);
             console.log(`in http ok with result.body ${result.body}`);
             result.body = JSON.stringify(response);
         } else {
-            result.body = "Successfully processed request";
+            result.body = 'Successfully processed request';
         }
         this.lambdaCallback(null, result);
     }
@@ -45,7 +46,7 @@ export class HttpContextImpl {
         if (response) {
             result.body = JSON.stringify(response);
         } else {
-            result.body = "Failed to process request";
+            result.body = 'Failed to process request';
         }
         this.lambdaCallback(error, result);
     }
