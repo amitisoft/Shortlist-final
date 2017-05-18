@@ -22,7 +22,7 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    ACCOUNT_ID: 675565166163
+    ACCOUNT_ID: 151610303354
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking

@@ -1,10 +1,10 @@
-import { Observable, Observer } from 'rxjs';
-import { Injectable } from '@angular/core';
-import { BookingServiceImpl } from '../service/booking-service';
-import { BookingDto } from '../dto/booking-dto';
-import { BookingsDto } from '../dto/bookings-dto';
-import { Booking } from '../domain/booking';
-
+import {Observable, Observer} from 'rxjs';
+import {Injectable} from "@angular/core";
+import {BookingServiceImpl} from '../service/booking-service';
+import {BookingDto} from '../dto/booking-dto';
+import {BookingsDto} from '../dto/bookings-dto';
+import {Booking} from '../domain/booking';
+import {Candidate} from "../domain/candidate"
 
 @Injectable()
 export class BookingFacade {
@@ -16,20 +16,54 @@ export class BookingFacade {
         return this.bookingService.updateBookingAfterStartTest(data);
     }
 
+    getTestInProgressBooking(): Observable<Booking[]> {
+        return this.bookingService.getTestInProgressBooking();
+    }
+
     getWhoNotTakenTest(data: any): Observable<Booking[]> {
         return this.bookingService.getWhoNotTakenTest(data);
     }
 
     getAllCandidateInfoWhoNotTakenTest(data: any): Observable<BookingsDto> {
-        console.log('in BookingFacade getAll()');
+        console.log("in BookingFacade getAll()");
 
         return this.bookingService.getAllCandidateInfoWhoNotTakenTest(data)
             .map((bookings) => {
-                console.log(`map = , ${bookings}`);
+                console.log("map = ", bookings);
                 return {
                     bookings: bookings.map(this.mapBookingToDto)
-                };
+                }
             });
+    }
+
+    getAllCandidateInfoWhoAreTestProgress(data:any): Observable<BookingsDto> {
+        console.log("in BookingFacade getAll()");
+
+        return this.bookingService.getAllCandidateInfoWhoNotTakenTest(data)
+            .map((bookings) => {
+                console.log("map = ", bookings);
+                return {
+                    bookings: bookings.map(this.mapBookingToDto)
+                }
+            });
+    }
+
+    private mapBookingToDto(booking: Booking): BookingDto {
+        console.log("in mapBookingToDto", booking);
+        // let formate = {year: "numeric", month: "numeric", day: "numeric"};
+        // let date = new Date(new Date().getUTCDate());
+        return {
+            candidateId: booking.candidateId,
+            category: booking.category,
+            jobPosition: booking.jobPosition,
+            dateOfExam: new Date().toDateString(),
+            testStatus: booking.testStatus,
+            startTime: 5,
+            paperType: "",
+            candidateFullName: booking.fullName,
+            candidateMailId: booking.email,
+            bookingId: booking.bookingId
+        }
     }
 
     getCandidateHomePageInfo(data: any): any {
@@ -42,33 +76,17 @@ export class BookingFacade {
 
 
     /**
-     * Check link  Active or inActive
+     * ashok
      */
-    isLinkActive(pathParameter: any): Observable<boolean> {
-        return this.bookingService.isLinkActive(pathParameter);
-    }
 
     findByCandidateId(candidateId: string, data: any): Observable<Booking[]> {
-        console.log(`in BookingFacade findByCandidateId() ${candidateId}`);
+        console.log("in BookingFacade findByCandidateId()");
         return this.bookingService.findByCandidateId(candidateId, data);
     }
 
+    getCandidatesListFile(data: any): Observable<Candidate[]> {
+console.log("in reading candidateList file");
+return this.bookingService.getCandidatesListFile(data);
+}
 
-    private mapBookingToDto(booking: Booking): BookingDto {
-        console.log(`in mapBookingToDto, ${booking}`);
-        // let formate = {year: 'numeric', month: 'numeric', day: 'numeric'};
-        // let date = new Date(new Date().getUTCDate());
-        return {
-            candidateId: booking.candidateId,
-            category: booking.category,
-            jobPosition: booking.jobPosition,
-            dateOfExam: new Date().toDateString(),
-            testStatus: booking.testStatus,
-            startTime: 5,
-            paperType: '',
-            candidateFullName: booking.fullName,
-            candidateMailId: booking.email,
-            bookingId: booking.bookingId
-        };
-    }
 }

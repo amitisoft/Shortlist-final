@@ -1,15 +1,17 @@
-import { Observable, Observer } from 'rxjs';
-import { Injectable } from '@angular/core';
-import { Booking } from '../domain/booking';
-import { DynamoDB, SES } from 'aws-sdk';
-import { v4 } from 'node-uuid';
+import {Observable, Observer} from 'rxjs';
+import {Injectable} from "@angular/core";
+import {Booking} from '../domain/booking';
+import {BookingDto} from "../dto/booking-dto"
+import {Candidate} from "../domain/candidate";
+import {DynamoDB, SES} from "aws-sdk";
+import {v4} from "node-uuid";
 import DocumentClient = DynamoDB.DocumentClient;
 
-const AWS = require('aws-sdk');
+var AWS = require("aws-sdk");
 
 
 AWS.config.update({
-    region: ' us-east-1'
+    region: "us-east-1"
 });
 
 @Injectable()
@@ -19,52 +21,13 @@ export class BookingServiceImpl {
 
     }
 
-
-    /**
-     * isLinkActive()
-     * Candidate click on TestLink Before test
-     * @param pathParameter
-     */
-    isLinkActive(pathParameter: any): Observable<boolean> {
-        let decodedData = JSON.parse(new Buffer(pathParameter.testLinkinfo, 'base64').toString('ascii'));
-        console.log('in is active method', decodedData.bookingId);
-        const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'booking',
-            KeyConditionExpression: '#bookingId = :bookingIdData',
-            ExpressionAttributeNames: {
-                '#bookingId': 'bookingId',
-            },
-            ExpressionAttributeValues: {
-                ':bookingIdData': decodedData.bookingId,
-            },
-            ProjectionExpression: 'candidateId,bookingId,testStatus',
-            ScanIndexForward: false
-        };
-        const documentClient = new DocumentClient();
-        return Observable.create((observer: Observer<boolean>) => {
-            documentClient.query(queryParams, (err, data: any) => {
-                if (err) {
-                    observer.error(err);
-                    throw err;
-                }
-                // check testStatus
-                console.log('testStatus', data);
-                if (data.Items[0].testStatus === 'NotTaken') {
-                    observer.next(false);
-                    observer.complete();
-                    return;
-                }
-            });
-        });
-    }
-
     /**
      * updateBookingAfterStartTest
      * Hr click on starttest button
      * @param data
      */
     updateBookingAfterStartTest(data: any): Observable<Booking> {
-        console.log('in CandidateServiceImpl update()');
+        console.log("in CandidateServiceImpl update()");
         console.log(`data received ${data.category}`);
         console.log(`data received ${data.jobPostion}`);
         console.log(`data received ${data.DOE}`);
@@ -72,7 +35,7 @@ export class BookingServiceImpl {
 
         const documentClient = new DocumentClient();
         const params = {
-            TableName: 'booking',
+            TableName: "booking",
             Key: {
                 bookingId: data.bookingId,
             },
@@ -87,8 +50,8 @@ export class BookingServiceImpl {
             ExpressionAttributeValues: {
                 ':ca': data.category,
                 ':jp': data.jobPosition,
-                ':DOE': new Date().getTime(),
-                ':ts': 'progress',
+                ':DOE': new Date().getTime(), //get date in milliseconds
+                ':ts': "progress",
                 ':pt': data.paperType,
                 ':cid': data.candidateId
             },
@@ -98,14 +61,14 @@ export class BookingServiceImpl {
 
         return Observable.create((observer: Observer<Booking>) => {
 
-            documentClient.update(params, (err, result: any) => {
+            documentClient.update(params, (err, data: any) => {
                 if (err) {
                     console.error(err);
                     observer.error(err);
                     return;
                 }
-                console.log(`result ${JSON.stringify(result)}`);
-                observer.next(result.Attributes);
+                console.log(`result ${JSON.stringify(data)}`);
+                observer.next(data.Attributes);
                 observer.complete();
             });
         });
@@ -118,30 +81,30 @@ export class BookingServiceImpl {
     getWhoNotTakenTest(lastEvaluatedKey: any): Observable<Booking[]> {
 
         const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'booking',
-            IndexName: 'testStatusGSI',
-            KeyConditionExpression: '#testStatus = :v_test',
+            TableName: "booking",
+            IndexName: "testStatusGSI",
+            KeyConditionExpression: "#testStatus = :v_test",
             ExpressionAttributeNames: {
-                '#testStatus': 'testStatus'
+                "#testStatus": "testStatus"
             },
             ExpressionAttributeValues: {
-                ':v_test': 'NotTaken'
+                ":v_test": "NotTaken"
             },
-            Limit: 2,
-            ProjectionExpression: 'candidateId, category,testStatus,bookingId,jobPosition',
-            ScanIndexForward: false
-        };
-
+            Limit: 5,
+            ProjectionExpression: "candidateId, category,testStatus,bookingId,jobPosition",
+            ScanIndexForward: true
+        }
+         lastEvaluatedKey=null;
         if (lastEvaluatedKey != null) {
-            console.log('-----------------------------with data-----------------------');
-            console.log(' data-------------', lastEvaluatedKey.candidateId);
+            console.log("-----------------------------with data-----------------------");
+            console.log(" data-------------", lastEvaluatedKey.candidateId);
             queryParams.ExclusiveStartKey = {
                 bookingId: lastEvaluatedKey.bookingId,
                 testStatus: decodeURIComponent(lastEvaluatedKey.testStatus),
                 candidateId: lastEvaluatedKey.candidateId
-            };
+            }
         } else {
-            console.log('----------------------------without data----------------------');
+            console.log("----------------------------without data----------------------");
         }
 
         const documentClient = new DocumentClient();
@@ -156,12 +119,51 @@ export class BookingServiceImpl {
                     observer.complete();
                     return;
                 }
-                console.log('LastEvaluatedKey=', data.LastEvaluatedKey);
+                console.log("LastEvaluatedKey=", data.LastEvaluatedKey);
                 observer.next((data.Items));
                 observer.complete();
             });
         });
     }
+
+    getTestInProgressBooking(): Observable<Booking[]>{
+
+        const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: "booking",
+            IndexName: "testStatusGSI",
+            KeyConditionExpression: "#testStatus = :v_test",
+            ExpressionAttributeNames: {
+                "#testStatus": "testStatus"
+            },
+            ExpressionAttributeValues: {
+                ":v_test": "progress"
+            },
+            ProjectionExpression: "candidateId, category,testStatus,bookingId,jobPosition",
+            ScanIndexForward: false
+        }
+        const documentClient = new DocumentClient();
+        return Observable.create((observer: Observer<Booking>) => {
+            documentClient.query(queryParams, (err, data: any) => {
+                if (err) {
+                    observer.error(err);
+                    throw err;
+                }
+                console.log(`data items receieved ${data.Items.length}`);
+                if (data.Items.length === 0) {
+                    observer.complete();
+                    return;
+                }
+                observer.next((data.Items));
+                observer.complete();
+            });
+        });
+    }
+
+    /**
+     * { bookingId: '1',
+  testStatus: 'test not taken',
+  candidateId: '5' }
+     */
 
 
     /**
@@ -170,17 +172,24 @@ export class BookingServiceImpl {
      */
 
     getAllCandidateInfoWhoNotTakenTest(data: any): Observable<Booking[]> {
-        const candidateKey = [];
+        let candidateKey = [];
         data.forEach((item) => {
-            let myObj = {'candidateId': item.candidateId};
-            candidateKey.push(myObj);
+            console.log("in side for each");
+            let myObj = {"candidateId": ""};
+            myObj.candidateId = item.candidateId;
+            let checkUniq = candidateKey.find((obj)=>{ return obj.candidateId ==myObj.candidateId});
+            if (!checkUniq){
+                candidateKey.push(myObj);
+            }
+            
         });
-        console.log('out side');
-        const params = {
+        console.log("candidate Id list = ",candidateKey);
+
+        var params = {
             RequestItems: {
-                'candidate': {
+                "candidate": {
                     Keys: candidateKey,
-                    ProjectionExpression: 'email,firstName,lastName,candidateId'
+                    ProjectionExpression: "email,firstName,lastName,candidateId"
                 }
             }
         };
@@ -191,35 +200,35 @@ export class BookingServiceImpl {
                     observer.error(err);
                     throw err;
                 }
+                else {
+                    let resultArray: any = [];
+                    // console.log("booking data = ",data);
+                    let res = (JSON.parse(JSON.stringify(data1.Responses))).candidate;
+                    //  console.log("res = ",res);
+                    data.forEach((item) => {
+                        let newArray = res.filter((id) => {
+                            return (id.candidateId === item.candidateId)
+                        });
+                        //  console.log("new array", newArray[0]);
+                        //  console.log("item = ",item.candidateId);
+                        // if (newArray != undefined){
+                        let bookinginfo = new Booking();
+                        bookinginfo.candidateId = item.candidateId;
+                        bookinginfo.candidateId = item.candidateId;
+                        bookinginfo.testStatus = item.testStatus;
+                        bookinginfo.bookingId = item.bookingId;
+                        bookinginfo.category = item.category;
+                        bookinginfo.fullName = `${newArray[0].firstName} ${newArray[0].lastName}`;
+                        bookinginfo.email = newArray[0].email;
+                        bookinginfo.jobPosition = item.jobPosition;
+                        resultArray.push(bookinginfo);
+                        //  console.log(" result", bookinginfo);
+                        //     }
 
-                let resultArray: any = [];
-                // console.log('booking data = ',data);
-                let res = (JSON.parse(JSON.stringify(data1.Responses))).candidate;
-                //  console.log('res = ',res);
-                data.forEach((item) => {
-                    let newArray = res.filter((id) => {
-                        return (id.candidateId === item.candidateId);
-                    });
-                    //  console.log('new array', newArray[0]);
-                    //  console.log('item = ',item.candidateId);
-                    // if (newArray != undefined){
-                    let bookinginfo = new Booking();
-                    bookinginfo.candidateId = item.candidateId;
-                    bookinginfo.candidateId = item.candidateId;
-                    bookinginfo.testStatus = item.testStatus;
-                    bookinginfo.bookingId = item.bookingId;
-                    bookinginfo.category = item.category;
-                    bookinginfo.fullName = `${newArray[0].firstName} ${newArray[0].lastName}`;
-                    bookinginfo.email = newArray[0].email;
-                    bookinginfo.jobPosition = item.jobPosition;
-                    resultArray.push(bookinginfo);
-                    //  console.log(' result', bookinginfo);
-                    //     }
-
-                });
-                observer.next(resultArray);
-                observer.complete();
-
+                    })
+                    observer.next(resultArray);
+                    observer.complete();
+                }
             });
         });
     }
@@ -237,37 +246,38 @@ export class BookingServiceImpl {
         let decodedData = JSON.parse(new Buffer(data.candidateinfo, 'base64').toString('ascii'));
 
         const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'booking',
-            KeyConditionExpression: '#bookingId = :bookingId',
+            TableName: "booking",
+            KeyConditionExpression: "#bookingId = :bookingId",
             ExpressionAttributeNames: {
-                '#bookingId': 'bookingId'
+                "#bookingId": "bookingId"
             },
             ExpressionAttributeValues: {
-                ':bookingId': decodedData.bookingId
+                ":bookingId": decodedData.bookingId
             },
-            ProjectionExpression: 'candidateId, category,paperType,bookingId,testStatus',
+            ProjectionExpression: "candidateId, category,paperType,bookingId,testStatus",
             ScanIndexForward: false
-        };
+        }
 
         const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Booking>) => {
-            documentClient.query(queryParams, (err, result: any) => {
+            documentClient.query(queryParams, (err, data: any) => {
                 if (err) {
                     observer.error(err);
                     throw err;
                 }
-                if (result.Items.length === 0) {
+                if (data.Items.length === 0) {
                     observer.complete();
                     return;
                 }
                 // check testStatus
-                console.log('test status', result.Items[0].testStatus);
-                if (data.Items[0].testStatus === 'progress') {
-                    observer.next((result.Items[0]));
+                console.log(data);
+                console.log("test status", data.Items[0].testStatus);
+                if (data.Items[0].testStatus === "progress") {
+                    observer.next((data.Items[0]));
                     observer.complete();
                     return;
                 }
-                observer.error('contact our HR');
+                observer.error("contact our HR");
                 return;
             });
         });
@@ -279,17 +289,17 @@ export class BookingServiceImpl {
     candidateTokenChecking(data, pathParameter): any {
         let decodedData = JSON.parse(new Buffer(pathParameter.candidateinfo, 'base64').toString('ascii'));
         const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'candidate',
-            KeyConditionExpression: '#candidateId = :candidateId',
+            TableName: "candidate",
+            KeyConditionExpression: "#candidateId = :candidateId",
             ExpressionAttributeNames: {
-                '#candidateId': 'candidateId'
+                "#candidateId": "candidateId"
             },
             ExpressionAttributeValues: {
-                ':candidateId': data.candidateId
+                ":candidateId": data.candidateId//decodedData.token
             },
-            ProjectionExpression: 'candidateId, token',
+            ProjectionExpression: "candidateId, token",
             ScanIndexForward: false
-        };
+        }
 
         const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Booking>) => {
@@ -299,14 +309,14 @@ export class BookingServiceImpl {
                     throw err;
                 }
                 // check token
-                console.log('token data', data1.Items);
+                console.log("token data", data1.Items);
                 if (data1.Items[0].token === decodedData.token) {
                     observer.next((data));
                     observer.complete();
                     return;
                 }
-                observer.error('Candidate token miss matched');
-                return 'Candidate token miss matched';
+                observer.error("Candidate token miss matched");
+                return "Candidate token miss matched";
             });
         });
     }
@@ -317,22 +327,22 @@ export class BookingServiceImpl {
 
     // check Candidate ID exist or not in Booking table
     findByCandidateId(candidateId: string, reqdata: any): Observable<any> {
-        console.log('in BookingServiceImpl findByCandidateId()');
+        console.log("in BookingServiceImpl findByCandidateId()");
         const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'booking',
-            IndexName: 'candidateIdGSI',
-            ProjectionExpression: 'category,dateofExam,jobPosition,bookingId,testStatus',
-            KeyConditionExpression: '#candidateId = :candidateIdFilter',
+            TableName: "booking",
+            IndexName: "candidateIdGSI",
+            ProjectionExpression: "category,dateofExam,jobPosition,bookingId,testStatus",
+            KeyConditionExpression: "#candidateId = :candidateIdFilter",
             ExpressionAttributeNames: {
-                '#candidateId': 'candidateId'
+                "#candidateId": "candidateId"
             },
             ExpressionAttributeValues: {
-                ':candidateIdFilter': candidateId
+                ":candidateIdFilter": candidateId
             }
-        };
+        }
         const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<any>) => {
-            console.log('Executing query with parameters ' + queryParams);
+            console.log("Executing query with parameters " + queryParams);
             documentClient.query(queryParams, (err, data: any) => {
                 console.log(`did we get error ${err}`);
                 if (err) {
@@ -351,21 +361,23 @@ export class BookingServiceImpl {
                         .then(this.updateCandidateInfo.bind(this))
                         .then(this.sendEmail.bind(this))
                         .then(() => {
-                            let msg = ' Success fully Sending mail';
+                            //console.log(" Success fully Sending mail");
+                            let msg = " Success fully Sending mail";
                             observer.next(msg);
                             observer.complete();
                         }, (rej) => {
-                            console.log('rejected', rej);
+                            console.log("rejected", rej);
                         });
 
                     return;
-                } else {
+                }
+                else {
                     let cate = reqdata.category;
                     console.log(cate);
-                    let sortingDatesArray = [];
+                    var sortingDatesArray = [];
                     console.log(data.Items);
-                    for (let i = 0; i < data.Items.length; i++) {
-                        if (cate === data.Items[i].category && data.Items[i].testStatus === 'taken') {
+                    for (var i = 0; i < data.Items.length; i++) {
+                        if (cate === data.Items[i].category && data.Items[i].testStatus === "taken") {
                             sortingDatesArray.push(data.Items[i].dateofExam);
                         }
                     }
@@ -377,21 +389,22 @@ export class BookingServiceImpl {
                             .then(this.updateCandidateInfo.bind(this))
                             .then(this.sendEmail.bind(this))
                             .then(() => {
-                                observer.next('Success fully Sending mail');
+                                observer.next("Success fully Sending mail");
                                 observer.complete();
                             }, (rej) => {
-                                console.log('rejected', rej);
+                                console.log("rejected", rej);
                             });
                         return;
-                    } else {
-                        let srtarr = [];
-                        for (let i = 0; i < sortingDatesArray.length; i++) {
-                            let df = sortingDatesArray[i].split('-');
-                            srtarr.push(Date.UTC(df[0], df[1] - 1, df[2]));
+                    }
+                    else {
+                        var srtarr = [];
+                        for (var i = 0; i < sortingDatesArray.length; i++) {
+                            var df = sortingDatesArray[i].split('-');
+                            srtarr.push(Date.UTC(df[0], df[1] - 1, df[2]));// convert UTC format
                         }
-                        srtarr.sort();
-                        let oneDay = 24 * 60 * 60 * 1000;
-                        let diffDays = Math.round(Math.abs((new Date(srtarr[0]).getTime() - new Date().getTime()) / (oneDay)));
+                        srtarr.sort();// dates sorting
+                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                        var diffDays = Math.round(Math.abs((new Date(srtarr[i - 1]).getTime() - new Date().getTime()) / (oneDay)));
                         console.log(diffDays);
 
                         // validation of dates
@@ -402,14 +415,16 @@ export class BookingServiceImpl {
                                 .then(this.updateCandidateInfo.bind(this))
                                 .then(this.sendEmail.bind(this))
                                 .then(() => {
-                                    observer.next(' Success fully Sending mail');
+                                    //console.log(" Success fully Sending mail");
+                                    observer.next(" Success fully Sending mail");
                                     observer.complete();
                                 }, (rej) => {
-                                    console.log('rejected', rej);
+                                    console.log("rejected", rej);
                                 });
-                        } else {
-                            // console.log('System does not allow with in 30 Days');
-                            observer.next('System does not allow with in 30 Days');
+                        }
+                        else {
+                            // console.log("System does not allow with in 30 Days");
+                            observer.next("System does not allow with in 30 Days");
                             observer.complete();
                         }
                     }
@@ -425,7 +440,7 @@ export class BookingServiceImpl {
         console.log(`Update the tokenId :${result.token} in candidate table `);
         const documentClient = new DocumentClient();
         const params = {
-            TableName: 'candidate',
+            TableName: "candidate",
             Key: {
                 candidateId: result.candidateId,
             },
@@ -446,23 +461,25 @@ export class BookingServiceImpl {
                     reject(err);
                     return;
                 }
+                //console.log("update the TokenId in Candidate Table", result);
                 resolve({result: result});
+
             });
         });
     }
 
     // Before Sending a mail, Step->1 Update Booking table - bookingid,candidateid,category,jobposition
     updateBookingInfo(bookingId: string, candidateId: string, token: string, category: string, jobPosition: string, emailids: any, emailsubject: string, emailbody: any) {
-        console.log(' update the information in Booking');
+        console.log(" update the information in Booking");
         console.log(`data received CandidateId : ${candidateId}`);
         console.log(`data received Category :${category}`);
         console.log(`data received jobPosition :${jobPosition}`);
         console.log(`data received bookingId :${bookingId}`);
 
-        let testStatus = 'notTaken';
+        let testStatus = "notTaken";
         const documentClient = new DocumentClient();
         const params = {
-            TableName: 'booking',
+            TableName: "booking",
             Key: {
                 bookingId: bookingId,
             },
@@ -470,7 +487,7 @@ export class BookingServiceImpl {
                 '#cid': 'candidateId',
                 '#ct': 'category',
                 '#jp': 'jobPosition',
-                '#ts': 'testStatus'
+                "#ts": 'testStatus'
             },
             ExpressionAttributeValues: {
                 ':cid': candidateId,
@@ -485,9 +502,9 @@ export class BookingServiceImpl {
             documentClient.update(params, (err, data: any) => {
                 if (err) {
                     console.log(err);
-                    reject('data is not inserted');
+                    reject("data is not inserted");
                 } else {
-                    console.log('updated booking Information in Booking Table');
+                    console.log("updated booking Information in Booking Table")
                     resolve({candidateId, token, emailids, emailsubject, emailbody});
                 }
             });
@@ -497,10 +514,12 @@ export class BookingServiceImpl {
     // send  mail to respective emailid - {email,body,subject}
     sendEmail(result: any) {
         const mydata = (JSON.parse(JSON.stringify(result)));
+        //console.log("emailids", mydata.result.emailids);
         const emailConfig = {
-            region: ' us-east-1'
+            region: 'us-east-2'
         };
         let that = this;
+        //console.log('that:' + JSON.stringify(that));
         const emailSES = new SES(emailConfig);
         const prom = new Promise((res, rej) => {
             if (!mydata.result.emailids) {
@@ -512,7 +531,7 @@ export class BookingServiceImpl {
             emailSES.sendEmail(emailParams, (err: any, data: AWS.SES.SendEmailResponse) => {
                 if (err) {
                     console.log(err);
-                    rej(`Error in sending out email ${err}`);
+                    rej(`Error in sending out email ${err}`)
                     return prom;
                 }
                 res(`Successfully sent email to ${mydata.result.emails}`);
@@ -533,7 +552,7 @@ export class BookingServiceImpl {
 
                     Html: {
                         Data: body,
-                        // this.generateEmailTemplate('ashok@amitisoft.com', tokenid, body),
+                        // this.generateEmailTemplate("ashok@amitisoft.com", tokenid, body),
                         Charset: 'UTF-8'
                     }
                 },
@@ -545,12 +564,12 @@ export class BookingServiceImpl {
             Source: 'ashok@amitisoft.com',
             ReplyToAddresses: ['ashok@amitisoft.com'],
             ReturnPath: 'ashok@amitisoft.com'
-        };
+        }
         return params;
     }
 
     private generateEmailTemplate(emailFrom: string, tokenid: any, embody: any): string {
-        console.log('generate email');
+        console.log("generate email");
         return `
          <!DOCTYPE html>
          <html>
@@ -570,7 +589,7 @@ export class BookingServiceImpl {
                                      <tr>
                                          <td align='center' valign='top' style='color:#337ab7;'>
                                              <h3>embody
-                                             <a href='http://mail.amiti.in/verify.html?token=${tokenid}'>http://mail.amiti.in/verify.html?token=${tokenid}</a>
+                                             <a href="http://mail.amiti.in/verify.html?token=${tokenid}">http://mail.amiti.in/verify.html?token=${tokenid}</a>
                                              </h3>
                                          </td>
                                      </tr>
@@ -594,6 +613,27 @@ export class BookingServiceImpl {
              </table>
            </body>
          </html>
-`;
+`
     }
+
+
+    getCandidatesListFile(data:any) : Observable<Candidate[]>{
+console.log("inside of get candidatelist file service layer");
+
+const documentClient = new DocumentClient();
+return Observable.create((observer: Observer<Candidate>) => {
+    console.log(data);
+    let candidate = new Candidate();
+    candidate.candidateId = "1";
+    candidate.email = "email";
+    candidate.firstName = "first";
+    candidate.lastName = "last";
+    candidate.phoneNumber = 12222;
+    observer.next(candidate);
+    observer.complete();
+});
+
+}
+
+
 }

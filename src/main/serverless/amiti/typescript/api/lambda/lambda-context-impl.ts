@@ -1,4 +1,5 @@
-import { Callback, Context } from 'aws-lambda';
+import {Injector} from "@angular/core";
+import {Callback, Context} from "aws-lambda";
 
 export interface CustomLambdaEvent {
     data: any;

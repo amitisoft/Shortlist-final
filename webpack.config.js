@@ -23,7 +23,7 @@ module.exports = {
         handler: './src/main/serverless/amiti/handler.ts'
     },
     target: 'node',
-    externals: ["aws-sdk", nodeExternals()], // modules to be excluded from bundled file
+    externals: ["aws-sdk"], // modules to be excluded from bundled file
     resolve: {
         extensions: ['', '.ts', '.js', '.json'],
         root: root('./../../../../'),

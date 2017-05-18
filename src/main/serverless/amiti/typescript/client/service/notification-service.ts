@@ -1,14 +1,14 @@
-import {SES, AWSError} from 'aws-sdk';
-import {Callback, Context} from 'aws-lambda';
+import {SES, AWSError} from "aws-sdk";
+import {Callback, Context} from "aws-lambda";
 import 'rxjs/add/observable/bindNodeCallback'
-import {LambdaHandler} from '../../api/http/http-context-impl';
+import {LambdaHandler} from "../../api/http/http-context-impl";
 import {NotificationMessage} from './candidate-service'
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Injectable} from "@angular/core";
+import {Observable} from "rxjs/Observable";
 const path = require('path');
 const fs = require('fs');
 const emailConfig = {
-    region: ' us-east-1'
+    region: 'us-east-1'
 };
 
 @Injectable()
@@ -93,7 +93,7 @@ export class NotificationServiceImpl {
                                  <table border='0' cellpadding='20' cellspacing='0' width='100%' id='emailBody'>
                                      <tr>
                                          <td align='center' valign='top' style='color:#337ab7;'>
-                                             <h3><a href='http://mail.amiti.in/verify.html?token=${message}'>http://mail.amiti.in/verify.html?token=${message}</a>
+                                             <h3><a href="http://mail.amiti.in/verify.html?token=${message}">http://mail.amiti.in/verify.html?token=${message}</a>
                                              </h3>
                                          </td>
                                      </tr>

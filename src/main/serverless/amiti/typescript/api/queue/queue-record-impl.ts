@@ -1,16 +1,16 @@
 export interface QueueRecord {
-    getPayload(): any;
+    getPayload():any;
     getMessageType(): string;
 }
 
 export interface RecordFields {
     messageType: string;
-    payload: any;
+    payload: any
 }
 
 export class QueueRecordImpl implements QueueRecord {
 
-    constructor(private record: RecordFields) {
+    constructor(private record:RecordFields) {
 
     }
 
@@ -19,6 +19,7 @@ export class QueueRecordImpl implements QueueRecord {
     }
 
     getPayload(): any {
-        return JSON.stringify(this.record);
+        const payload = JSON.stringify(this.record);
+        return payload;
     }
 }
