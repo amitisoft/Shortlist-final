@@ -120,6 +120,21 @@
         {
           "Effect": "Allow",
           "Action": [
+            "kinesis:DescribeStream",
+            "kinesis:GetRecords",
+            "kinesis:PutRecords",
+            "kinesis:PutRecord",
+            "kinesis:GetShardIterator",
+            "kinesis:ListStreams",
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": "arn:aws:kinesis:us-east-1:151610303354:stream/register-test-stream"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
             "execute-api:Invoke"
           ],
           "Resource": "arn:aws:execute-api:us-east-1:*:*"
@@ -216,6 +231,18 @@
               "LogGroupName": "/aws/lambda/shortlist-project-dev-updateCandidateInfo"
             }
           },
+          "InsertCandidateLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/shortlist-project-dev-insertCandidate"
+            }
+          },
+          "GetCandidateInfoForViewLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/shortlist-project-dev-getCandidateInfoForView"
+            }
+          },
           "RegisterCandidatesAndEmailPostRegistrationLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
@@ -308,6 +335,12 @@
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-updateCandidateInfo:*"
                           },
                           {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-insertCandidate:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-getCandidateInfoForView:*"
+                          },
+                          {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-registerCandidatesAndEmailPostRegistration:*"
                           },
                           {
@@ -359,6 +392,12 @@
                           },
                           {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-updateCandidateInfo:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-insertCandidate:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-getCandidateInfoForView:*:*"
                           },
                           {
                             "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/shortlist-project-dev-registerCandidatesAndEmailPostRegistration:*:*"
@@ -466,6 +505,21 @@
                       {
                         "Effect": "Allow",
                         "Action": [
+                          "kinesis:DescribeStream",
+                          "kinesis:GetRecords",
+                          "kinesis:PutRecords",
+                          "kinesis:PutRecord",
+                          "kinesis:GetShardIterator",
+                          "kinesis:ListStreams",
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": "arn:aws:kinesis:us-east-1:151610303354:stream/register-test-stream"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
                           "execute-api:Invoke"
                         ],
                         "Resource": "arn:aws:execute-api:us-east-1:*:*"
@@ -512,7 +566,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getAllCandidatesFunction",
               "Handler": "handler.getAllCandidatesFunction",
@@ -544,14 +598,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetAllCandidatesFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "GetAllCandidatesFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetAllCandidatesFunctionLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "StartTestDashboardLambdaFunction": {
@@ -561,7 +615,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-startTestDashboard",
               "Handler": "handler.startTestDashboard",
@@ -593,14 +647,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "StartTestDashboardLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "StartTestDashboardLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "StartTestDashboardLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "UpdateBookingAfterStartTestLambdaFunction": {
@@ -610,7 +664,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-updateBookingAfterStartTest",
               "Handler": "handler.updateBookingAfterStartTest",
@@ -642,14 +696,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "UpdateBookingAfterStartTestLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "UpdateBookingAfterStartTestLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UpdateBookingAfterStartTestLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "GetAllQsnIdsFunctionLambdaFunction": {
@@ -659,7 +713,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getAllQsnIdsFunction",
               "Handler": "handler.getAllQsnIdsFunction",
@@ -691,14 +745,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetAllQsnIdsFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "GetAllQsnIdsFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetAllQsnIdsFunctionLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "UpdateResultFunctionLambdaFunction": {
@@ -708,7 +762,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-updateResultFunction",
               "Handler": "handler.updateResultFunction",
@@ -740,14 +794,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "UpdateResultFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "UpdateResultFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UpdateResultFunctionLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "CreateQuestionFunctionLambdaFunction": {
@@ -757,7 +811,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-createQuestionFunction",
               "Handler": "handler.createQuestionFunction",
@@ -789,14 +843,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "CreateQuestionFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "CreateQuestionFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateQuestionFunctionLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "GetQuestionByCategoryFunctionLambdaFunction": {
@@ -806,7 +860,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getQuestionByCategoryFunction",
               "Handler": "handler.getQuestionByCategoryFunction",
@@ -838,14 +892,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetQuestionByCategoryFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "GetQuestionByCategoryFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetQuestionByCategoryFunctionLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "CreateQsnPaperLambdaFunction": {
@@ -855,7 +909,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-createQsnPaper",
               "Handler": "handler.createQuestionPaperFunction",
@@ -887,14 +941,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "CreateQsnPaperLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "CreateQsnPaperLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateQsnPaperLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "GetQuestionPaperNamesLambdaFunction": {
@@ -904,7 +958,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getQuestionPaperNames",
               "Handler": "handler.getQuestionPaperNamesFunction",
@@ -936,14 +990,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetQuestionPaperNamesLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "GetQuestionPaperNamesLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetQuestionPaperNamesLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "CreateTestLinkFunctionLambdaFunction": {
@@ -953,7 +1007,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-createTestLinkFunction",
               "Handler": "handler.createTestLinkFunction",
@@ -985,14 +1039,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "CreateTestLinkFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "CreateTestLinkFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateTestLinkFunctionLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "GetCandidateHomePageInfoLambdaFunction": {
@@ -1002,7 +1056,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-getCandidateHomePageInfo",
               "Handler": "handler.getCandidateHomePageInfo",
@@ -1034,14 +1088,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GetCandidateHomePageInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "GetCandidateHomePageInfoLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetCandidateHomePageInfoLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "GettestStausInfoLambdaFunction": {
@@ -1051,7 +1105,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-gettestStausInfo",
               "Handler": "handler.gettestStausInfo",
@@ -1083,14 +1137,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "GettestStausInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "GettestStausInfoLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GettestStausInfoLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "UpdateCandidateInfoLambdaFunction": {
@@ -1100,7 +1154,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-updateCandidateInfo",
               "Handler": "handler.updateCandidateInfo",
@@ -1132,14 +1186,112 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "UpdateCandidateInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "UpdateCandidateInfoLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UpdateCandidateInfoLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
+            }
+          },
+          "InsertCandidateLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
+              },
+              "FunctionName": "shortlist-project-dev-insertCandidate",
+              "Handler": "handler.insertCandidate",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "ACCOUNT_ID": 151610303354,
+                  "REGISTER_TEST_STREAM": "register-test-stream",
+                  "CANDIDATE_TABLE": "candidate",
+                  "BOOKING_TABLE": "booking",
+                  "SEND_EMAIL_SNS": "sendEmail",
+                  "QUESTION_LIST_TABLE": "question",
+                  "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
+                  "RESULT_TABLE": "result"
+                }
+              }
+            },
+            "DependsOn": [
+              "InsertCandidateLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "InsertCandidateLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "InsertCandidateLambdaFunction"
+              },
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
+            }
+          },
+          "GetCandidateInfoForViewLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
+              },
+              "FunctionName": "shortlist-project-dev-getCandidateInfoForView",
+              "Handler": "handler.getCandidateInfoForView",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "ACCOUNT_ID": 151610303354,
+                  "REGISTER_TEST_STREAM": "register-test-stream",
+                  "CANDIDATE_TABLE": "candidate",
+                  "BOOKING_TABLE": "booking",
+                  "SEND_EMAIL_SNS": "sendEmail",
+                  "QUESTION_LIST_TABLE": "question",
+                  "QSNID_TABLE": "questionPaper",
+                  "QUESTION_PAPER_NAMES": "questionPaperNames",
+                  "RESULT_TABLE": "result"
+                }
+              }
+            },
+            "DependsOn": [
+              "GetCandidateInfoForViewLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "GetCandidateInfoForViewLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetCandidateInfoForViewLambdaFunction"
+              },
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "RegisterCandidatesAndEmailPostRegistrationLambdaFunction": {
@@ -1149,7 +1301,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-registerCandidatesAndEmailPostRegistration",
               "Handler": "handler.registerCandidatesAndEmailPostRegistration",
@@ -1181,14 +1333,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "RegisterCandidatesAndEmailPostRegistrationLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "RegisterCandidatesAndEmailPostRegistrationLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "ProcessRegistrationStreamLambdaFunction": {
@@ -1198,7 +1350,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+                "S3Key": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z/shortlist-project.zip"
               },
               "FunctionName": "shortlist-project-dev-processRegistrationStream",
               "Handler": "handler.processRegistrationStream",
@@ -1230,14 +1382,14 @@
               "streamExecutionRole"
             ]
           },
-          "ProcessRegistrationStreamLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+          "ProcessRegistrationStreamLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ProcessRegistrationStreamLambdaFunction"
               },
-              "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+              "CodeSha256": "9EMWhQYi0rpO+2/OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI="
             }
           },
           "ApiGatewayRestApi": {
@@ -1417,6 +1569,30 @@
               }
             }
           },
+          "ApiGatewayResourceApiInsertcandidate": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceApi"
+              },
+              "PathPart": "insertCandidate",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceApiGetcandidateinfoforview": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceApi"
+              },
+              "PathPart": "getCandidateInfoForView",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayResourceApiRegistercandidates": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
@@ -1489,6 +1665,18 @@
               }
             }
           },
+          "ApiGatewayResourceApiGetcandidateinfoforviewCandidateid": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceApiGetcandidateinfoforview"
+              },
+              "PathPart": "candidateId",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayResourceApiStarttestdashboardCandidateidCandidateidVar": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
@@ -1532,6 +1720,18 @@
                 "Ref": "ApiGatewayResourceApiCandidatehomepageCandidateinfo"
               },
               "PathPart": "{candidateinfo}",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceApiGetcandidateinfoforviewCandidateidIdVar": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceApiGetcandidateinfoforviewCandidateid"
+              },
+              "PathPart": "{id}",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -2255,6 +2455,98 @@
               }
             }
           },
+          "ApiGatewayMethodApiInsertcandidateOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiInsertcandidate"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodApiGetcandidateinfoforviewCandidateidIdVarOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiGetcandidateinfoforviewCandidateidIdVar"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayMethodApiRegistercandidatesOptions": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -2795,6 +3087,82 @@
               "MethodResponses": []
             }
           },
+          "ApiGatewayMethodApiInsertcandidatePost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiInsertcandidate"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "InsertCandidateLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayMethodApiGetcandidateinfoforviewCandidateidIdVarGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceApiGetcandidateinfoforviewCandidateidIdVar"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "GetCandidateInfoForViewLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
           "ApiGatewayMethodApiRegistercandidatesPost": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -2833,7 +3201,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1495110267955": {
+          "ApiGatewayDeployment1495192091258": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -2855,6 +3223,8 @@
               "ApiGatewayMethodApiCandidatehomepageCandidateinfoCandidateinfoVarGet",
               "ApiGatewayMethodApiTestlinkinfoTestlinkinfoVarGet",
               "ApiGatewayMethodApiUpdatecandidatePost",
+              "ApiGatewayMethodApiInsertcandidatePost",
+              "ApiGatewayMethodApiGetcandidateinfoforviewCandidateidIdVarGet",
               "ApiGatewayMethodApiRegistercandidatesPost"
             ]
           },
@@ -3287,6 +3657,72 @@
               }
             }
           },
+          "InsertCandidateLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "InsertCandidateLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "GetCandidateInfoForViewLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetCandidateInfoForViewLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
           "RegisterCandidatesAndEmailPostRegistrationLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
@@ -3420,6 +3856,7 @@
                         "Action": [
                           "kinesis:DescribeStream",
                           "kinesis:GetRecords",
+                          "kinesis:PutRecords",
                           "kinesis:PutRecord",
                           "kinesis:GetShardIterator",
                           "kinesis:ListStreams",
@@ -3507,7 +3944,7 @@
                   ],
                   "Projection": {
                     "NonKeyAttributes": [
-                      "DOE"
+                      "dateOfExam"
                     ],
                     "ProjectionType": "INCLUDE"
                   },
@@ -3693,91 +4130,103 @@
           "GetAllCandidatesFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetAllCandidatesFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "GetAllCandidatesFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "StartTestDashboardLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "StartTestDashboardLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "StartTestDashboardLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "UpdateBookingAfterStartTestLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UpdateBookingAfterStartTestLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "UpdateBookingAfterStartTestLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "GetAllQsnIdsFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetAllQsnIdsFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "GetAllQsnIdsFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "UpdateResultFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UpdateResultFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "UpdateResultFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "CreateQuestionFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateQuestionFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "CreateQuestionFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "GetQuestionByCategoryFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetQuestionByCategoryFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "GetQuestionByCategoryFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "CreateQsnPaperLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateQsnPaperLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "CreateQsnPaperLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "GetQuestionPaperNamesLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetQuestionPaperNamesLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "GetQuestionPaperNamesLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "CreateTestLinkFunctionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateTestLinkFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "CreateTestLinkFunctionLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "GetCandidateHomePageInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetCandidateHomePageInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "GetCandidateHomePageInfoLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "GettestStausInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GettestStausInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "GettestStausInfoLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "UpdateCandidateInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UpdateCandidateInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "UpdateCandidateInfoLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
+            }
+          },
+          "InsertCandidateLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "InsertCandidateLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
+            }
+          },
+          "GetCandidateInfoForViewLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetCandidateInfoForViewLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "RegisterCandidatesAndEmailPostRegistrationLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "ProcessRegistrationStreamLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ProcessRegistrationStreamLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+              "Ref": "ProcessRegistrationStreamLambdaVersion9EMWhQYi0rpO2OdQ8aiuxw3Kz7WPPRTHVPYOIKZCI"
             }
           },
           "ServiceEndpoint": {
@@ -4235,6 +4684,70 @@
         "package": {},
         "vpc": {}
       },
+      "insertCandidate": {
+        "handler": "handler.insertCandidate",
+        "events": [
+          {
+            "http": {
+              "path": "api/insertCandidate",
+              "method": "post",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "shortlist-project-dev-insertCandidate",
+        "package": {},
+        "vpc": {}
+      },
+      "getCandidateInfoForView": {
+        "handler": "handler.getCandidateInfoForView",
+        "events": [
+          {
+            "http": {
+              "path": "api/getCandidateInfoForView/candidateId/{id}",
+              "method": "get",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "shortlist-project-dev-getCandidateInfoForView",
+        "package": {},
+        "vpc": {}
+      },
       "registerCandidatesAndEmailPostRegistration": {
         "handler": "handler.registerCandidatesAndEmailPostRegistration",
         "events": [
@@ -4372,6 +4885,7 @@
                       "Action": [
                         "kinesis:DescribeStream",
                         "kinesis:GetRecords",
+                        "kinesis:PutRecords",
                         "kinesis:PutRecord",
                         "kinesis:GetShardIterator",
                         "kinesis:ListStreams",
@@ -4459,7 +4973,7 @@
                 ],
                 "Projection": {
                   "NonKeyAttributes": [
-                    "DOE"
+                    "dateOfExam"
                   ],
                   "ProjectionType": "INCLUDE"
                 },
@@ -4641,7 +5155,7 @@
     "artifact": "D:\\github-amitisoft\\Shortlist-final\\build\\.serverless\\shortlist-project.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z",
+    "artifactDirectoryName": "serverless/shortlist-project/dev/1495192091195-2017-05-19T11:08:11.195Z",
     "artifact": "shortlist-project.zip"
   }
 }

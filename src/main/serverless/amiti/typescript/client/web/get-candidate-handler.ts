@@ -91,10 +91,10 @@ export class GetCandidateHandler {
 
         injector.get(BookingFacade).getTestInProgressBooking()
             .subscribe(result => {
-                console.log("myresult = ",result);
-                injector.get(BookingFacade).getAllCandidateInfoWhoAreTestProgress(result)      //getAllBookings
+                console.log('myresult = ', result);
+                injector.get(BookingFacade).getAllCandidateInfoWhoAreTestProgress(result)
                     .subscribe(result1 => {
-                        console.log("myresult = ",result1);
+                        console.log('myresult = ', result1);
                         httpContext.ok(200, result1);
                     });
                 //  httpContext.ok(200, result);
@@ -104,17 +104,17 @@ export class GetCandidateHandler {
     }
 
 
-    static getCandidateHomePageInfo(httpContext:HttpContextImpl,injector:Injector) : void {
+    static getCandidateHomePageInfo(httpContext: HttpContextImpl, injector: Injector): void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
         injector.get(BookingFacade).getCandidateHomePageInfo(pathParameters)
             .subscribe(result => {
-                    console.log("myresult = ",result);
-                    injector.get(BookingFacade).candidateTokenChecking(result,pathParameters)      //getAllBookings
+                    console.log('myresult = ', result);
+                    injector.get(BookingFacade).candidateTokenChecking(result, pathParameters)
                         .subscribe(result1 => {
-                            console.log("myresult = ",result1);
+                            console.log('myresult = ', result1);
                             httpContext.ok(200, result1);
                         });
                 },
@@ -123,13 +123,13 @@ export class GetCandidateHandler {
                 });
     }
 
-    static updateBookingAfterStartTest(httpContext:HttpContextImpl,injector:Injector) : void {
+    static updateBookingAfterStartTest(httpContext: HttpContextImpl, injector: Injector): void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
         let data = httpContext.getRequestBody();
-        console.log("pathParameters = ",data);
+        console.log('pathParameters = ', data);
         injector.get(BookingFacade).updateBookingAfterStartTest(data)
             .subscribe(result => {
                 httpContext.ok(200, result);
@@ -138,13 +138,13 @@ export class GetCandidateHandler {
             });
     }
 
-    static getCandidatesListFile(httpContext:HttpContextImpl,injector:Injector) : void {
+    static getCandidatesListFile(httpContext: HttpContextImpl, injector: Injector): void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
         let data = httpContext.getRequestBody();
-        console.log("pathParameters = ",data);
+        console.log('pathParameters = ', data);
         injector.get(BookingFacade).getCandidatesListFile(data)
         .subscribe(result => {
                                                 httpContext.ok(200, result);
@@ -153,13 +153,13 @@ export class GetCandidateHandler {
                     });
             }
 
-    static insertCandidate(httpContext:HttpContextImpl,injector:Injector) : void {
+    static insertCandidate(httpContext: HttpContextImpl, injector: Injector): void {
 
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
         let data = httpContext.getRequestBody();
-        console.log("pathParameters = ",data);
+        console.log('pathParameters = ', data);
         injector.get(CandidateFacade).insertCandidate(data)
             .subscribe(result => {
                 httpContext.ok(200, result);
@@ -179,7 +179,7 @@ export class GetCandidateHandler {
 
  static getCandidateInfoForView(httpContext: HttpContextImpl, injector: Injector): void {
      let data = httpContext.getPathParameters();
-        console.log("pathParameters = ",data);
+        console.log('pathParameters = ', data);
         injector.get(CandidateFacade).getCandidateInfoForView(data)
             .subscribe(result => {
                 httpContext.ok(200, result);

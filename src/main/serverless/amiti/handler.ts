@@ -22,6 +22,8 @@ exports.processRegistrationStream = StreamExecutionContextImpl.createMergedStrea
 exports.startTestDashboard = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.startTestDashboard);
 exports.getCandidateHomePageInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.getCandidateHomePageInfo);
 exports.updateBookingAfterStartTest = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.updateBookingAfterStartTest);
+exports.insertCandidate = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.insertCandidate);
+ exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.getCandidateInfoForView);
 
 exports.getAllQsnIdsFunction = ExecutionContextImpl.createHttpHandler(AppProviders, GetQsnHandler.getQsn);
 exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(AppProviders, updateResultHandler.updateResult);

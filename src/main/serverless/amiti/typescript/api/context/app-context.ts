@@ -15,7 +15,7 @@ import {ResultFacade} from "../../client/facade/Result-facade";
 import { CreateQuestionFacade } from '../../client/facade/create-question-facade';
 import{CreateQuestionServiceImpl} from '../../client/service/create-question-service';
 import { CreateQuestionPaperFacade } from '../../client/facade/create-question-paper-facade';
-import{createQuestionPaperserviceImpl} from '../../client/service/create-question-paper-service';
+import{ CreateQuestionPaperserviceImpl } from '../../client/service/create-question-paper-service';
 
 
 export const AppProviders = [
@@ -33,5 +33,5 @@ export const AppProviders = [
      CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,
-    createQuestionPaperserviceImpl
+    CreateQuestionPaperserviceImpl
 ];

@@ -1,8 +1,8 @@
-import {Injectable} from "@angular/core";
-import {Observable, Observer} from 'rxjs';
-import {DynamoDB, SES} from "aws-sdk";
-import {Question} from '../domain/question';
-import {UUID} from 'angular2-uuid';
+import { Injectable } from '@angular/core';
+import { Observable, Observer } from'rxjs';
+import { DynamoDB, SES } from 'aws-sdk';
+import { Question } from'../domain/question';
+import { UUID } from'angular2-uuid';
 
 const AWS = require('aws-sdk');
 let uuid = require('uuid');
@@ -10,83 +10,83 @@ let uuid = require('uuid');
 import DocumentClient = DynamoDB.DocumentClient;
 
 AWS.config.update({
-    region: "us-east-1"
-});
+    region: 'us-east-1'
+ });
 
 @Injectable()
-export class createQuestionPaperserviceImpl {
+export class CreateQuestionPaperserviceImpl {
 
     constructor() {
-        console.log("in createQuestionPaperserviceImpl constructor()");
-    }
+        console.log('in createQuestionPaperserviceImpl constructor()');
+     }
 
     createQuestionPaper(data: any): Observable<Question> {
         const documentClient = new DocumentClient();
 
         const qsnppr = [];
-        let params: any = {};
+        let params: any = {  };
         let uuidd = uuid.v4();
-        if (typeof data == "string") {
+        if (typeof data === 'string') {
             data = JSON.parse(data);
-            for (var item = 0; item < data.length; item++) {
+            for (let item = 0; item < data.length; item++) {
 
                 let myObj = {
                     PutRequest: {
                         Item: {
-                            "Qsn_Ppr_Id": uuidd,
-                            "Qsn_Id": data[item].QsnId,
-                            "Category": data[item].Category
-                        }
-                    }
-                }
-                qsnppr.push(myObj)
-            }
+                            'Qsn_Ppr_Id': uuidd,
+                            'Qsn_Id': data[item].QsnId,
+                            'Category': data[item].Category
+                         }
+                     }
+                 };
+                qsnppr.push(myObj);
+             }
 
             params = {
                 RequestItems: {
-                    "questionPaper": qsnppr
-                }
-            };
+                    'questionPaper': qsnppr
+                 }
+             };
 
-        } else {
+         } else {
 
-            for (var item = 0; item < data.length; item++) {
+            for (let item = 0; item < data.length; item++) {
                 let myObj = {
                     PutRequest: {
                         Item: {
-                            "Qsn_Ppr_Id": uuidd,
-                            "QsnId": data[item].QsnId,
-                            "Category": data[item].Category
-                        }
-                    }
-                }
-                qsnppr.push(myObj)
-            }
+                            'Qsn_Ppr_Id': uuidd,
+                            'QsnId': data[item].QsnId,
+                            'Category': data[item].Category
+                         }
+                     }
+                 };
+                qsnppr.push(myObj);
+             }
 
             params = {
                 RequestItems: {
-                    "questionPaper": qsnppr
-                }
-            };
+                    'questionPaper': qsnppr
+                 }
+             };
 
-        }
+         }
 
         return Observable.create((observer: Observer<Question>) => {
 
-            documentClient.batchWrite(params, (err, data: any) => {
+            documentClient.batchWrite(params, (err, result: any) => {
 
                 if (err) {
 
                     observer.error(err);
                     return;
-                }
-                data = "success";
+                 }
+                data = 'success';
                 // console.log(data.Item[0]);
                 observer.next(data);
                 observer.complete();
-            });
-        });
+             });
+         });
 
-    }
+     }
 
-}
+ }

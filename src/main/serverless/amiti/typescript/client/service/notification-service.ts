@@ -1,10 +1,10 @@
-import {SES, AWSError} from "aws-sdk";
-import {Callback, Context} from "aws-lambda";
-import 'rxjs/add/observable/bindNodeCallback'
-import {LambdaHandler} from "../../api/http/http-context-impl";
-import {NotificationMessage} from './candidate-service'
-import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import { SES, AWSError } from 'aws-sdk';
+import { Callback, Context } from 'aws-lambda';
+import 'rxjs/add/observable/bindNodeCallback';
+import { LambdaHandler } from '../../api/http/http-context-impl';
+import { NotificationMessage } from './candidate-service';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 const path = require('path');
 const fs = require('fs');
 const emailConfig = {
@@ -33,7 +33,7 @@ export class NotificationServiceImpl {
             const emailParams: AWS.SES.SendEmailRequest = this.createEmailParamConfig(message.email, message.emailBody);
             emailSES.sendEmail(emailParams, (err: any, data: AWS.SES.SendEmailResponse) => {
                 if (err) {
-                    rej(`Error in sending out email ${err}`)
+                    rej(`Error in sending out email ${err}`);
                     return;
                 }
 
@@ -44,7 +44,7 @@ export class NotificationServiceImpl {
 
         return Observable.defer(() => {
             return Observable.fromPromise(emailPromise);
-        })
+        });
 
     }
 
@@ -70,7 +70,7 @@ export class NotificationServiceImpl {
             Source: 'shyamal@amiti.in',
             ReplyToAddresses: ['shyamal@amiti.in'],
             ReturnPath: 'shyamal@amiti.in'
-        }
+        };
         return params;
     }
 
@@ -117,7 +117,7 @@ export class NotificationServiceImpl {
              </table>
            </body>
          </html>
-`
+`;
     }
 
 }
