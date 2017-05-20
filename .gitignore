@@ -7,3 +7,4 @@ src/main/._.DS_Store
 .serverless/
 .vscode/
 .vscode/launch.json
+build/*

@@ -3,7 +3,7 @@ import { ExecutionContextImpl } from './typescript/api/context/execution-context
 import { StreamExecutionContextImpl } from './typescript/api/context/stream-execution-context-impl';
 import { GetCandidateHandler } from './typescript/client/web/get-candidate-handler';
 import { GetQsnHandler } from './typescript/client/web/get-Question-handler';
-import { updateResultHandler } from './typescript/client/web/update-Result-handler';
+import { UpdateResultHandler } from './typescript/client/web/update-Result-handler';
 import { CreateQuestionHandler } from './typescript/client/web/create-question-handler';
 import { QuestionPaperHandler } from './typescript/client/web/question-paper-handler';
 import { TestLinkHandler } from './typescript/client/web/test-link-handler';
@@ -63,10 +63,7 @@ export const appProviders = [
     CreateQuestionPaperserviceImpl
 ];
 
-<<<<<<< HEAD
 
-
-exports.gettestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isActiveLink);
 exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getAllCandidates);
 exports.registerCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidate);
 exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
@@ -82,30 +79,7 @@ exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(a
 exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
 exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
-=======
+exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
+exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
+// exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 // exports.gettestStausInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetBookingHandler.isActiveLink);
-
-exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.getAllCandidates);
-exports.registerCandidate = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidate);
-exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
-exports.processRegistrationStream = StreamExecutionContextImpl.createMergedStreamHandler(AppProviders, GetCandidateHandler.processRegistrationStream);
-
-
-exports.startTestDashboard = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.startTestDashboard);
-exports.getCandidateHomePageInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.getCandidateHomePageInfo);
-exports.updateBookingAfterStartTest = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.updateBookingAfterStartTest);
-exports.insertCandidate = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.insertCandidate);
- exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(AppProviders, GetCandidateHandler.getCandidateInfoForView);
-
-exports.getAllQsnIdsFunction = ExecutionContextImpl.createHttpHandler(AppProviders, GetQsnHandler.getQsn);
-exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(AppProviders, updateResultHandler.updateResult);
-
-
-exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(AppProviders, QuestionPaperHandler.createQuestionPaper);
-exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(AppProviders, CreateQuestionHandler.createQuestion);
-exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(AppProviders, CreateQuestionHandler.getQuestionByCategory);
-
-exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(AppProviders, TestLinkHandler.findCandidateByEmailId);
-
-// exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(AppProviders, QuestionPaperHandler.getQuestionPaperNames);
->>>>>>> origin/master

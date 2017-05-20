@@ -1,20 +1,20 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import{ CreateQuestionPaperserviceImpl } from '../service/create-question-paper-service';
 import { Question } from '../domain/question';
 
 @Injectable()
 export class CreateQuestionPaperFacade {
-     constructor(private createQuestionPaperservice: CreateQuestionPaperserviceImpl) {
-        console.log("in CreateQuestionFacade constructor()");
+    constructor(private createQuestionPaperservice: CreateQuestionPaperserviceImpl) {
+        console.log('in CreateQuestionFacade constructor()');
     }
-   
-    createQuestionPaper(data: any) : Observable<Question> {
-        // console.log("data----",data);
-        //  console.log("data type of----",typeof data);
-        //   let data1 = JSON.parse(data);
-        // console.log("data type of----",typeof data1);
-        return this.createQuestionPaperservice.createQuestionPaper(data);
-    } 
 
+    createQuestionPaper(data: any, qsnPaperName: string): Observable<Question> {
+        return this.createQuestionPaperservice.createQuestionPaper(data, qsnPaperName);
+    }
+
+    getQuestionPapers(): Observable<Question[]> {
+        console.log('in categoryId getQuestionPapers()');
+        return this.createQuestionPaperservice.getAllQuestionPaperNames();
+    }
 }
