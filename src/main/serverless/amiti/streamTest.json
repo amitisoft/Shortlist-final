@@ -1,18 +1,20 @@
 {
-  "record": {
-    "kinesis": {
-      "kinesisSchemaVersion": "1.0",
-      "partitionKey": "ashok@amitisoft.com",
-      "sequenceNumber": "49572901483532829550670411233864622100811201813724266498",
-      "data": "ZXlKbGJXRnBiQ0k2SW1GeWRXNUFZVzFwZEdrdWFXNGlMQ0psYldGcGJGTjFZbXBsWTNRaU9pSlVSVk5VSUV4cGJtc2lMQ0psYldGcGJFSnZaSGtpT2lKQ1QwUlpJRTlHSUVWTlFVbE1JaXdpYW05aVVHOXphWFJwYjI0aU9pSnFZWFpoSUdSbGRtVnNiM0JsY2lJc0ltTmhkR1ZuYjNKNUlqb2lhbUYyWVNKOQ==",
-      "approximateArrivalTimestamp": 1493908132.826
-    },
-    "eventSource": "aws:kinesis",
-    "eventVersion": "1.0",
-    "eventID": "shardId-000000000000:49572901483532829550670411233864622100811201813724266498",
-    "eventName": "aws:kinesis:record",
-    "invokeIdentityArn": "arn:aws:iam::675565166163:role/shortlist-project-dev-us-east-1-lambdaRole",
-    "awsRegion": "us-east-2",
-    "eventSourceARN": "arn:aws:kinesis:us-east-1:675565166163:stream/register-test-stream"
-  }
+  "Records":[
+    {
+        "kinesis": {
+          "kinesisSchemaVersion": "1.0",
+          "partitionKey": "ashok@amitisoft.com",
+          "sequenceNumber": "49572901483532829550670411233864622100811201813724266498",
+          "data": "eyJlbWFpbCI6ImEua2lyYW4wMjlAZ21haWwuY29tIiwiZW1haWxTdWJqZWN0IjoiVEVTVCBMaW5rIiwiZW1haWxCb2R5IjoiQk9EWSBPRiBFTUFJTCIsImpvYlBvc2l0aW9uIjoiamF2YSBkZXZlbG9wZXIiLCJjYXRlZ29yeSI6ImphdmEifQ",
+          "approximateArrivalTimestamp": 1493908132.826
+        },
+        "eventSource": "aws:kinesis",
+        "eventVersion": "1.0",
+        "eventID": "shardId-000000000000:49572901483532829550670411233864622100811201813724266498",
+        "eventName": "aws:kinesis:record",
+        "invokeIdentityArn": "arn:aws:iam::675565166163:role/shortlist-project-dev-us-east-1-lambdaRole",
+        "awsRegion": "us-east-1",
+        "eventSourceARN": "arn:aws:kinesis:us-east-1:675565166163:stream/register-test-stream"
+      }
+  ]
 }

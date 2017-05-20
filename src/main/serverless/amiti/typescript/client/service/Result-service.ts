@@ -8,7 +8,7 @@ const AWS = require('aws-sdk');
 import DocumentClient = DynamoDB.DocumentClient;
 
 AWS.config.update({
-    region: ' us-east-1'
+    region: 'us-east-1'
 });
 
 @Injectable()

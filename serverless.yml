@@ -22,16 +22,30 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    ACCOUNT_ID: 675565166163
+    ACCOUNT_ID: 667361566775
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
     SEND_EMAIL_SNS: sendEmail
     QUESTION_LIST_TABLE: question
     QSNID_TABLE: questionPaper
-    QUESTION_PAPER_NAMES : "questionPaperNames"
+    QUESTION_PAPER_NAMES : questionPaperNames
     RESULT_TABLE: result
+    KINESIS_STREAM_REGION: us-east-1
+    REGION: us-east-1
+    ELASTICSEARCH_ENDPOINT: http://localhost:9200
   iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - kinesis:DescribeStream
+        - kinesis:GetRecords
+        - kinesis:PutRecords
+        - kinesis:GetShardIterator
+        - kinesis:ListStreams
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: arn:aws:kinesis:${opt:region, self:provider.region}:${self:provider.environment.ACCOUNT_ID}:stream/${self:provider.environment.REGISTER_TEST_STREAM}
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -60,7 +74,25 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:PutRecords
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BOOKING_TABLE}/*"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BOOKING_TABLE}"
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -234,10 +266,17 @@ functions:
           cors: true
 
 
-#  performESSearchForBooking:
-#    handler: handler.performESSearchForBooking
-#    events:
-#      - sns: indexBooking
+  performESUpdateForBooking:
+    handler: handler.performESUpdateForBooking
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 100
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - ${self:provider.environment.BOOKING_TABLE}
+              - StreamArn
 
   processRegistrationStream:
     handler: handler.processRegistrationStream
@@ -305,6 +344,23 @@ resources:
                       - dynamodb:PutItem
                       - dynamodb:UpdateItem
                       - dynamodb:DeleteItem
+                      - dynamodb:GetRecords
+                      - dynamodb:GetShardIterator
+                      - dynamodb:DescribeStream
+                      - dynamodb:ListStreams
+                    Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BOOKING_TABLE}"
+                  - Effect: Allow
+                    Action:
+                      - dynamodb:Query
+                      - dynamodb:Scan
+                      - dynamodb:GetItem
+                      - dynamodb:PutItem
+                      - dynamodb:UpdateItem
+                      - dynamodb:DeleteItem
+                      - dynamodb:GetRecords
+                      - dynamodb:GetShardIterator
+                      - dynamodb:DescribeStream
+                      - dynamodb:ListStreams
                     Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BOOKING_TABLE}/*"
                   - Effect: Allow
                     Action:
@@ -312,11 +368,14 @@ resources:
                       - logs:CreateLogStream
                       - logs:PutLogEvents
                     Resource: arn:aws:logs:${opt:region, self:provider.region}:${self:provider.environment.ACCOUNT_ID}:log-group:/aws/lambda/*:*:*
+                  - "Effect": "Allow"
+                    "Action": "SES:SendEmail"
+                    "Resource": "*"
                   - Effect: Allow
                     Action:
                       - kinesis:DescribeStream
                       - kinesis:GetRecords
-                      - kinesis:PutRecord
+                      - kinesis:PutRecords
                       - kinesis:GetShardIterator
                       - kinesis:ListStreams
                       - logs:CreateLogGroup
@@ -345,6 +404,10 @@ resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
+
+          StreamSpecification:
+            StreamViewType: NEW_IMAGE
+
           GlobalSecondaryIndexes:
             -
               IndexName: "testStatusGSI"
@@ -483,4 +546,4 @@ resources:
                 KeyType: HASH
             ProvisionedThroughput:
               ReadCapacityUnits: 2
-              WriteCapacityUnits: 2         
+              WriteCapacityUnits: 2

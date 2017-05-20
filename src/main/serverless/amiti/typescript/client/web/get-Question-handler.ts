@@ -10,10 +10,6 @@ export class GetQsnHandler {
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
-        // let dataFromUI = httpContext.getRequestBody();
-        let data = httpContext.getRequestBody();
-
-
         injector.get(QsnIdsFacade).getQsnId(pathParameters['Qsn_Ppr_Id'])
             .subscribe(result => {
 

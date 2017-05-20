@@ -1,12 +1,8 @@
 import { Callback, Context } from 'aws-lambda';
 
-export interface CustomLambdaEvent {
-    data: any;
-}
-
 export class LambdaContextImpl {
 
-    constructor(private lambdaEvent: CustomLambdaEvent, private lambdaContext: Context, private lambdaCallback: Callback) {
+    constructor(private lambdaEvent: any, private lambdaContext: Context, private lambdaCallback: Callback) {
 
     }
 
@@ -19,11 +15,8 @@ export class LambdaContextImpl {
     }
 
     getEventData(): any {
-        if (typeof this.lambdaEvent.data === 'string') {
-            this.lambdaEvent.data = JSON.parse(this.lambdaEvent.data);
-        }
-        return this.lambdaEvent.data;
-
+        console.log(`lambdaEvent in LambdaContextImpl => ${JSON.stringify(this.lambdaEvent)}`);
+        return this.lambdaEvent;
     }
 
     getRequestContext(): any {

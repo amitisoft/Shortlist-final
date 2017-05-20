@@ -1,8 +1,5 @@
 {
-  "AWS_ACCOUNT_ID": "151610303354",
+  "AWS_ACCOUNT_ID": "667361566775",
   "CLI_PROFILE": "default",
-  "REGION": "us-east-2",
-  "BUCKET": "bucket",
-  "MAX_AGE": "10",
-  "CRYPTO_BYTE_SIZE": 128
+  "REGION": "us-east-1"
 }

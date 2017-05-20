@@ -21,6 +21,5 @@ export class StreamRecordImpl implements StreamRecord {
     getPartitionKey(): string {
         return this.record.kinesis.partitionKey;
     }
-
 }
 

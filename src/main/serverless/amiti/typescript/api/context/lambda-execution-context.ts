@@ -1,4 +1,4 @@
-import { CustomLambdaEvent, LambdaContextImpl } from '../lambda/lambda-context-impl';
+import { LambdaContextImpl } from '../lambda/lambda-context-impl';
 import { Injector, ReflectiveInjector } from '@angular/core';
 import { Callback, Context } from 'aws-lambda';
 
@@ -7,14 +7,14 @@ export interface LambdaHandler {
 }
 
 export interface CustomLambdaHandler {
-    (event: CustomLambdaEvent, context: Context, callback: Callback): void;
+    (event: any, context: Context, callback: Callback): void;
 }
 
 
 export class LambdaExecutionContext {
 
     static createLambdaHandler(providers: any[], handler: LambdaHandler): CustomLambdaHandler {
-        return (lambdaEvent: CustomLambdaEvent, lambdaContext: Context, lambdaCallback: Callback) => {
+        return (lambdaEvent: any, lambdaContext: Context, lambdaCallback: Callback) => {
             const customContext = new LambdaContextImpl(lambdaEvent, lambdaContext, lambdaCallback);
             try {
                 const handlerProviders = [

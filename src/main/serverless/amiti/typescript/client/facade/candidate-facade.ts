@@ -42,7 +42,6 @@ export class CandidateFacade {
         return this.candidateService.registerCandidatesAndEmailPostRegistration(params);
     }
 
-
     private mapCandidateToDto(candidate: Candidate): CandidateDto {
         console.log('in mapCandidateToDto' + JSON.stringify(candidate));
         return {

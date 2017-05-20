@@ -2,7 +2,8 @@
 node_modules
 .idea/
 *.DS_Store
-
 src/._.DS_Store
-
 src/main/._.DS_Store
+.serverless/
+.vscode/
+.vscode/launch.json

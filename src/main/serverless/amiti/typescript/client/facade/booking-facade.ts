@@ -4,6 +4,7 @@ import { BookingServiceImpl } from '../service/booking-service';
 import { BookingDto } from '../dto/booking-dto';
 import { BookingsDto } from '../dto/bookings-dto';
 import { Booking } from '../domain/booking';
+import { DBStreamRecord } from '../../api/stream/booking-db-stream-record-impl';
 
 
 @Injectable()
@@ -40,6 +41,10 @@ export class BookingFacade {
         return this.bookingService.candidateTokenChecking(data, pathParameter);
     }
 
+    updateBookingInElasticSearch(record: DBStreamRecord): Observable<boolean> {
+        console.log(`update booking in elastic search index by pushing to stream ${JSON.stringify(record)}`);
+        return this.bookingService.updateBookingToElasticSearch(record);
+    }
 
     /**
      * Check link  Active or inActive

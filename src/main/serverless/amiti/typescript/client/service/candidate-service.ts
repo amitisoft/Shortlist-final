@@ -10,9 +10,10 @@ import { Registration } from '../domain/registration';
 import { PutRecordsResultEntry } from 'aws-sdk/clients/kinesis';
 
 config.update({
-    region: ' us-east-1'
+    region: 'us-east-1'
 });
-const kinesis = new Kinesis(config);
+
+
 export interface NotificationMessage {
     email: string;
     emailSubject: string;
@@ -43,8 +44,9 @@ export interface RegisterCandidateInputParams {
 @Injectable()
 export class CandidateServiceImpl {
 
-    constructor(private notificationServiceImpl: NotificationServiceImpl) {
-        console.log('in CandidateServiceImpl constructor()');
+    constructor(private notificationServiceImpl: NotificationServiceImpl, private kinesisClient: Kinesis) {
+        console.log(`in CandidateServiceImpl constructor() notificationServiceImpl: ${notificationServiceImpl}`);
+        console.log(`in CandidateServiceImpl constructor() kinesisClient: ${kinesisClient}`);
     }
 
     registerCandidatesAndEmailPostRegistration(params: RegisterCandidates): Observable<boolean> {
@@ -87,8 +89,7 @@ export class CandidateServiceImpl {
         console.log(`kinesis records ${JSON.stringify(kinesisParams)}`);
 
         return Observable.create((observer: any) => {
-
-            kinesis.putRecords(kinesisParams, function (err, data) {
+            this.kinesisClient.putRecords(kinesisParams, function (err, data) {
                 if (err) {
                     console.log(err, err.stack);
                     observer.next(false);
@@ -353,10 +354,6 @@ export class CandidateServiceImpl {
         }
     }
 
-    private updateBookingInElasticSearch() {
-        console.log('update booking in elastic search index by pushing to stream');
-    }
-
     private updatedBookingInfo(inputParams: RegisterCandidateInputParams): Observable<boolean> {
         return Observable.create((observer) => {
             const testStatus = 'NotTaken';
@@ -426,4 +423,18 @@ export class CandidateServiceImpl {
     }
 
 
+    private convertToKinesisRecord(streamInputRecords: any[]): any[] {
+        return streamInputRecords.map((streamInputRecord) => {
+            console.log(`streamInputRecord ${JSON.stringify(streamInputRecord)}`);
+            return {
+                'record': {
+                    'kinesis': {
+                        'partitionKey': streamInputRecord.PartitionKey,
+                        'sequenceNumber': streamInputRecord.PartitionKey,
+                        'data': new Buffer(JSON.stringify(streamInputRecord.Data), 'ascii').toString('base64')
+                    }
+                }
+            };
+        });
+    }
 }

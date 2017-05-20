@@ -23,7 +23,7 @@ module.exports = {
         handler: './src/main/serverless/amiti/handler.ts'
     },
     target: 'node',
-    externals: ["aws-sdk", nodeExternals()], // modules to be excluded from bundled file
+    externals: ["aws-sdk"], // modules to be excluded from bundled file
     resolve: {
         extensions: ['', '.ts', '.js', '.json'],
         root: root('./../../../../'),
@@ -31,10 +31,12 @@ module.exports = {
             root('node_modules')
         ]
     },
+    devtool: 'source-map',
     output: {
         libraryTarget: 'commonjs2',
         path: path.join(__dirname, 'build'),
-        filename: 'handler.js'
+        filename: 'handler.js',
+        devtoolModuleFilenameTemplate: '[absolute-resource-path]'
     },
     module: {
         preLoaders: [

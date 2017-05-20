@@ -1,0 +1,46 @@
+{
+  "Records": [
+    {
+      "eventID": "5fddcb117a736fe8f1bfee2c1e7605aa",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "us-east-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1495092660,
+        "Keys": {
+          "bookingId": {
+            "S": "1"
+          },
+          "candidateId": {
+            "S": "1"
+          }
+        },
+        "NewImage": {
+          "testStatus": {
+            "S": "test"
+          },
+          "candidateId": {
+            "S": "1"
+          },
+          "category": {
+            "S": "java"
+          },
+          "bookingId": {
+            "S": "1"
+          },
+          "paperType": {
+            "S": "QA"
+          },
+          "dateOfExam": {
+            "S":"1495200006494"
+          }
+        },
+        "SequenceNumber": "100000000004112069037",
+        "SizeBytes": 58,
+        "StreamViewType": "NEW_IMAGE"
+      },
+      "eventSourceARN": "arn:aws:dynamodb:us-east-1:667361566775:table/booking/stream/2017-05-18T07:21:58.820"
+    }
+  ]
+}

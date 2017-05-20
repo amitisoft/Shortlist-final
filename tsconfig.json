@@ -1,30 +1,34 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "typeRoots": [
       "./node_modules/@types"
     ],
-    "rootDir": "../../../../",
     "outDir": "./build",
     "noImplicitAny": false,
-    "sourceMap": false,
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "declaration": false,
-    "listFiles": false,
+    "declaration": true,
     "skipLibCheck":true,
+    "listFiles": false,
     "lib": [
       "es2016",
       "dom"
     ]
   },
+  "include" :[
+    "*.ts",
+    "src/**/*"
+  ],
   "exclude": [
     ".vscode",
     ".serverless",
     ".git",
-    "node_modules"
+    "node_modules",
+    "**/*-spec.ts"
   ],
   "compileOnSave": false,
   "buildOnSave": false,

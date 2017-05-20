@@ -1,24 +1,38 @@
 import { Observable, Observer } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Booking } from '../domain/booking';
-import { DynamoDB, SES } from 'aws-sdk';
-import { v4 } from 'node-uuid';
+import { DynamoDB, SES, SNS } from 'aws-sdk';
+import { Client } from 'elasticsearch';
 import DocumentClient = DynamoDB.DocumentClient;
+import { DBStreamRecord, StreamObject } from '../../api/stream/booking-db-stream-record-impl';
+
+import UpdateDocumentParams = Elasticsearch.UpdateDocumentParams;
 
 const AWS = require('aws-sdk');
-
-
-AWS.config.update({
-    region: ' us-east-1'
-});
+const format = require('string-template');
+const _ = require('lodash');
 
 @Injectable()
 export class BookingServiceImpl {
 
-    constructor() {
+    private elasticSearchClient: Client;
+    private BOOKING_INDEX = 'booking_index';
+    private BOOKING_MAPPING = 'booking';
+
+
+    constructor(private elasticSearchEndPoint: string, private region: string) {
+        console.log(`calling booking constructor with search end point ${elasticSearchEndPoint}`);
+        console.log(`calling booking constructor with region ${region}`);
+        this.elasticSearchClient = new Client({
+            hosts: [elasticSearchEndPoint],
+            log: 'trace'
+        });
+
+        AWS.config.update({
+            region: region
+        });
 
     }
-
 
     /**
      * isLinkActive()
@@ -311,9 +325,56 @@ export class BookingServiceImpl {
         });
     }
 
-    /**
-     * ashok
-     */
+
+    updateBookingToElasticSearch(record: DBStreamRecord): Observable<boolean> {
+        return Observable.create((observer: Observer<boolean>) => {
+
+            console.log(`record updating ${JSON.stringify(record)}`);
+            switch (record.getEventName()) {
+                case 'INSERT':
+                    break;
+                case 'UPDATE':
+                    break;
+                case 'DELETE':
+                    break;
+                default:
+                    break;
+            }
+
+            let updateParams = this.constructBookingESUpdates(record);
+
+            this.elasticSearchClient.update(updateParams, (err: any, resp: any) => {
+                if (err) {
+                    console.error('failed to add/update booking', err);
+                    if (err.statusCode !== 404) {
+                        observer.error({});
+                        return;
+                    }
+                }
+                if (!err) {
+                    console.log(`added document to book index ${resp}`);
+                    observer.next(true);
+                    observer.complete();
+                }
+            });
+
+            // this.elasticSearchClient.ping({
+            //     // ping usually has a 3000ms timeout
+            //     requestTimeout: 1000
+            // }, function (error) {
+            //     if (error) {
+            //         console.log('elasticsearch cluster is down!');
+            //         observer.error('elasticsearch cluster is down!');
+            //     } else {
+            //         console.log('All is well');
+            //         observer.next(true);
+            //         observer.complete();
+            //     }
+            // });
+
+        });
+    }
+
 
     // check Candidate ID exist or not in Booking table
     findByCandidateId(candidateId: string, reqdata: any): Observable<any> {
@@ -345,74 +406,8 @@ export class BookingServiceImpl {
                  */
                 if (data.Items.length === 0) {
                     console.log(` this candidateID  ${candidateId} is not Exist in the Booking Table  `);
-                    let token = v4();
-                    let bookingId = v4();
-                    this.updateBookingInfo(bookingId, candidateId, token, reqdata.category, reqdata.jobPosition, reqdata.emails, reqdata.emailsubject, reqdata.emailbody)
-                        .then(this.updateCandidateInfo.bind(this))
-                        .then(this.sendEmail.bind(this))
-                        .then(() => {
-                            let msg = ' Success fully Sending mail';
-                            observer.next(msg);
-                            observer.complete();
-                        }, (rej) => {
-                            console.log('rejected', rej);
-                        });
-
                     return;
                 } else {
-                    let cate = reqdata.category;
-                    console.log(cate);
-                    let sortingDatesArray = [];
-                    console.log(data.Items);
-                    for (let i = 0; i < data.Items.length; i++) {
-                        if (cate === data.Items[i].category && data.Items[i].testStatus === 'taken') {
-                            sortingDatesArray.push(data.Items[i].dateofExam);
-                        }
-                    }
-
-                    if (sortingDatesArray.length === 0) {
-                        let token = v4();
-                        let bookingId = v4();
-                        this.updateBookingInfo(bookingId, candidateId, token, reqdata.category, reqdata.jobPosition, reqdata.emails, reqdata.emailsubject, reqdata.emailbody)
-                            .then(this.updateCandidateInfo.bind(this))
-                            .then(this.sendEmail.bind(this))
-                            .then(() => {
-                                observer.next('Success fully Sending mail');
-                                observer.complete();
-                            }, (rej) => {
-                                console.log('rejected', rej);
-                            });
-                        return;
-                    } else {
-                        let srtarr = [];
-                        for (let i = 0; i < sortingDatesArray.length; i++) {
-                            let df = sortingDatesArray[i].split('-');
-                            srtarr.push(Date.UTC(df[0], df[1] - 1, df[2]));
-                        }
-                        srtarr.sort();
-                        let oneDay = 24 * 60 * 60 * 1000;
-                        let diffDays = Math.round(Math.abs((new Date(srtarr[0]).getTime() - new Date().getTime()) / (oneDay)));
-                        console.log(diffDays);
-
-                        // validation of dates
-                        if (30 < diffDays) {
-                            let token = v4();
-                            let bookingId = v4();
-                            this.updateBookingInfo(bookingId, candidateId, token, reqdata.category, reqdata.jobPosition, reqdata.emails, reqdata.emailsubject, reqdata.emailbody)
-                                .then(this.updateCandidateInfo.bind(this))
-                                .then(this.sendEmail.bind(this))
-                                .then(() => {
-                                    observer.next(' Success fully Sending mail');
-                                    observer.complete();
-                                }, (rej) => {
-                                    console.log('rejected', rej);
-                                });
-                        } else {
-                            // console.log('System does not allow with in 30 Days');
-                            observer.next('System does not allow with in 30 Days');
-                            observer.complete();
-                        }
-                    }
 
                 }
 
@@ -494,106 +489,53 @@ export class BookingServiceImpl {
         });
     }
 
-    // send  mail to respective emailid - {email,body,subject}
-    sendEmail(result: any) {
-        const mydata = (JSON.parse(JSON.stringify(result)));
-        const emailConfig = {
-            region: ' us-east-1'
-        };
-        let that = this;
-        const emailSES = new SES(emailConfig);
-        const prom = new Promise((res, rej) => {
-            if (!mydata.result.emailids) {
-                rej('Please provide email');
-                return prom;
-            }
-            const emailParams: AWS.SES.SendEmailRequest = that.createEmailParamConfig(mydata.result.emailids,
-                mydata.result.emailsubject, mydata.result.emailbody, result.tokenid);
-            emailSES.sendEmail(emailParams, (err: any, data: AWS.SES.SendEmailResponse) => {
-                if (err) {
-                    console.log(err);
-                    rej(`Error in sending out email ${err}`);
-                    return prom;
-                }
-                res(`Successfully sent email to ${mydata.result.emails}`);
-            });
-        });
-        return prom;
+    private constructInsertOnlyParams(record: DBStreamRecord): any {
+        let uniqueObject = record.getAllUniqueProperties();
+        uniqueObject['fullName'] = 'Kiran Kumar';
+        uniqueObject['email'] = 'kiran@amitisoft.com';
+        uniqueObject['candidateId'] = '2';
+
+        console.log(`uniques ${JSON.stringify(uniqueObject)}`);
+        return uniqueObject;
     }
 
-    private createEmailParamConfig(email, subject, body, tokenid): AWS.SES.SendEmailRequest {
-        const params = {
-            Destination: {
-                BccAddresses: [],
-                CcAddresses: [],
-                ToAddresses: [email]
-            },
-            Message: {
-                Body: {
+    private constructUpdateOnlyParams(record: DBStreamRecord): any {
 
-                    Html: {
-                        Data: body,
-                        // this.generateEmailTemplate('ashok@amitisoft.com', tokenid, body),
-                        Charset: 'UTF-8'
-                    }
-                },
-                Subject: {
-                    Data: subject,
-                    Charset: 'UTF-8'
-                }
-            },
-            Source: 'ashok@amitisoft.com',
-            ReplyToAddresses: ['ashok@amitisoft.com'],
-            ReturnPath: 'ashok@amitisoft.com'
+        let updateInputs = _.filter(record.getNewImage(), function (o) {
+            return o.key !== record.getKeys()[0].key;
+        });
+
+        console.log(`record new ${JSON.stringify(updateInputs)}`);
+        let queries = _.reduce(_.map(updateInputs, 'key'), (inlineQueries, value) => {
+            return inlineQueries = inlineQueries + format('ctx._source.{0} = params.{1};', value, value);
+        }, '');
+
+        let params = {};
+        updateInputs.forEach((obj) => {
+            params[obj['key']] = obj['value'];
+        });
+
+        let updateOnly = {
+            inline: queries,
+            params: params
+        };
+
+        console.log(`updateOnly ${JSON.stringify(updateOnly)}`);
+        return updateOnly;
+    }
+
+    private constructBookingESUpdates(record: DBStreamRecord): UpdateDocumentParams {
+
+        let params = {
+            index: this.BOOKING_INDEX,
+            type: this.BOOKING_MAPPING,
+            id: record.getKeys()[0].value,
+            body: {
+                script: this.constructUpdateOnlyParams(record),
+                upsert: this.constructInsertOnlyParams(record)
+            }
         };
         return params;
     }
-
-    private generateEmailTemplate(emailFrom: string, tokenid: any, embody: any): string {
-        console.log('generate email');
-        return `
-         <!DOCTYPE html>
-         <html>
-           <head>
-             <meta charset='UTF-8' />
-             <title>title</title>
-           </head>
-           <body>
-                  
-            <table border='0' cellpadding='0' cellspacing='0' height='100%' width='100%' id='bodyTable'>
-             <tr>
-                 <td align='center' valign='top'>
-                     <table border='0' cellpadding='20' cellspacing='0' width='600' id='emailContainer'>
-                         <tr style='background-color:#99ccff;'>
-                             <td align='center' valign='top'>
-                                 <table border='0' cellpadding='20' cellspacing='0' width='100%' id='emailBody'>
-                                     <tr>
-                                         <td align='center' valign='top' style='color:#337ab7;'>
-                                             <h3>embody
-                                             <a href='http://mail.amiti.in/verify.html?token=${tokenid}'>http://mail.amiti.in/verify.html?token=${tokenid}</a>
-                                             </h3>
-                                         </td>
-                                     </tr>
-                                 </table>
-                             </td>
-                         </tr>
-                         <tr style='background-color:#74a9d8;'>
-                             <td align='center' valign='top'>
-                                 <table border='0' cellpadding='20' cellspacing='0' width='100%' id='emailReply'>
-                                     <tr style='font-size: 1.2rem'>
-                                         <td align='center' valign='top'>
-                                             <span style='color:#286090; font-weight:bold;'>Send From:</span> <br/> ${emailFrom}
-                                         </td>
-                                     </tr>
-                                 </table>
-                             </td>
-                         </tr>
-                     </table>
-                 </td>
-             </tr>
-             </table>
-           </body>
-         </html>
-`;
-    }
 }
+

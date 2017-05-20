@@ -8,7 +8,7 @@ import {Observable} from 'rxjs/Observable';
 const path = require('path');
 const fs = require('fs');
 const emailConfig = {
-    region: ' us-east-1'
+    region: 'us-east-1'
 };
 
 @Injectable()
