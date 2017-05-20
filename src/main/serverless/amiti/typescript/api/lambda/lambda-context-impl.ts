@@ -1,3 +1,4 @@
+import { Injector } from '@angular/core';
 import { Callback, Context } from 'aws-lambda';
 
 export class LambdaContextImpl {

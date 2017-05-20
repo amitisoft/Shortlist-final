@@ -1,6 +1,7 @@
 export class CandidateDto {
     candidateId: string;
     email: string;
-    fullName: string;
+    firstName: string;
+    lastName:string;
+    phoneNumber:number;
 }
-

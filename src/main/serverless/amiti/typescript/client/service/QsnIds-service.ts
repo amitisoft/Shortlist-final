@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { QsnIds } from '../domain/QsnIds';
+import { Question } from '../domain/Question';
 import { DynamoDB } from 'aws-sdk';
 
 const AWS = require('aws-sdk');
@@ -18,19 +19,19 @@ export class QsnIdsServiceImpl {
         console.log('in QsnIdsServiceImpl constructor()');
     }
 
-    getQsnId(questionPaperId: string): Observable<QsnIds[]> {
+    getQsnId(qsnPprId: string): Observable<QsnIds[]> {
         console.log('in QsnIdsServiceImpl get()');
 
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'questionPaper',
             ProjectionExpression: 'QsnId',
-            KeyConditionExpression: '#questionPaperId = :questionPaperId',
+            KeyConditionExpression: '#Qsn_Ppr_Id = :Qsn_Ppr_Id',
             ExpressionAttributeNames: {
-                '#questionPaperId': 'questionPaperId',
+                '#Qsn_Ppr_Id': 'Qsn_Ppr_Id',
 
             },
             ExpressionAttributeValues: {
-                ':questionPaperId': questionPaperId,
+                ':Qsn_Ppr_Id': qsnPprId,
             },
 
         };

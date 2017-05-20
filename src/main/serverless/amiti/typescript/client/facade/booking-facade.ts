@@ -1,10 +1,11 @@
-import { Observable, Observer } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { BookingServiceImpl } from '../service/booking-service';
 import { BookingDto } from '../dto/booking-dto';
 import { BookingsDto } from '../dto/bookings-dto';
 import { Booking } from '../domain/booking';
-import { DBStreamRecord } from '../../api/stream/booking-db-stream-record-impl';
+import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
+import { Candidate } from '../domain/candidate';
 
 
 @Injectable()
@@ -17,6 +18,10 @@ export class BookingFacade {
         return this.bookingService.updateBookingAfterStartTest(data);
     }
 
+    getTestInProgressBooking(): Observable<Booking[]> {
+        return this.bookingService.getTestInProgressBooking();
+    }
+
     getWhoNotTakenTest(data: any): Observable<Booking[]> {
         return this.bookingService.getWhoNotTakenTest(data);
     }
@@ -26,12 +31,13 @@ export class BookingFacade {
 
         return this.bookingService.getAllCandidateInfoWhoNotTakenTest(data)
             .map((bookings) => {
-                console.log(`map = , ${bookings}`);
+                console.log('map = ', bookings);
                 return {
                     bookings: bookings.map(this.mapBookingToDto)
                 };
             });
     }
+
 
     getCandidateHomePageInfo(data: any): any {
         return this.bookingService.getCandidateHomePageInfo(data);
@@ -46,23 +52,33 @@ export class BookingFacade {
         return this.bookingService.updateBookingToElasticSearch(record);
     }
 
-    /**
-     * Check link  Active or inActive
-     */
-    isLinkActive(pathParameter: any): Observable<boolean> {
-        return this.bookingService.isLinkActive(pathParameter);
+    getAllCandidateInfoWhoAreTestProgress(data: any): Observable<BookingsDto> {
+        console.log('in BookingFacade getAll()');
+
+
+        return this.bookingService.getAllCandidateInfoWhoNotTakenTest(data)
+            .map((bookings) => {
+                console.log('map = ', bookings);
+                return {
+                    bookings: bookings.map(this.mapBookingToDto)
+                };
+            });
     }
+
 
     findByCandidateId(candidateId: string, data: any): Observable<Booking[]> {
-        console.log(`in BookingFacade findByCandidateId() ${candidateId}`);
-        return this.bookingService.findByCandidateId(candidateId, data);
+        console.log('in BookingFacade findByCandidateId()');
+        // return this.bookingService.findByCandidateId(candidateId, data);
+        return null;
     }
 
+    getCandidatesListFile(data: any): Observable<Candidate[]> {
+        console.log('in reading candidateList file');
+        return this.bookingService.getCandidatesListFile(data);
+    }
 
     private mapBookingToDto(booking: Booking): BookingDto {
-        console.log(`in mapBookingToDto, ${booking}`);
-        // let formate = {year: 'numeric', month: 'numeric', day: 'numeric'};
-        // let date = new Date(new Date().getUTCDate());
+        console.log('in mapBookingToDto', booking);
         return {
             candidateId: booking.candidateId,
             category: booking.category,

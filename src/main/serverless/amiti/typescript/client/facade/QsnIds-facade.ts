@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 import { QsnIdsServiceImpl } from '../service/QsnIds-service';
+import { QsnIdsDto } from '../dto/QsnIds-dto';
 import { QsnIds } from '../domain/QsnIds';
 
 
@@ -11,8 +12,15 @@ export class QsnIdsFacade {
         console.log('in QsnPaperFacade constructor()');
     }
 
-    getQsnId(questionPaperId: string): Observable<QsnIds[]> {
+    getQsnId(qsnPprId: string): Observable<QsnIdsDto[]> {
         console.log('in QsnPaperFacade getAll()');
-        return this.qsnIdsService.getQsnId(questionPaperId);
+
+        return this.qsnIdsService.getQsnId(qsnPprId);
+            // .map((candidates) => {
+            //     return {
+            //         candidates: candidates.map(this.mapCandidateToDto)
+            //     }
+            // });
     }
+
 }

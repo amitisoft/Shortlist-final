@@ -56,6 +56,7 @@ export class HttpContextImpl {
     }
 
     getRequestBody(): any {
+        console.log('body = ', this.lambdaEvent.body);
         if (typeof this.lambdaEvent.body === 'string') {
             this.lambdaEvent.body = JSON.parse(this.lambdaEvent.body);
         }

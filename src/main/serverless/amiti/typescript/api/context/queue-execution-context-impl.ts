@@ -1,7 +1,7 @@
 import { Callback, Context } from 'aws-lambda';
 import { LambdaHandler } from '../http/http-context-impl';
 import { QueueRecordImpl, QueueRecord, RecordFields } from '../queue/queue-record-impl';
-import { SQS, Lambda } from 'aws-sdk';
+import { SQS, AWSError, Lambda } from 'aws-sdk';
 
 const async = require('async');
 const WORKER_LAMBDA_FUNCTION_NAME = 'LAMBDA_FUNCTION_NAME';
@@ -18,6 +18,7 @@ export class QueueExecutionContextImpl {
             const task: QueueRecord = JSON.parse(lambdaEvent.body);
             console.log(task.getMessageType());
             console.log(task.getPayload());
+
         };
     }
 
@@ -57,8 +58,8 @@ export class QueueExecutionContextImpl {
                         return new QueueRecordImpl(message);
                     })
                     .forEach((qRecord: QueueRecord) => {
-                        invocations.push((lCallback) => {
-                            QueueExecutionContextImpl.invokeQueueProcessingLambdaFunction(qRecord, lCallback);
+                        invocations.push((lambdaCallback1) => {
+                            QueueExecutionContextImpl.invokeQueueProcessingLambdaFunction(qRecord, lambdaCallback1);
                         });
                     });
 

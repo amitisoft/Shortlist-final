@@ -19,6 +19,7 @@ export class QueueRecordImpl implements QueueRecord {
     }
 
     getPayload(): any {
-        return JSON.stringify(this.record);
+        const payload = JSON.stringify(this.record);
+        return payload;
     }
 }

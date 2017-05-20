@@ -1,16 +1,23 @@
-import { Observable, Observer } from 'rxjs';
+import { Observable, Observer } from'rxjs';
 import { Injectable } from '@angular/core';
 import { Booking } from '../domain/booking';
-import { DynamoDB, SES, SNS } from 'aws-sdk';
 import { Client } from 'elasticsearch';
+import { Candidate } from '../domain/candidate';
+import { DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
-import { DBStreamRecord, StreamObject } from '../../api/stream/booking-db-stream-record-impl';
+import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
 
 import UpdateDocumentParams = Elasticsearch.UpdateDocumentParams;
 
 const AWS = require('aws-sdk');
 const format = require('string-template');
 const _ = require('lodash');
+
+
+AWS.config.update({
+    region: 'us-east-1'
+});
+
 
 @Injectable()
 export class BookingServiceImpl {
@@ -39,38 +46,39 @@ export class BookingServiceImpl {
      * Candidate click on TestLink Before test
      * @param pathParameter
      */
-    isLinkActive(pathParameter: any): Observable<boolean> {
-        let decodedData = JSON.parse(new Buffer(pathParameter.testLinkinfo, 'base64').toString('ascii'));
-        console.log('in is active method', decodedData.bookingId);
-        const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'booking',
-            KeyConditionExpression: '#bookingId = :bookingIdData',
-            ExpressionAttributeNames: {
-                '#bookingId': 'bookingId',
-            },
-            ExpressionAttributeValues: {
-                ':bookingIdData': decodedData.bookingId,
-            },
-            ProjectionExpression: 'candidateId,bookingId,testStatus',
-            ScanIndexForward: false
-        };
-        const documentClient = new DocumentClient();
-        return Observable.create((observer: Observer<boolean>) => {
-            documentClient.query(queryParams, (err, data: any) => {
-                if (err) {
-                    observer.error(err);
-                    throw err;
-                }
-                // check testStatus
-                console.log('testStatus', data);
-                if (data.Items[0].testStatus === 'NotTaken') {
-                    observer.next(false);
-                    observer.complete();
-                    return;
-                }
-            });
-        });
-    }
+    // isLinkActive(pathParameter: any): Observable<boolean> {
+    //     let decodedData = JSON.parse(new Buffer(pathParameter.testLinkinfo, 'base64').toString('ascii'));
+    //     console.log('in is active method', decodedData.bookingId);
+    //     const queryParams: DynamoDB.Types.QueryInput = {
+    //         TableName: 'booking',
+    //         KeyConditionExpression: '#bookingId = :bookingIdData',
+    //         ExpressionAttributeNames: {
+    //             '#bookingId': 'bookingId',
+    //         },
+    //         ExpressionAttributeValues: {
+    //             ':bookingIdData': decodedData.bookingId,
+    //         },
+    //         ProjectionExpression: 'candidateId,bookingId,testStatus',
+    //         ScanIndexForward: false
+    //     };
+    //     const documentClient = new DocumentClient();
+    //     return Observable.create((observer: Observer<boolean>) => {
+    //         documentClient.query(queryParams, (err, data: any) => {
+    //             if (err) {
+    //                 observer.error(err);
+    //                 throw err;
+    //             }
+    //             // check testStatus
+    //             console.log('testStatus', data);
+    //             if (data.Items[0].testStatus === 'NotTaken') {
+    //                 observer.next(false);
+    //                 observer.complete();
+    //                 return;
+    //             }
+    //         });
+    //     });
+    // }
+
 
     /**
      * updateBookingAfterStartTest
@@ -79,10 +87,10 @@ export class BookingServiceImpl {
      */
     updateBookingAfterStartTest(data: any): Observable<Booking> {
         console.log('in CandidateServiceImpl update()');
-        console.log(`data received ${data.category}`);
-        console.log(`data received ${data.jobPostion}`);
-        console.log(`data received ${data.DOE}`);
-        console.log(`data received ${data.paperType}`);
+        console.log(`data received ${ data.category }`);
+        console.log(`data received ${ data.jobPostion }`);
+        console.log(`data received ${ data.DOE }`);
+        console.log(`data received ${ data.paperType }`);
 
         const documentClient = new DocumentClient();
         const params = {
@@ -118,7 +126,7 @@ export class BookingServiceImpl {
                     observer.error(err);
                     return;
                 }
-                console.log(`result ${JSON.stringify(result)}`);
+                console.log(`result ${ JSON.stringify(data) }`);
                 observer.next(result.Attributes);
                 observer.complete();
             });
@@ -141,11 +149,11 @@ export class BookingServiceImpl {
             ExpressionAttributeValues: {
                 ':v_test': 'NotTaken'
             },
-            Limit: 2,
+            Limit: 5,
             ProjectionExpression: 'candidateId, category,testStatus,bookingId,jobPosition',
-            ScanIndexForward: false
+            ScanIndexForward: true
         };
-
+        lastEvaluatedKey = null;
         if (lastEvaluatedKey != null) {
             console.log('-----------------------------with data-----------------------');
             console.log(' data-------------', lastEvaluatedKey.candidateId);
@@ -165,7 +173,7 @@ export class BookingServiceImpl {
                     observer.error(err);
                     throw err;
                 }
-                console.log(`data items receieved ${data.Items.length}`);
+                console.log(`data items receieved ${ data.Items.length }`);
                 if (data.Items.length === 0) {
                     observer.complete();
                     return;
@@ -177,6 +185,38 @@ export class BookingServiceImpl {
         });
     }
 
+    getTestInProgressBooking(): Observable<Booking[]> {
+
+        const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: 'booking',
+            IndexName: 'testStatusGSI',
+            KeyConditionExpression: '#testStatus = :v_test',
+            ExpressionAttributeNames: {
+                '#testStatus': 'testStatus'
+            },
+            ExpressionAttributeValues: {
+                ':v_test': 'progress'
+            },
+            ProjectionExpression: 'candidateId, category,testStatus,bookingId,jobPosition',
+            ScanIndexForward: false
+        };
+        const documentClient = new DocumentClient();
+        return Observable.create((observer: Observer<Booking>) => {
+            documentClient.query(queryParams, (err, data: any) => {
+                if (err) {
+                    observer.error(err);
+                    throw err;
+                }
+                console.log(`data items receieved ${ data.Items.length }`);
+                if (data.Items.length === 0) {
+                    observer.complete();
+                    return;
+                }
+                observer.next((data.Items));
+                observer.complete();
+            });
+        });
+    }
 
     /**
      * get candidate information
@@ -184,13 +224,21 @@ export class BookingServiceImpl {
      */
 
     getAllCandidateInfoWhoNotTakenTest(data: any): Observable<Booking[]> {
-        const candidateKey = [];
+        let candidateKey = [];
         data.forEach((item) => {
-            let myObj = {'candidateId': item.candidateId};
-            candidateKey.push(myObj);
+            console.log('in side for each');
+            let myObj = {'candidateId': ''};
+            myObj.candidateId = item.candidateId;
+            let checkUniq = candidateKey.find((obj) => {
+                return obj.candidateId === myObj.candidateId;
+            });
+            if (!checkUniq) {
+                candidateKey.push(myObj);
+            }
         });
-        console.log('out side');
-        const params = {
+        console.log('candidate Id list = ', candidateKey);
+
+        let params = {
             RequestItems: {
                 'candidate': {
                     Keys: candidateKey,
@@ -204,36 +252,35 @@ export class BookingServiceImpl {
                 if (err) {
                     observer.error(err);
                     throw err;
-                }
+                } else {
+                    let resultArray: any = [];
+                    // console.log('booking data = ',data);
+                    let res = (JSON.parse(JSON.stringify(data1.Responses))).candidate;
+                    //  console.log('res = ',res);
+                    data.forEach((item) => {
+                        let newArray = res.filter((id) => {
+                            return (id.candidateId === item.candidateId);
+                        });
+                        //  console.log('new array', newArray[0]);
+                        //  console.log('item = ',item.candidateId);
+                        // if (newArray != undefined){
+                        let bookinginfo = new Booking();
+                        bookinginfo.candidateId = item.candidateId;
+                        bookinginfo.candidateId = item.candidateId;
+                        bookinginfo.testStatus = item.testStatus;
+                        bookinginfo.bookingId = item.bookingId;
+                        bookinginfo.category = item.category;
+                        bookinginfo.fullName = `${ newArray[0].firstName } ${ newArray[0].lastName }`;
+                        bookinginfo.email = newArray[0].email;
+                        bookinginfo.jobPosition = item.jobPosition;
+                        resultArray.push(bookinginfo);
+                        //  console.log(' result', bookinginfo);
+                        //      }
 
-                let resultArray: any = [];
-                // console.log('booking data = ',data);
-                let res = (JSON.parse(JSON.stringify(data1.Responses))).candidate;
-                //  console.log('res = ',res);
-                data.forEach((item) => {
-                    let newArray = res.filter((id) => {
-                        return (id.candidateId === item.candidateId);
                     });
-                    //  console.log('new array', newArray[0]);
-                    //  console.log('item = ',item.candidateId);
-                    // if (newArray != undefined){
-                    let bookinginfo = new Booking();
-                    bookinginfo.candidateId = item.candidateId;
-                    bookinginfo.candidateId = item.candidateId;
-                    bookinginfo.testStatus = item.testStatus;
-                    bookinginfo.bookingId = item.bookingId;
-                    bookinginfo.category = item.category;
-                    bookinginfo.fullName = `${newArray[0].firstName} ${newArray[0].lastName}`;
-                    bookinginfo.email = newArray[0].email;
-                    bookinginfo.jobPosition = item.jobPosition;
-                    resultArray.push(bookinginfo);
-                    //  console.log(' result', bookinginfo);
-                    //     }
-
-                });
-                observer.next(resultArray);
-                observer.complete();
-
+                    observer.next(resultArray);
+                    observer.complete();
+                }
             });
         });
     }
@@ -275,8 +322,9 @@ export class BookingServiceImpl {
                     return;
                 }
                 // check testStatus
+                console.log(result);
                 console.log('test status', result.Items[0].testStatus);
-                if (data.Items[0].testStatus === 'progress') {
+                if (result.Items[0].testStatus === 'progress') {
                     observer.next((result.Items[0]));
                     observer.complete();
                     return;
@@ -358,136 +406,27 @@ export class BookingServiceImpl {
                 }
             });
 
-            // this.elasticSearchClient.ping({
-            //     // ping usually has a 3000ms timeout
-            //     requestTimeout: 1000
-            // }, function (error) {
-            //     if (error) {
-            //         console.log('elasticsearch cluster is down!');
-            //         observer.error('elasticsearch cluster is down!');
-            //     } else {
-            //         console.log('All is well');
-            //         observer.next(true);
-            //         observer.complete();
-            //     }
-            // });
-
         });
     }
 
 
-    // check Candidate ID exist or not in Booking table
-    findByCandidateId(candidateId: string, reqdata: any): Observable<any> {
-        console.log('in BookingServiceImpl findByCandidateId()');
-        const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'booking',
-            IndexName: 'candidateIdGSI',
-            ProjectionExpression: 'category,dateofExam,jobPosition,bookingId,testStatus',
-            KeyConditionExpression: '#candidateId = :candidateIdFilter',
-            ExpressionAttributeNames: {
-                '#candidateId': 'candidateId'
-            },
-            ExpressionAttributeValues: {
-                ':candidateIdFilter': candidateId
-            }
-        };
-        const documentClient = new DocumentClient();
-        return Observable.create((observer: Observer<any>) => {
-            console.log('Executing query with parameters ' + queryParams);
-            documentClient.query(queryParams, (err, data: any) => {
-                console.log(`did we get error ${err}`);
-                if (err) {
-                    observer.error(err);
-                    throw err;
-                }
-                console.log(`data items receieved ${data.Items.length}`);
-                /**
-                 *  CandidateId is not exist in the Booking Table consider as a frehser  then book the slot.
-                 */
-                if (data.Items.length === 0) {
-                    console.log(` this candidateID  ${candidateId} is not Exist in the Booking Table  `);
-                    return;
-                } else {
+    getCandidatesListFile(data: any): Observable<Candidate[]> {
+        console.log('inside of get candidatelist file service layer');
 
-                }
-
-            });
+        return Observable.create((observer: Observer<Candidate>) => {
+            console.log(data);
+            let candidate = new Candidate();
+            candidate.candidateId = '1';
+            candidate.email = 'email';
+            candidate.firstName = 'first';
+            candidate.lastName = 'last';
+            candidate.phoneNumber = 12222;
+            observer.next(candidate);
+            observer.complete();
         });
+
     }
 
-    // Before send  a mail: step 2->  Update the tokenid in Candidate table based on CandidateID
-    updateCandidateInfo(result: any) {
-        console.log(`Update the tokenId :${result.token} in candidate table `);
-        const documentClient = new DocumentClient();
-        const params = {
-            TableName: 'candidate',
-            Key: {
-                candidateId: result.candidateId,
-            },
-            ExpressionAttributeNames: {
-                '#tok': 'tokenId'
-            },
-            ExpressionAttributeValues: {
-                ':tok': result.token
-            },
-            UpdateExpression: 'SET #tok=:tok',
-            ReturnValues: 'ALL_NEW',
-        };
-
-        return new Promise(function (resolve, reject) {
-            documentClient.update(params, (err, data: any) => {
-                if (err) {
-                    console.error(err);
-                    reject(err);
-                    return;
-                }
-                resolve({result: result});
-            });
-        });
-    }
-
-    // Before Sending a mail, Step->1 Update Booking table - bookingid,candidateid,category,jobposition
-    updateBookingInfo(bookingId: string, candidateId: string, token: string, category: string, jobPosition: string, emailids: any, emailsubject: string, emailbody: any) {
-        console.log(' update the information in Booking');
-        console.log(`data received CandidateId : ${candidateId}`);
-        console.log(`data received Category :${category}`);
-        console.log(`data received jobPosition :${jobPosition}`);
-        console.log(`data received bookingId :${bookingId}`);
-
-        let testStatus = 'notTaken';
-        const documentClient = new DocumentClient();
-        const params = {
-            TableName: 'booking',
-            Key: {
-                bookingId: bookingId,
-            },
-            ExpressionAttributeNames: {
-                '#cid': 'candidateId',
-                '#ct': 'category',
-                '#jp': 'jobPosition',
-                '#ts': 'testStatus'
-            },
-            ExpressionAttributeValues: {
-                ':cid': candidateId,
-                ':ct': category,
-                ':jp': jobPosition,
-                ':ts': testStatus
-            },
-            UpdateExpression: 'SET #cid=:cid,#ct=:ct,#jp=:jp, #ts=:ts',
-            ReturnValues: 'ALL_NEW',
-        };
-        return new Promise(function (resolve, reject) {
-            documentClient.update(params, (err, data: any) => {
-                if (err) {
-                    console.log(err);
-                    reject('data is not inserted');
-                } else {
-                    console.log('updated booking Information in Booking Table');
-                    resolve({candidateId, token, emailids, emailsubject, emailbody});
-                }
-            });
-        });
-    }
 
     private constructInsertOnlyParams(record: DBStreamRecord): any {
         let uniqueObject = record.getAllUniqueProperties();
@@ -526,7 +465,7 @@ export class BookingServiceImpl {
 
     private constructBookingESUpdates(record: DBStreamRecord): UpdateDocumentParams {
 
-        let params = {
+        return {
             index: this.BOOKING_INDEX,
             type: this.BOOKING_MAPPING,
             id: record.getKeys()[0].value,
@@ -535,7 +474,6 @@ export class BookingServiceImpl {
                 upsert: this.constructInsertOnlyParams(record)
             }
         };
-        return params;
     }
 }
 

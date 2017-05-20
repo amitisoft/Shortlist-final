@@ -19,12 +19,19 @@ export class ResultServiceImpl {
     }
 
     update(dataa: any): Observable<Result> {
-        // console.log('data before type of----', typeof dataa);
-        // console.log('data After type of----', typeof dataa);
-        // console.log('in ResultServiceImpl get()');
+        let dataConversion: any;
+        console.log('data before type of----', typeof dataa);
+    //   if (typeof dataa == 'string'){
+    //     dataConversion = JSON.parse(dataa);
+    //   }
+    //   else{
+    //     dataConversion = dataa;
+    //   }
+        console.log('data After type of----', typeof dataa);
+        console.log('in ResultServiceImpl get()');
         const documentClient = new DocumentClient();
         let data = dataa;
-        console.log(`Data Conversion = ${data}`);
+        console.log('dataconversion = ', data);
         let score;
         if (data.curct_ans === data.cand_ans)
             score = 1;
@@ -38,15 +45,15 @@ export class ResultServiceImpl {
             },
             ExpressionAttributeNames: {
                 '#ci': 'CandidateId',
-                '#a': 'curct_ans',
+                '#a' : 'curct_ans',
                 '#ca': 'cand_ans',
-                '#s': 'score'
+                '#s' : 'score'
             },
             ExpressionAttributeValues: {
                 ':ci': data.CandidateId,
-                ':a': data.curct_ans,
+                ':a' : data.curct_ans,
                 ':ca': data.cand_ans,
-                ':s': score
+                ':s' : score
             },
             UpdateExpression: 'SET #ci = :ci,  #a=:a , #ca = :ca , #s =:s',
             ReturnValues: 'ALL_NEW',
@@ -60,10 +67,11 @@ export class ResultServiceImpl {
                     observer.error(err);
                     return;
                 }
-                console.log(`result ${JSON.stringify(result)}`);
+                console.log(`result ${JSON.stringify(data)}`);
                 observer.next(result.Attributes);
                 observer.complete();
             });
         });
+
     }
 }

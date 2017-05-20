@@ -32,37 +32,33 @@ export class QuestionServiceImpl {
                 ':Category': category,
                 ':QsnId': qsnId
             },
-
         };
 
         const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Question>) => {
             console.log('Executing query with parameters ' + queryParams);
             documentClient.query(queryParams, (err, data: any) => {
-                console.log(`did we get error ${err}`);
+                console.log(`did we get error ${ err }`);
                 if (err) {
                     observer.error(err);
                     throw err;
                 }
-                console.log(`data items receieved ${data.Items.length}`);
+                console.log(`data items receieved ${ data.Items.length }`);
                 if (data.Items.length === 0) {
                     console.log('no data received for get Qsn');
                     observer.complete();
                     return;
                 }
                 data.Items.forEach((item) => {
-                    console.log(`Category ${item.Category}`);
-                    console.log(`Qsn ${item.Qsn}`);
-                    console.log(`Curct_ans ${item.curct_ans}`);
-                    console.log(`Opt1 ${item.Opt1}`);
+                    console.log(`Category ${ item.Category }`);
+                    console.log(`Qsn ${ item.Qsn }`);
+                    console.log(`Curct_ans ${ item.curct_ans }`);
+                    console.log(`Opt1 ${ item.Opt1 }`);
                 });
-
                 observer.next(data.Items);
                 observer.complete();
 
             });
-
         });
-
     }
 }

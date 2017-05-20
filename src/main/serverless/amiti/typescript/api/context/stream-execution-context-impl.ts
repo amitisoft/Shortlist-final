@@ -2,7 +2,7 @@ import { ReflectiveInjector } from '@angular/core';
 import { Callback, Context } from 'aws-lambda';
 import { StreamLambdaHandler, StreamContextImpl, StreamHandler, DBStreamHandler, DBStreamContextImpl } from '../stream/stream-context-impl';
 import { StreamRecord, StreamRecordImpl } from '../stream/stream-record-impl';
-import { DBStreamRecordImpl, DBStreamRecord } from '../stream/booking-db-stream-record-impl';
+import { DBStreamRecordImpl, DBStreamRecord } from '../stream/db-stream-record-impl';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/concatMap';
@@ -10,7 +10,6 @@ import 'rxjs/add/operator/mergeMap';
 
 
 export class StreamExecutionContextImpl {
-
     static createBookingDBStreamHandler(providers: any[], handler: DBStreamHandler): StreamLambdaHandler {
         return (lambdaEvent: any, lambdaContext: Context, lambdaCallback: Callback) => {
             try {
@@ -115,7 +114,7 @@ export class StreamExecutionContextImpl {
                     }, (err: any) => {
                         console.log(err);
                     }, () => {
-                        lambdaCallback(null, 'Successfully Finished!!!');
+                        lambdaCallback(null, 'Sucessfully Finished!!!');
                     });
 
 

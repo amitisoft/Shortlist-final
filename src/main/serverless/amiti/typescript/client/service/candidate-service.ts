@@ -4,11 +4,12 @@ import { Candidate } from '../domain/candidate';
 import { UtilHelper } from '../../api/util/util-helper';
 import { v4 } from 'node-uuid';
 import { DynamoDB, config, AWSError, Kinesis } from 'aws-sdk';
-import DocumentClient = DynamoDB.DocumentClient;
 import { NotificationServiceImpl } from './notification-service';
 import { Registration } from '../domain/registration';
 import { PutRecordsResultEntry } from 'aws-sdk/clients/kinesis';
+import DocumentClient = DynamoDB.DocumentClient;
 
+const async = require('async');
 config.update({
     region: 'us-east-1'
 });
@@ -63,7 +64,7 @@ export class CandidateServiceImpl {
         });
 
 
-        let streamInputRecords = registrations.map((registration) => {
+        let streamInputRecords = registrations.map((registration, index) => {
             const encodedData = JSON.stringify(
                 {
                     email: registration.email,
@@ -89,6 +90,7 @@ export class CandidateServiceImpl {
         console.log(`kinesis records ${JSON.stringify(kinesisParams)}`);
 
         return Observable.create((observer: any) => {
+
             this.kinesisClient.putRecords(kinesisParams, function (err, data) {
                 if (err) {
                     console.log(err, err.stack);
@@ -102,8 +104,6 @@ export class CandidateServiceImpl {
                 });
 
                 observer.next(true);
-
-                observer.complete();
             });
         });
     }
@@ -147,6 +147,7 @@ export class CandidateServiceImpl {
 
     validateBookingForCandidate(params: RegisterCandidateInputParams): Observable<boolean> {
         console.log(`params in validateBooking ${JSON.stringify(params)}`);
+        let date1 = new Date(new Date().getUTCDate());
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'booking',
             IndexName: 'candidateId-category-index',
@@ -203,7 +204,7 @@ export class CandidateServiceImpl {
                 return that.findCandidateByEmailId(inputParams.email);
             },
             function (candidate: Candidate) {
-                console.log('Candidate Received: ' + JSON.stringify(candidate));
+                console.log('Candidate Received' + JSON.stringify(candidate));
                 inputParams.candidate = candidate;
                 return candidate ? that.validateBookingForCandidate(inputParams) :
                     Observable.throw(new Error('Candidate does not exist.'));
@@ -211,7 +212,8 @@ export class CandidateServiceImpl {
             function (validated: boolean) {
                 console.log(`in register validated ${validated}`);
                 if (validated) {
-                    inputParams.token = v4();
+                    const token = v4();
+                    inputParams.token = token;
                     let uInput = {
                         token: inputParams.token,
                         candidateId: inputParams.candidate.candidateId
@@ -237,6 +239,7 @@ export class CandidateServiceImpl {
             }
         );
     }
+
 
     updateCandidateInfo(result: any): Observable<boolean> {
         let that = this;
@@ -289,13 +292,14 @@ export class CandidateServiceImpl {
 
     }
 
+
     getAll(): Observable<Candidate[]> {
         let that = this;
 
         console.log('in CandidateServiceImpl getAll()');
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'candidate',
-            ProjectionExpression: 'candidateId, firstName, lastName, email',
+            ProjectionExpression: 'candidateId, firstName, lastName, email,phoneNumber',
         };
 
         const documentClient = new DocumentClient();
@@ -326,6 +330,176 @@ export class CandidateServiceImpl {
 
         });
 
+    }
+
+    /**
+     *  insert candidate information into db
+     *      first we check emailId is exist or not
+     *      if not exist put candidate information into db
+     * @param inputParams
+     */
+    insertCandidate(inputParams: any): Observable<string> {
+        console.log(`received ${JSON.stringify(inputParams)}`);
+        let that = this;
+        return Observable.create((observer: Observer<string>) => {
+            const registrationWaterFall = UtilHelper.waterfall([
+                function () {
+                    let checkDuplicates = that.checkDuplicateEmailId(inputParams.email);
+                    return checkDuplicates;
+                },
+                function (checkduplicate: boolean) {
+                    if (checkduplicate && inputParams.candidateId === undefined) {
+                        return 'f';
+                    } else {
+                        return that.updateCandidateTable(inputParams);
+                    }
+                }
+            ]);
+            let message = '';
+            registrationWaterFall.subscribe(
+                function (x) {
+                    if (x === 'f') {
+                        observer.next('Email ID already exist');
+                        observer.complete();
+                        return;
+
+                    } else {
+                        observer.next('Successfully inserted data');
+                        observer.complete();
+                        return;
+                    }
+                },
+                function (err) {
+                    message = err;
+                    console.log(`registrationWaterFall failed ${err.stack}`);
+                    observer.error(err);
+                    return;
+                }
+            );
+        });
+    }
+
+    /**
+     * candidate email duplicate check
+     * true == eamilID is already exist
+     * false == eamilID is not exist
+     */
+
+    checkDuplicateEmailId(email: any): Observable<boolean> {
+        console.log(`in  isCandidateEmailExists() ${email}`);
+
+        const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: 'candidate',
+            IndexName: 'emailIndex',
+            ProjectionExpression: 'candidateId',
+            KeyConditionExpression: '#emailId = :emailIdFilter',
+            ExpressionAttributeNames: {
+                '#emailId': 'email'
+            },
+            ExpressionAttributeValues: {
+                ':emailIdFilter': email
+            }
+        };
+        const documentClient: DocumentClient = new DocumentClient();
+
+        return Observable.create((observer: any) => {
+            documentClient.query(queryParams, (err: AWSError, data: DynamoDB.DocumentClient.QueryOutput) => {
+                if (err) {
+                    console.log(err);
+                    return observer.error(err);
+                }
+
+                if (data.Items.length === 0) {
+                    console.log(`Candiate doesn't exists with email ${email}`);
+                    observer.next(false);
+                    observer.complete();
+                    return;
+                } else {
+                    observer.next(true);
+                    observer.complete();
+                    return;
+                }
+            });
+        });
+
+    }
+
+    /**
+     *
+     */
+
+    updateCandidateTable(data: any): Observable<string> {
+        console.log('#########', data);
+        //  data = JSON.parse(JSON.stringify(data));
+        let candidateIdUuid = v4();
+        if (data.candidateId !== undefined) {
+            candidateIdUuid = data.candidateId;
+        }
+        const documentClient = new DocumentClient();
+        const params = {
+            TableName: 'candidate',
+            Key: {
+                candidateId: candidateIdUuid,
+            },
+            ExpressionAttributeNames: {
+                '#fn': 'firstName',
+                '#ln': 'lastName',
+                '#email': 'email',
+                '#pn': 'phoneNumber'
+            },
+            ExpressionAttributeValues: {
+                ':fn': data.firstName,
+                ':ln': data.lastName,
+                ':email': data.email,
+                ':pn': data.phoneNumber,
+            },
+            UpdateExpression: 'SET #fn = :fn,#ln=:ln, #email = :email, #pn= :pn',
+            ReturnValues: 'ALL_NEW',
+        };
+
+        return Observable.create((observer: Observer<string>) => {
+
+            documentClient.update(params, (err, result: any) => {
+                if (err) {
+                    console.error(err);
+                    observer.error(err);
+                    return;
+                }
+                console.log(`result ${JSON.stringify(result)}`);
+                observer.next('Successfully inserted data');
+                observer.complete();
+            });
+        });
+    }
+
+
+    /**
+     * get candidate
+     */
+    getCandidateInfoForView(data: any): Observable<Candidate> {
+        const queryParams: DynamoDB.Types.GetItemInput = {
+            TableName: 'candidate',
+            ProjectionExpression: 'candidateId, firstName, lastName, email,phoneNumber',
+            Key: {
+                'candidateId': data.id
+            }
+        };
+
+        const documentClient = new DocumentClient();
+        return Observable.create((observer: Observer<Candidate>) => {
+            console.log('Executing query with parameters ' + queryParams);
+            documentClient.get(queryParams, (err, result: any) => {
+                console.log(`did we get error ${err}`);
+                if (err) {
+                    observer.error(err);
+                    throw err;
+                }
+                console.log(`data items receieved ${result}`);
+                observer.next(result.Item);
+                observer.complete();
+
+            });
+        });
     }
 
     private doPostRegistrationTasks(inputParams: RegisterCandidateInputParams) {
@@ -385,10 +559,8 @@ export class CandidateServiceImpl {
                     return;
                 }
                 console.log(`Created Booking for Candidate ${inputParams.candidate.candidateId}`);
-                if (data != null) {
-                    observer.next(true);
-                    observer.complete();
-                }
+                observer.next(true);
+                observer.complete();
             });
         });
     }

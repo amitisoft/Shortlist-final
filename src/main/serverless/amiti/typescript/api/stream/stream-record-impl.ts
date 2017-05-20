@@ -5,13 +5,15 @@ export interface StreamRecord {
 }
 
 export class StreamRecordImpl implements StreamRecord {
+
     constructor(private record: any) {
 
     }
 
     getPayload(): any {
         const encodedPayload = this.record.kinesis.data;
-        return JSON.parse(new Buffer(encodedPayload, 'base64').toString('ascii'));
+        const payload = JSON.parse(new Buffer(encodedPayload, 'base64').toString('ascii'));
+        return payload;
     }
 
     getSequenceNumber(): string {

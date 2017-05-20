@@ -1,6 +1,7 @@
 export class CandidateTestInfo {
-    bookingId: string;
+    bookingId:string;
     candidateId: string;
     category: string;
-    paperType: string;
+    paperType:string;
 }
+

@@ -137,6 +137,18 @@ provider:
       Resource: "arn:aws:sns:${opt:region, self:provider.region}:${self:provider.environment.ACCOUNT_ID}:${self:provider.environment.SEND_EMAIL_SNS}"
     - Effect: Allow
       Action:
+        - kinesis:DescribeStream
+        - kinesis:GetRecords
+        - kinesis:PutRecords
+        - kinesis:PutRecord
+        - kinesis:GetShardIterator
+        - kinesis:ListStreams
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: arn:aws:kinesis:${opt:region, self:provider.region}:${self:provider.environment.ACCOUNT_ID}:stream/${self:provider.environment.REGISTER_TEST_STREAM}
+    - Effect: Allow
+      Action:
         - execute-api:Invoke
       Resource: "arn:aws:execute-api:us-east-1:*:*"
 
@@ -252,6 +264,21 @@ functions:
       - http:
           path: api/updateCandidate
           method: post
+          cors: true
+  insertCandidate:
+    handler: handler.insertCandidate
+    events:
+      - http:
+          path: api/insertCandidate
+          method: post
+          cors: true
+
+  getCandidateInfoForView:
+    handler: handler.getCandidateInfoForView
+    events:
+      - http:
+          path: api/getCandidateInfoForView/candidateId/{id}
+          method: get
           cors: true
 
   # registerCandidate:
@@ -439,7 +466,7 @@ resources:
 
               Projection:
                 NonKeyAttributes:
-                  - "DOE"
+                  - "dateOfExam"
                 ProjectionType: "INCLUDE"
 
               ProvisionedThroughput:
