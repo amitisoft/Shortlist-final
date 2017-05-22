@@ -328,7 +328,7 @@
                     "sns:Publish",
                     "sns:Subscribe"
                   ],
-                  "Resource": "arn:aws:sns:us-east-1:151610303354:sendEmail"
+                  "Resource": "arn:aws:sns:us-east-1:784455347771:sendEmail"
                 },
                 {
                   "Effect": "Allow",
@@ -336,6 +336,20 @@
                     "execute-api:Invoke"
                   ],
                   "Resource": "arn:aws:execute-api:us-east-1:*:*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "kinesis:DescribeStream",
+                    "kinesis:GetRecords",
+                    "kinesis:PutRecords",
+                    "kinesis:GetShardIterator",
+                    "kinesis:ListStreams",
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "arn:aws:kinesis:us-east-1:784455347771:stream/register-test-stream"
                 },
                 {
                   "Effect": "Allow",
@@ -351,7 +365,7 @@
                     "kinesis:ListStreams"
                   ],
                   "Resource": [
-                    "arn:aws:kinesis:us-east-1:151610303354:stream/register-test-stream"
+                    "arn:aws:kinesis:us-east-1:784455347771:stream/register-test-stream"
                   ]
                 }
               ]
@@ -379,7 +393,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-getAllCandidatesFunction",
         "Handler": "handler.getAllCandidatesFunction",
@@ -394,7 +408,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -411,14 +425,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "GetAllCandidatesFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "GetAllCandidatesFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetAllCandidatesFunctionLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "StartTestDashboardLambdaFunction": {
@@ -428,7 +442,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-startTestDashboard",
         "Handler": "handler.startTestDashboard",
@@ -443,7 +457,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -460,14 +474,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "StartTestDashboardLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "StartTestDashboardLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "StartTestDashboardLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "UpdateBookingAfterStartTestLambdaFunction": {
@@ -477,7 +491,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-updateBookingAfterStartTest",
         "Handler": "handler.updateBookingAfterStartTest",
@@ -492,7 +506,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -509,14 +523,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "UpdateBookingAfterStartTestLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "UpdateBookingAfterStartTestLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "UpdateBookingAfterStartTestLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "GetAllQsnIdsFunctionLambdaFunction": {
@@ -526,7 +540,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-getAllQsnIdsFunction",
         "Handler": "handler.getAllQsnIdsFunction",
@@ -541,7 +555,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -558,14 +572,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "GetAllQsnIdsFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "GetAllQsnIdsFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetAllQsnIdsFunctionLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "UpdateResultFunctionLambdaFunction": {
@@ -575,7 +589,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-updateResultFunction",
         "Handler": "handler.updateResultFunction",
@@ -590,7 +604,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -607,14 +621,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "UpdateResultFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "UpdateResultFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "UpdateResultFunctionLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "CreateQuestionFunctionLambdaFunction": {
@@ -624,7 +638,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-createQuestionFunction",
         "Handler": "handler.createQuestionFunction",
@@ -639,7 +653,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -656,14 +670,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "CreateQuestionFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "CreateQuestionFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "CreateQuestionFunctionLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "GetQuestionByCategoryFunctionLambdaFunction": {
@@ -673,7 +687,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-getQuestionByCategoryFunction",
         "Handler": "handler.getQuestionByCategoryFunction",
@@ -688,7 +702,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -705,14 +719,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "GetQuestionByCategoryFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "GetQuestionByCategoryFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetQuestionByCategoryFunctionLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "CreateQsnPaperLambdaFunction": {
@@ -722,7 +736,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-createQsnPaper",
         "Handler": "handler.createQuestionPaperFunction",
@@ -737,7 +751,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -754,14 +768,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "CreateQsnPaperLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "CreateQsnPaperLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "CreateQsnPaperLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "GetQuestionPaperNamesLambdaFunction": {
@@ -771,7 +785,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-getQuestionPaperNames",
         "Handler": "handler.getQuestionPaperNamesFunction",
@@ -786,7 +800,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -803,14 +817,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "GetQuestionPaperNamesLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "GetQuestionPaperNamesLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetQuestionPaperNamesLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "CreateTestLinkFunctionLambdaFunction": {
@@ -820,7 +834,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-createTestLinkFunction",
         "Handler": "handler.createTestLinkFunction",
@@ -835,7 +849,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -852,14 +866,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "CreateTestLinkFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "CreateTestLinkFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "CreateTestLinkFunctionLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "GetCandidateHomePageInfoLambdaFunction": {
@@ -869,7 +883,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-getCandidateHomePageInfo",
         "Handler": "handler.getCandidateHomePageInfo",
@@ -884,7 +898,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -901,14 +915,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "GetCandidateHomePageInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "GetCandidateHomePageInfoLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetCandidateHomePageInfoLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "GettestStausInfoLambdaFunction": {
@@ -918,7 +932,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-gettestStausInfo",
         "Handler": "handler.gettestStausInfo",
@@ -933,7 +947,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -950,14 +964,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "GettestStausInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "GettestStausInfoLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GettestStausInfoLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "UpdateCandidateInfoLambdaFunction": {
@@ -967,7 +981,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-updateCandidateInfo",
         "Handler": "handler.updateCandidateInfo",
@@ -982,7 +996,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -999,14 +1013,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "UpdateCandidateInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "UpdateCandidateInfoLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "UpdateCandidateInfoLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "RegisterCandidatesAndEmailPostRegistrationLambdaFunction": {
@@ -1016,7 +1030,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-registerCandidatesAndEmailPostRegistration",
         "Handler": "handler.registerCandidatesAndEmailPostRegistration",
@@ -1031,7 +1045,7 @@
         "Timeout": 6,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -1048,14 +1062,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "RegisterCandidatesAndEmailPostRegistrationLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "RegisterCandidatesAndEmailPostRegistrationLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "ProcessRegistrationStreamLambdaFunction": {
@@ -1065,7 +1079,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/shortlist-project/dev/1495110267900-2017-05-18T12:24:27.900Z/shortlist-project.zip"
+          "S3Key": "serverless/shortlist-project/dev/1495429833822-2017-05-22T05:10:33.822Z/shortlist-project.zip"
         },
         "FunctionName": "shortlist-project-dev-processRegistrationStream",
         "Handler": "handler.processRegistrationStream",
@@ -1080,7 +1094,7 @@
         "Timeout": 20,
         "Environment": {
           "Variables": {
-            "ACCOUNT_ID": 151610303354,
+            "ACCOUNT_ID": 784455347771,
             "REGISTER_TEST_STREAM": "register-test-stream",
             "CANDIDATE_TABLE": "candidate",
             "BOOKING_TABLE": "booking",
@@ -1097,14 +1111,14 @@
         "streamExecutionRole"
       ]
     },
-    "ProcessRegistrationStreamLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA": {
+    "ProcessRegistrationStreamLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ProcessRegistrationStreamLambdaFunction"
         },
-        "CodeSha256": "6Vxoam5tZ/kYIXpcIYULOB631S2/B64UpHyqGk5IdlA="
+        "CodeSha256": "TyZ3xQoumRvWAF4U53nnRD/YOZ5cpAgaV/S+pvC8+1k="
       }
     },
     "ApiGatewayRestApi": {
@@ -2700,7 +2714,7 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1495110267955": {
+    "ApiGatewayDeployment1495429833869": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -3192,7 +3206,7 @@
       "DependsOn": "streamExecutionRole",
       "Properties": {
         "BatchSize": 10,
-        "EventSourceArn": "arn:aws:kinesis:us-east-1:151610303354:stream/register-test-stream",
+        "EventSourceArn": "arn:aws:kinesis:us-east-1:784455347771:stream/register-test-stream",
         "FunctionName": {
           "Fn::GetAtt": [
             "ProcessRegistrationStreamLambdaFunction",
@@ -3276,25 +3290,42 @@
                 {
                   "Effect": "Allow",
                   "Action": [
+                    "dynamodb:Query",
+                    "dynamodb:Scan",
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:UpdateItem",
+                    "dynamodb:DeleteItem"
+                  ],
+                  "Resource": "arn:aws:dynamodb:us-east-1:*:table/booking"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
                     "logs:CreateLogGroup",
                     "logs:CreateLogStream",
                     "logs:PutLogEvents"
                   ],
-                  "Resource": "arn:aws:logs:us-east-1:151610303354:log-group:/aws/lambda/*:*:*"
+                  "Resource": "arn:aws:logs:us-east-1:784455347771:log-group:/aws/lambda/*:*:*"
                 },
                 {
                   "Effect": "Allow",
                   "Action": [
                     "kinesis:DescribeStream",
                     "kinesis:GetRecords",
-                    "kinesis:PutRecord",
+                    "kinesis:PutRecords",
                     "kinesis:GetShardIterator",
                     "kinesis:ListStreams",
                     "logs:CreateLogGroup",
                     "logs:CreateLogStream",
                     "logs:PutLogEvents"
                   ],
-                  "Resource": "arn:aws:kinesis:us-east-1:151610303354:stream/register-test-stream"
+                  "Resource": "arn:aws:kinesis:us-east-1:784455347771:stream/register-test-stream"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "SES:SendEmail",
+                  "Resource": "*"
                 }
               ]
             }
@@ -3374,7 +3405,8 @@
             ],
             "Projection": {
               "NonKeyAttributes": [
-                "DOE"
+                "dateOfExam",
+                "testStatus"
               ],
               "ProjectionType": "INCLUDE"
             },
@@ -3560,91 +3592,91 @@
     "GetAllCandidatesFunctionLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetAllCandidatesFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "GetAllCandidatesFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "StartTestDashboardLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "StartTestDashboardLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "StartTestDashboardLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "UpdateBookingAfterStartTestLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "UpdateBookingAfterStartTestLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "UpdateBookingAfterStartTestLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "GetAllQsnIdsFunctionLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetAllQsnIdsFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "GetAllQsnIdsFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "UpdateResultFunctionLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "UpdateResultFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "UpdateResultFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "CreateQuestionFunctionLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "CreateQuestionFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "CreateQuestionFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "GetQuestionByCategoryFunctionLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetQuestionByCategoryFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "GetQuestionByCategoryFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "CreateQsnPaperLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "CreateQsnPaperLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "CreateQsnPaperLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "GetQuestionPaperNamesLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetQuestionPaperNamesLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "GetQuestionPaperNamesLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "CreateTestLinkFunctionLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "CreateTestLinkFunctionLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "CreateTestLinkFunctionLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "GetCandidateHomePageInfoLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetCandidateHomePageInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "GetCandidateHomePageInfoLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "GettestStausInfoLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GettestStausInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "GettestStausInfoLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "UpdateCandidateInfoLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "UpdateCandidateInfoLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "UpdateCandidateInfoLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "RegisterCandidatesAndEmailPostRegistrationLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "RegisterCandidatesAndEmailPostRegistrationLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "ProcessRegistrationStreamLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ProcessRegistrationStreamLambdaVersion6Vxoam5tZkYIXpcIYULOB631S2B64UpHyqGk5IdlA"
+        "Ref": "ProcessRegistrationStreamLambdaVersionTyZ3xQoumRvWAF4U53nnRDYOZ5cpAgaVSpvC81k"
       }
     },
     "ServiceEndpoint": {

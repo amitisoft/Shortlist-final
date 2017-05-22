@@ -173,6 +173,7 @@ observer.complete();
     }
 
     validateBookingForCandidate(params: RegisterCandidateInputParams): Observable<boolean> {
+        console.log(new Date().getTime()-(30*24*60*60*1000));
         console.log(`params in validateBooking ${JSON.stringify(params)}`);
         let date1 = new Date(new Date().getUTCDate());
         const queryParams: DynamoDB.Types.QueryInput = {
@@ -180,7 +181,7 @@ observer.complete();
             IndexName: "candidateId-category-index",
             ProjectionExpression: "bookingId,candidateId,category,dateOfExam",
             KeyConditionExpression: "#candidateId = :candidateIdFilter AND #category = :categoryFilter",
-            FilterExpression: "#date < :dateFilter AND #testStatus <> :testStatusFilter",
+            FilterExpression: "#date > :dateFilter AND #testStatus = :testStatusFilter",
             ExpressionAttributeNames: {
                 "#candidateId": "candidateId",
                 "#category": "category",
@@ -190,7 +191,7 @@ observer.complete();
             ExpressionAttributeValues: {
                 ":candidateIdFilter": params.candidate.candidateId,
                 ":categoryFilter": params.category,
-                ":dateFilter": 30,
+                ":dateFilter": new Date().getTime()-(30*24*60*60*1000),
                 ":testStatusFilter" : "Taken"
             }
         }
@@ -201,12 +202,15 @@ observer.complete();
                 const result = queryCallBack$(queryParams);
                 result.subscribe(
                     (x: DynamoDB.Types.QueryOutput) => {
-                        console.log(`validateBookingForCandidate ${JSON.stringify(x)}`);
-                        if (x.Items && x.Items.length > 0) {
-                            console.log(`validateBookingForCandidate failed ${x}`);
+                         console.log('x.....',x);
+                        console.log('validateBookingForCandidate',x[1].Items);
+                        console.log('lenhth???????????????????',x[1].Items.length);
+                        console.log('length.....',x[1].Items[0]);
+                        if (x[1].Items && x[1].Items.length > 0) {
+                            console.log('validateBookingForCandidate failed',x);
                             observer.next(false);
                         } else {
-                            console.log(`validateBookingForCandidate succeeded ${x}`);
+                            console.log('validateBookingForCandidate succeeded',x);
                             observer.next(true);
                         }
                         observer.complete();
@@ -247,12 +251,20 @@ observer.complete();
                     }
                     console.log(`calling updateCandidateInfo with ${JSON.stringify(uInput)}`);
                     return that.updateCandidateInfo(uInput)
+                }else{
+                   return Observable.create((observer) => {
+                     observer.error("Candidate taken exam in last 30 days");
+                   })
                 }
             },
             function (updatedCandidateSuccessfully: boolean) {
                 if (updatedCandidateSuccessfully) {
                     console.log(`calling updateBookingInfo with ${JSON.stringify(inputParams)}`);
                     return that.updatedBookingInfo(inputParams)
+                }else{
+                   return Observable.create((observer) => {
+                     observer.error("Candidate taken exam in last 30 days");
+                   })
                 }
             }
         ]);
@@ -310,15 +322,17 @@ observer.complete();
                     '#cid': 'candidateId',
                     '#ct': 'category',
                     '#jp': 'jobPosition',
-                    "#ts": 'testStatus'
+                    "#ts": 'testStatus',
+                    '#doe':'dateOfExam'
                 },
                 ExpressionAttributeValues: {
                     ':cid': inputParams.candidate.candidateId,
                     ':ct': inputParams.category,
                     ':jp': inputParams.jobPosition,
-                    ':ts': testStatus
+                    ':ts': testStatus,
+                    ':doe':new Date().getTime()
                 },
-                UpdateExpression: 'SET #cid=:cid,#ct=:ct,#jp=:jp, #ts=:ts',
+                UpdateExpression: 'SET #cid=:cid,#ct=:ct,#jp=:jp, #ts=:ts, #doe=:doe',
                 ReturnValues: 'ALL_NEW'
             };
             documentClient.update(params, (err, data: any) => {

@@ -67,9 +67,9 @@ export class NotificationServiceImpl {
                     Charset: 'UTF-8'
                 }
             },
-            Source: 'shyamal@amiti.in',
-            ReplyToAddresses: ['shyamal@amiti.in'],
-            ReturnPath: 'shyamal@amiti.in'
+            Source: 'kiran.a@amitisoft.com',
+            ReplyToAddresses: ['kiran.a@amitisoft.com'],
+            ReturnPath: 'kiran.a@amitisoft.com'
         }
         return params;
     }

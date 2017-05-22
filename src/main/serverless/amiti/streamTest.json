@@ -2,7 +2,7 @@
   "record": {
     "kinesis": {
       "kinesisSchemaVersion": "1.0",
-      "partitionKey": "ashok@amitisoft.com",
+      "partitionKey": "a.kiran@amitisoft.com",
       "sequenceNumber": "49572901483532829550670411233864622100811201813724266498",
       "data": "ZXlKbGJXRnBiQ0k2SW1GeWRXNUFZVzFwZEdrdWFXNGlMQ0psYldGcGJGTjFZbXBsWTNRaU9pSlVSVk5VSUV4cGJtc2lMQ0psYldGcGJFSnZaSGtpT2lKQ1QwUlpJRTlHSUVWTlFVbE1JaXdpYW05aVVHOXphWFJwYjI0aU9pSnFZWFpoSUdSbGRtVnNiM0JsY2lJc0ltTmhkR1ZuYjNKNUlqb2lhbUYyWVNKOQ==",
       "approximateArrivalTimestamp": 1493908132.826
