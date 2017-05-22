@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { DynamoDB } from 'aws-sdk';
 import { Question } from '../domain/question';
+import { v4 } from 'node-uuid';
 
 const AWS = require('aws-sdk');
-let uuid = require('uuid');
+
 
 import DocumentClient = DynamoDB.DocumentClient;
 
@@ -23,7 +24,7 @@ export class CreateQuestionServiceImpl {
         console.log('in CreateQuestionServiceImpl create()', typeof data);
         const documentClient = new DocumentClient();
         let params: any = {};
-        let uuidd = uuid.v4();
+        let uuidd = v4();
         if (typeof data === 'string') {
             data = JSON.parse(data);
             params = {
