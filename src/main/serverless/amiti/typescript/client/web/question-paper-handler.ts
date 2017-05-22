@@ -26,4 +26,23 @@ export class QuestionPaperHandler {
                 httpContext.fail(err, 500);
             });
     }
+
+     static getQuestionPaperNamesByCategory(httpContext: HttpContextImpl, injector: Injector): void {
+        console.log('getQuestionPaperNamesByCategory');
+        let pathParameters = httpContext.getPathParameters();
+        let data = httpContext.getRequestBody();
+        console.log(`category = ${data['category']}`);
+        injector.get(CreateQuestionPaperFacade).getQuestionPapersId(data['category'])
+            .subscribe(result => {
+                //  httpContext.ok(200, result);
+                injector.get(CreateQuestionPaperFacade).getQuestionPaperNamesByCategory(result)
+                    .subscribe(result1 => {
+                        console.log(`Qsn = ${result1}`);
+                        httpContext.ok(200, result1);
+
+                    });
+            }, err => {
+                httpContext.fail(err, 500);
+            });
+    }
 }

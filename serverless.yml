@@ -22,7 +22,7 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    ACCOUNT_ID: 667361566775
+    ACCOUNT_ID: 667361566775 
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
@@ -121,6 +121,16 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:BatchWriteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QSNID_TABLE}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QSNID_TABLE}/*"      
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -232,7 +242,15 @@ functions:
       - http:
           path: api/getquestionpapernames
           method: get
-          cors: true        
+          cors: true   
+
+  getQuestionPaperNamesByCategory:
+    handler: handler.getQuestionPaperNamesByCategoryFunction
+    events:
+      - http:
+          path: api/getquestionpapernamesbycategory
+          method: get
+          cors: true                 
 
   createTestLinkFunction:
     handler: handler.createTestLinkFunction
@@ -547,18 +565,35 @@ resources:
         Properties:
           TableName: ${self:provider.environment.QSNID_TABLE}
           AttributeDefinitions:
-            - AttributeName: Qsn_Ppr_Id
+            - AttributeName: questionPaperId
               AttributeType: S
-            - AttributeName: QsnId
+            - AttributeName: questionId
+              AttributeType: S
+            - AttributeName: category
               AttributeType: S
           KeySchema:
-            - AttributeName: Qsn_Ppr_Id
+            - AttributeName: questionPaperId
               KeyType: HASH
-            - AttributeName: QsnId
+            - AttributeName: questionId
               KeyType: RANGE
           ProvisionedThroughput:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
+          GlobalSecondaryIndexes:
+            -
+              IndexName: "categoryIndex"
+              KeySchema:
+                -
+                  AttributeName: "category"
+                  KeyType: HASH
+              Projection:
+                NonKeyAttributes:
+                  - "questionPaperId"
+                  - "questionId"
+                ProjectionType: "INCLUDE"
+              ProvisionedThroughput:
+                ReadCapacityUnits: "5"
+                WriteCapacityUnits: "5"            
 
       questionPaperNames:
           Type: 'AWS::DynamoDB::Table'
@@ -566,10 +601,10 @@ resources:
           Properties:
             TableName: ${self:provider.environment.QUESTION_PAPER_NAMES}
             AttributeDefinitions:
-              - AttributeName: QsnPaper_id
+              - AttributeName: questionPaperId
                 AttributeType: S
             KeySchema:
-              - AttributeName: QsnPaper_id
+              - AttributeName: questionPaperId
                 KeyType: HASH
             ProvisionedThroughput:
               ReadCapacityUnits: 2
