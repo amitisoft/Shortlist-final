@@ -24,18 +24,18 @@ import { CreateQuestionFacade } from './typescript/client/facade/create-question
 import { CreateQuestionServiceImpl } from './typescript/client/service/create-question-service';
 import { CreateQuestionPaperFacade } from './typescript/client/facade/create-question-paper-facade';
 import { CreateQuestionPaperserviceImpl } from './typescript/client/service/create-question-paper-service';
-import { Kinesis } from 'aws-sdk';
-
+import { Kinesis, DynamoDB } from 'aws-sdk';
+import DocumentClient = DynamoDB.DocumentClient;
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
     let kinesis = new Kinesis({
         region: process.env.KINESIS_STREAM_REGION
     });
-    return new CandidateServiceImpl(notificationServiceImpl, kinesis);
+    return new CandidateServiceImpl(notificationServiceImpl, kinesis, new DocumentClient());
 };
 
 let bookingServiceImplFactory = () => {
-    return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION);
+    return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient());
 };
 export const appProviders = [
     CandidateFacade,

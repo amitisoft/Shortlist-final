@@ -1,22 +1,14 @@
 import { Observable, Observer } from'rxjs';
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Booking } from '../domain/booking';
 import { Client } from 'elasticsearch';
 import { Candidate } from '../domain/candidate';
 import { DynamoDB } from 'aws-sdk';
-import DocumentClient = DynamoDB.DocumentClient;
 import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
-
-import UpdateDocumentParams = Elasticsearch.UpdateDocumentParams;
 
 const AWS = require('aws-sdk');
 const format = require('string-template');
 const _ = require('lodash');
-
-
-AWS.config.update({
-    region: 'us-east-1'
-});
 
 
 @Injectable()
@@ -27,7 +19,7 @@ export class BookingServiceImpl {
     private BOOKING_MAPPING = 'booking';
 
 
-    constructor(private elasticSearchEndPoint: string, private region: string) {
+    constructor(private elasticSearchEndPoint: string, private region: string, private documentClient: DynamoDB.DocumentClient) {
         console.log(`calling booking constructor with search end point ${elasticSearchEndPoint}`);
         console.log(`calling booking constructor with region ${region}`);
         this.elasticSearchClient = new Client({
@@ -92,7 +84,6 @@ export class BookingServiceImpl {
         console.log(`data received ${ data.DOE }`);
         console.log(`data received ${ data.paperType }`);
 
-        const documentClient = new DocumentClient();
         const params = {
             TableName: 'booking',
             Key: {
@@ -120,7 +111,7 @@ export class BookingServiceImpl {
 
         return Observable.create((observer: Observer<Booking>) => {
 
-            documentClient.update(params, (err, result: any) => {
+            this.documentClient.update(params, (err, result: any) => {
                 if (err) {
                     console.error(err);
                     observer.error(err);
@@ -166,9 +157,8 @@ export class BookingServiceImpl {
             console.log('----------------------------without data----------------------');
         }
 
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Booking>) => {
-            documentClient.query(queryParams, (err, data: any) => {
+            this.documentClient.query(queryParams, (err, data: any) => {
                 if (err) {
                     observer.error(err);
                     throw err;
@@ -200,9 +190,8 @@ export class BookingServiceImpl {
             ProjectionExpression: 'candidateId, category,testStatus,bookingId,jobPosition',
             ScanIndexForward: false
         };
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Booking>) => {
-            documentClient.query(queryParams, (err, data: any) => {
+            this.documentClient.query(queryParams, (err, data: any) => {
                 if (err) {
                     observer.error(err);
                     throw err;
@@ -246,9 +235,8 @@ export class BookingServiceImpl {
                 }
             }
         };
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Booking>) => {
-            documentClient.batchGet(params, function (err, data1) {
+            this.documentClient.batchGet(params, function (err, data1) {
                 if (err) {
                     observer.error(err);
                     throw err;
@@ -310,9 +298,8 @@ export class BookingServiceImpl {
             ScanIndexForward: false
         };
 
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Booking>) => {
-            documentClient.query(queryParams, (err, result: any) => {
+            this.documentClient.query(queryParams, (err, result: any) => {
                 if (err) {
                     observer.error(err);
                     throw err;
@@ -353,9 +340,8 @@ export class BookingServiceImpl {
             ScanIndexForward: false
         };
 
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Booking>) => {
-            documentClient.query(queryParams, (err, data1: any) => {
+            this.documentClient.query(queryParams, (err, data1: any) => {
                 if (err) {
                     observer.error(err);
                     throw err;
@@ -463,8 +449,7 @@ export class BookingServiceImpl {
         return updateOnly;
     }
 
-    private constructBookingESUpdates(record: DBStreamRecord): UpdateDocumentParams {
-
+    private constructBookingESUpdates(record: DBStreamRecord): any {
         return {
             index: this.BOOKING_INDEX,
             type: this.BOOKING_MAPPING,

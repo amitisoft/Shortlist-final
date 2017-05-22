@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
 import { Candidate } from '../domain/candidate';
 import { UtilHelper } from '../../api/util/util-helper';
@@ -7,7 +7,6 @@ import { DynamoDB, config, AWSError, Kinesis } from 'aws-sdk';
 import { NotificationServiceImpl } from './notification-service';
 import { Registration } from '../domain/registration';
 import { PutRecordsResultEntry } from 'aws-sdk/clients/kinesis';
-import DocumentClient = DynamoDB.DocumentClient;
 
 const async = require('async');
 config.update({
@@ -45,7 +44,7 @@ export interface RegisterCandidateInputParams {
 @Injectable()
 export class CandidateServiceImpl {
 
-    constructor(private notificationServiceImpl: NotificationServiceImpl, private kinesisClient: Kinesis) {
+    constructor(private notificationServiceImpl: NotificationServiceImpl, private kinesisClient: Kinesis, private documentClient: DynamoDB.DocumentClient ) {
         console.log(`in CandidateServiceImpl constructor() notificationServiceImpl: ${notificationServiceImpl}`);
         console.log(`in CandidateServiceImpl constructor() kinesisClient: ${kinesisClient}`);
     }
@@ -124,10 +123,8 @@ export class CandidateServiceImpl {
             }
         };
 
-        const documentClient: DocumentClient = new DocumentClient();
-
         return Observable.create((observer: any) => {
-            documentClient.query(queryParams, (err: AWSError, data: DynamoDB.DocumentClient.QueryOutput) => {
+            this.documentClient.query(queryParams, (err: AWSError, data: DynamoDB.DocumentClient.QueryOutput) => {
                 if (err) {
                     console.log(err);
                     return observer.error(err);
@@ -169,8 +166,7 @@ export class CandidateServiceImpl {
         };
 
         return Observable.create((observer: any) => {
-                const documentClient = new DocumentClient();
-                const queryCallBack$ = Observable.bindCallback(documentClient.query).bind(documentClient);
+                const queryCallBack$ = Observable.bindCallback(this.documentClient.query).bind(this.documentClient);
                 const result = queryCallBack$(queryParams);
                 result.subscribe(
                     (x: DynamoDB.Types.QueryOutput) => {
@@ -263,10 +259,9 @@ export class CandidateServiceImpl {
             }
         };
 
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Candidate>) => {
             console.log('Executing query with parameters ' + queryParams);
-            documentClient.query(queryParams, (err, data: any) => {
+            this.documentClient.query(queryParams, (err, data: any) => {
                 console.log(`did we get error ${err}`);
                 if (err) {
                     observer.error(err);
@@ -302,10 +297,9 @@ export class CandidateServiceImpl {
             ProjectionExpression: 'candidateId, firstName, lastName, email,phoneNumber',
         };
 
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Candidate>) => {
             console.log('Executing query with parameters ' + queryParams);
-            documentClient.scan(queryParams, (err, data: any) => {
+            this.documentClient.scan(queryParams, (err, data: any) => {
                 console.log(`did we get error ${err}`);
                 if (err) {
                     observer.error(err);
@@ -400,10 +394,9 @@ export class CandidateServiceImpl {
                 ':emailIdFilter': email
             }
         };
-        const documentClient: DocumentClient = new DocumentClient();
 
         return Observable.create((observer: any) => {
-            documentClient.query(queryParams, (err: AWSError, data: DynamoDB.DocumentClient.QueryOutput) => {
+            this.documentClient.query(queryParams, (err: AWSError, data: DynamoDB.DocumentClient.QueryOutput) => {
                 if (err) {
                     console.log(err);
                     return observer.error(err);
@@ -435,7 +428,6 @@ export class CandidateServiceImpl {
         if (data.candidateId !== undefined) {
             candidateIdUuid = data.candidateId;
         }
-        const documentClient = new DocumentClient();
         const params = {
             TableName: 'candidate',
             Key: {
@@ -459,7 +451,7 @@ export class CandidateServiceImpl {
 
         return Observable.create((observer: Observer<string>) => {
 
-            documentClient.update(params, (err, result: any) => {
+            this.documentClient.update(params, (err, result: any) => {
                 if (err) {
                     console.error(err);
                     observer.error(err);
@@ -485,10 +477,9 @@ export class CandidateServiceImpl {
             }
         };
 
-        const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<Candidate>) => {
             console.log('Executing query with parameters ' + queryParams);
-            documentClient.get(queryParams, (err, result: any) => {
+            this.documentClient.get(queryParams, (err, result: any) => {
                 console.log(`did we get error ${err}`);
                 if (err) {
                     observer.error(err);
@@ -531,7 +522,6 @@ export class CandidateServiceImpl {
     private updatedBookingInfo(inputParams: RegisterCandidateInputParams): Observable<boolean> {
         return Observable.create((observer) => {
             const testStatus = 'NotTaken';
-            const documentClient = new DocumentClient();
             const params = {
                 TableName: 'booking',
                 Key: {
@@ -552,7 +542,7 @@ export class CandidateServiceImpl {
                 UpdateExpression: 'SET #cid=:cid,#ct=:ct,#jp=:jp, #ts=:ts',
                 ReturnValues: 'ALL_NEW'
             };
-            documentClient.update(params, (err, data: any) => {
+            this.documentClient.update(params, (err, data: any) => {
                 if (err) {
                     console.error(err);
                     observer.error(err);
@@ -567,7 +557,6 @@ export class CandidateServiceImpl {
 
     private updateCandidateInfoPromise(result: any) {
         return new Promise(function (resolve, reject) {
-            const documentClient = new DocumentClient();
             const params = {
                 TableName: 'candidate',
                 Key: {
@@ -581,7 +570,7 @@ export class CandidateServiceImpl {
                 },
                 UpdateExpression: 'SET #tok=:tok'
             };
-            documentClient.update(params, (err, data: any) => {
+            this.documentClient.update(params, (err, data: any) => {
                 if (err) {
                     console.error(err);
                     reject(err);
