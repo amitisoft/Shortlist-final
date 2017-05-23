@@ -1,4 +1,4 @@
 export class QsnIdsDto {
-    Qsn_Ppr_Id: string;
-    QsnId: string;
+    questionPaperId: string;
+    questionId: string;
 }
