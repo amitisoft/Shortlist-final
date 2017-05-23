@@ -69,6 +69,7 @@ exports.registerCandidate = ExecutionContextImpl.createHttpHandler(appProviders,
 exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
 exports.processRegistrationStream = StreamExecutionContextImpl.createMergedStreamHandler(appProviders, GetCandidateHandler.processRegistrationStream);
 exports.startTestDashboard = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.startTestDashboard);
+exports.startTestInProgressDashboard = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.startTestInProgressDashboard);
 exports.getCandidateHomePageInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateHomePageInfo);
 exports.updateBookingAfterStartTest = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.updateBookingAfterStartTest);
 exports.getAllQsnIdsFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetQsnHandler.getQsn);

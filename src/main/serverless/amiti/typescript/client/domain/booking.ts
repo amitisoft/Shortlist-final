@@ -1,6 +1,6 @@
 export class Booking {
     candidateId: string;
-    bookingId :string;
+    bookingId: string;
     category: string;
     jobPosition:string;
     dateOfExam: string;

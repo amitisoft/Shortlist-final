@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable} from '@angular/core';
 import {Observable, Observer} from 'rxjs';
 import {CandidateServiceImpl, RegisterCandidateInputParams} from '../service/candidate-service';
 import {CandidateDto} from '../dto/candidate-dto';
@@ -10,11 +10,11 @@ import {Candidate} from '../domain/candidate';
 export class CandidateFacade {
 
     constructor(private candidateService: CandidateServiceImpl) {
-        console.log("in CandidateFacade constructor()");
+        console.log('in CandidateFacade constructor()');
     }
 
     registerCandidate(params: any): void {
-        console.log("in CandidateFacade registerCandidate()");
+        console.log('in CandidateFacade registerCandidate()');
         this.candidateService.registerCandidate(params)
     }
 
@@ -23,27 +23,34 @@ export class CandidateFacade {
     }
 
     getAll(): Observable<CandidatesDto> {
-        console.log("in CandidateFacade getAll()");
+        console.log('in CandidateFacade getAll()');
         return this.candidateService.getAll()
             .map((candidates) => {
                 return {
                     candidates: candidates.map(this.mapCandidateToDto)
-                }
+                };
             });
     }
 
     findbyId(candidateId: string): Observable<Candidate> {
-        console.log("in CandidateFacade findById()");
+        console.log('in CandidateFacade findById()');
         return this.candidateService.findById(candidateId);
     }
 
     registerCandidatesAndEmailPostRegistration(params: any): Observable<boolean> {
-        console.log("in CandidateFacade registerCandidatesAndEmailPostRegistration()");
+        console.log('in CandidateFacade registerCandidatesAndEmailPostRegistration()');
         return this.candidateService.registerCandidatesAndEmailPostRegistration(params);
+    }
+    insertCandidate(data:any):Observable<string>{
+        return this.candidateService.insertCandidate(data);
+    }
+
+    getCandidateInfoForView(data:any):Observable<CandidateDto>{
+          return this.candidateService.getCandidateInfoForView(data);
     }
 
     private mapCandidateToDto(candidate: Candidate): CandidateDto {
-        console.log("in mapCandidateToDto" + JSON.stringify(candidate));
+        console.log('in mapCandidateToDto' + JSON.stringify(candidate));
         return {
             candidateId: candidate.candidateId,
             firstName: candidate.firstName,
@@ -53,11 +60,5 @@ export class CandidateFacade {
         }
     }
 
-    insertCandidate(data:any):Observable<string>{
-        return this.candidateService.insertCandidate(data);
-    }
-
-    getCandidateInfoForView(data:any):Observable<CandidateDto>{
-          return this.candidateService.getCandidateInfoForView(data);
-    }
+    
 }
