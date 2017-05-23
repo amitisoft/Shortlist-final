@@ -7,6 +7,12 @@ import { DynamoDB, config, AWSError, Kinesis } from 'aws-sdk';
 import { NotificationServiceImpl } from './notification-service';
 import { Registration } from '../domain/registration';
 import { PutRecordsResultEntry } from 'aws-sdk/clients/kinesis';
+import { Client } from 'elasticsearch';
+import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
+
+const AWS = require('aws-sdk');
+const format = require('string-template');
+const _ = require('lodash');
 
 const async = require('async');
 config.update({
@@ -44,9 +50,22 @@ export interface RegisterCandidateInputParams {
 @Injectable()
 export class CandidateServiceImpl {
 
-    constructor(private notificationServiceImpl: NotificationServiceImpl, private kinesisClient: Kinesis, private documentClient: DynamoDB.DocumentClient ) {
+    private elasticSearchClient: Client;
+    private CANDIDATE_INDEX = 'candidate_index';
+    private CANDIDATE_MAPPING = 'candidate';
+
+    constructor(private elasticSearchEndPoint: string, private region: string, private notificationServiceImpl: NotificationServiceImpl,
+    private kinesisClient: Kinesis, private documentClient: DynamoDB.DocumentClient ) {
         console.log(`in CandidateServiceImpl constructor() notificationServiceImpl: ${notificationServiceImpl}`);
         console.log(`in CandidateServiceImpl constructor() kinesisClient: ${kinesisClient}`);
+        this.elasticSearchClient = new Client({
+            hosts: [elasticSearchEndPoint],
+            log: 'trace'
+        });
+
+        AWS.config.update({
+            region: region
+        });
     }
 
     registerCandidatesAndEmailPostRegistration(params: RegisterCandidates): Observable<boolean> {
@@ -498,6 +517,87 @@ export class CandidateServiceImpl {
 
             });
         });
+    }
+
+     updateCandidateTOElasticSearch(record: DBStreamRecord): Observable<boolean> {
+        return Observable.create((observer: Observer<boolean>) => {
+
+            console.log(`record updating ${JSON.stringify(record)}`);
+            switch (record.getEventName()) {
+                case 'INSERT':
+                    break;
+                case 'UPDATE':
+                    break;
+                case 'DELETE':
+                    break;
+                default:
+                    break;
+            }
+
+            let updateParams = this.constructCandidateESUpdates(record);
+
+            this.elasticSearchClient.update(updateParams, (err: any, resp: any) => {
+                if (err) {
+                    console.error('failed to add/update booking', err);
+                    if (err.statusCode !== 404) {
+                        observer.error({});
+                        return;
+                    }
+                }
+                if (!err) {
+                    console.log(`added document to book index ${resp}`);
+                    observer.next(true);
+                    observer.complete();
+                }
+            });
+
+        });
+    }
+    private constructInsertOnlyParams(record: DBStreamRecord): any {
+        let uniqueObject = record.getAllUniqueProperties();
+        // uniqueObject['fullName'] = 'Kiran Kumar';
+        // uniqueObject['email'] = 'kiran@amitisoft.com';
+        // uniqueObject['candidateId'] = '2';
+
+        console.log(`uniques ${JSON.stringify(uniqueObject)}`);
+        return uniqueObject;
+    }
+
+    private constructUpdateOnlyParams(record: DBStreamRecord): any {
+
+        let updateInputs = _.filter(record.getNewImage(), function (o) {
+            return o.key !== record.getKeys()[0].key;
+        });
+
+        console.log(`record new ${JSON.stringify(updateInputs)}`);
+        let queries = _.reduce(_.map(updateInputs, 'key'), (inlineQueries, value) => {
+            return inlineQueries = inlineQueries + format('ctx._source.{0} = params.{1};', value, value);
+        }, '');
+        console.log(`Queries==================== ${queries}`);
+        let params = {};
+        updateInputs.forEach((obj) => {
+            params[obj['key']] = obj['value'];
+        });
+
+        let updateOnly = {
+            inline: queries,
+            params: params
+        };
+
+        console.log(`updateOnly ${JSON.stringify(updateOnly)}`);
+        return updateOnly;
+    }
+
+    private constructCandidateESUpdates(record: DBStreamRecord): any {
+        return {
+            index: this.CANDIDATE_INDEX,
+            type: this.CANDIDATE_MAPPING,
+            id: record.getKeys()[0].value,
+            body: {
+                script: this.constructUpdateOnlyParams(record),
+                upsert: this.constructInsertOnlyParams(record)
+            }
+        };
     }
 
     private doPostRegistrationTasks(inputParams: RegisterCandidateInputParams) {
