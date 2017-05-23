@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 
 export interface StreamObject {
     key: string;
@@ -10,6 +11,7 @@ export interface DBStreamRecord {
     getEventName(): string;
     getNewImage(): StreamObject[];
     getAllUniqueProperties(): any;
+    convertToDate(time: number): any;
 }
 
 export class DBStreamRecordImpl implements DBStreamRecord {
@@ -44,6 +46,14 @@ export class DBStreamRecordImpl implements DBStreamRecord {
         });
         return params;
     }
+
+    convertToDate(time: any): any {
+        console.log(`time for date ${time}`);
+        let dateNow =  new Date();
+        console.log(`CONVERTED DATE ${moment(dateNow).format('DD/MM/YYYY')}`);
+        return moment(dateNow).format('DD/MM/YYYY');
+    }
+
 
     private construct(obj): any {
         let returnObj = [];

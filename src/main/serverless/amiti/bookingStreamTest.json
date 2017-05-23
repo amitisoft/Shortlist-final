@@ -2,12 +2,12 @@
   "Records": [
     {
       "eventID": "5fddcb117a736fe8f1bfee2c1e7605aa",
-      "eventName": "INSERT",
+      "eventName": "DELETE",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
       "awsRegion": "us-east-1",
       "dynamodb": {
-        "ApproximateCreationDateTime": 1495092660,
+        "ApproximateCreationDateTime": 1495530403857,
         "Keys": {
           "bookingId": {
             "S": "1"
@@ -18,7 +18,7 @@
         },
         "NewImage": {
           "testStatus": {
-            "S": "test"
+            "S": "testDONE"
           },
           "candidateId": {
             "S": "1"
@@ -33,7 +33,7 @@
             "S": "QA"
           },
           "dateOfExam": {
-            "S":"1495200006494"
+            "S":"1495531172026"
           }
         },
         "SequenceNumber": "100000000004112069037",
