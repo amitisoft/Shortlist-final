@@ -558,14 +558,14 @@ resources:
         Properties:
           TableName: ${self:provider.environment.QUESTION_LIST_TABLE}
           AttributeDefinitions:
-            - AttributeName: Category
+            - AttributeName: category
               AttributeType: S
-            - AttributeName: Qsn_id
+            - AttributeName: questionId
               AttributeType: S
           KeySchema:
-            - AttributeName: Category
+            - AttributeName: category
               KeyType: HASH
-            - AttributeName: Qsn_id
+            - AttributeName: questionId
               KeyType: RANGE
           ProvisionedThroughput:
             ReadCapacityUnits: 2
