@@ -31,8 +31,8 @@ export class QuestionPaperHandler {
         console.log('getQuestionPaperNamesByCategory');
         let pathParameters = httpContext.getPathParameters();
         let data = httpContext.getRequestBody();
-        console.log(`category = ${data['category']}`);
-        injector.get(CreateQuestionPaperFacade).getQuestionPapersId(data['category'])
+        console.log(`category = ${pathParameters}`);
+        injector.get(CreateQuestionPaperFacade).getQuestionPapersId(pathParameters['category'])
             .subscribe(result => {
                 //  httpContext.ok(200, result);
                 injector.get(CreateQuestionPaperFacade).getQuestionPaperNamesByCategory(result)
