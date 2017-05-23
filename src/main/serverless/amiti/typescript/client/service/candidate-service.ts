@@ -520,39 +520,155 @@ export class CandidateServiceImpl {
     }
 
      updateCandidateTOElasticSearch(record: DBStreamRecord): Observable<boolean> {
+        let that = this;
         return Observable.create((observer: Observer<boolean>) => {
+            let candidateIndexMappingFlow = UtilHelper.waterfall([
+                function () {
+                    return that.checkIfCandidateIndexExists();
+                },
+                function (isBookingExists) {
+                    return isBookingExists ? Observable.from([true]) :
+                        that.createCandidateMapping(isBookingExists);
+                }
+            ]);
+            candidateIndexMappingFlow.subscribe(
+                function (x) {
+                    console.log('candidate index and mapping successfully created');
+                    switch (record.getEventName()) {
+                        case 'INSERT':
+                            that.updateCandidateDocument(record, observer);
+                            break;
+                        case 'UPDATE':
+                            that.updateCandidateDocument(record, observer);
+                            break;
+                        case 'DELETE':
+                            that.deleteCandidateDocument(record, observer);
+                            break;
+                        default:
+                            break;
+                    }
+                },
+                function (err) {
+                    console.log(`booking index and mapping failed created ${err.stack}`);
+                    observer.error(`booking index and mapping failed created ${err.stack}`);
+                }
+            );
+        });
+    }
 
-            console.log(`record updating ${JSON.stringify(record)}`);
-            switch (record.getEventName()) {
-                case 'INSERT':
-                    break;
-                case 'UPDATE':
-                    break;
-                case 'DELETE':
-                    break;
-                default:
-                    break;
-            }
-
-            let updateParams = this.constructCandidateESUpdates(record);
-
-            this.elasticSearchClient.update(updateParams, (err: any, resp: any) => {
-                if (err) {
-                    console.error('failed to add/update booking', err);
-                    if (err.statusCode !== 404) {
-                        observer.error({});
+     private createCandidateMapping(bookingExists: boolean): Observable<boolean> {
+        console.log('in createBookingMapping');
+        return Observable.create((observer: Observer<boolean>) => {
+            if (!bookingExists) {
+                this.elasticSearchClient.indices.create({
+                    index: this.CANDIDATE_INDEX,
+                    body: {
+                        'mappings': {
+                            'candidate': {
+                                'properties': {
+                                    'candidateId': {
+                                        'type': 'long'
+                                    },
+                                    'firstName': {
+                                        'type': 'text'
+                                    },
+                                    'lastName': {
+                                        'type': 'text',
+                                        'index': 'true'
+                                    },
+                                    'email': {
+                                        'type': 'keyword',
+                                        'index': 'true'
+                                    },
+                                    'phoneNumber': {
+                                        'type': 'long'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }, (error: any, response: any, status: any) => {
+                    if (error) {
+                        observer.error(false);
                         return;
                     }
-                }
-                if (!err) {
-                    console.log(`added document to book index ${resp}`);
+                    console.log(`create candidateMapping response ${JSON.stringify(response)}`);
+                    console.log(`createcandidate Mapping status ${JSON.stringify(status)}`);
                     observer.next(true);
                     observer.complete();
-                }
-            });
+                });
+            } else {
+                observer.next(true);
+                observer.complete();
+            }
+
 
         });
     }
+
+ private checkIfCandidateIndexExists(): Observable<boolean> {
+        let that = this;
+        return Observable.create((observer: Observer<boolean>) => {
+            this.elasticSearchClient.indices.exists({
+                index: this.CANDIDATE_INDEX
+            }, (error: any, response: any, status: any) => {
+                if (error) {
+                    console.log('Candidate INDEX DOESNT EXISTS');
+                    observer.error({});
+                    return;
+                }
+                if (!response) {
+                    observer.next(false);
+                    observer.complete();
+                }
+
+                observer.next(true);
+                observer.complete();
+
+            });
+        });
+    }
+    private updateCandidateDocument(record: DBStreamRecord, observer: Observer<boolean>): void {
+        let updateParams = this.constructCandidateESUpdates(record);
+
+        this.elasticSearchClient.update(updateParams, (err: any, resp: any) => {
+            if (err) {
+                console.error('failed to add/update candidate', err);
+                if (err.statusCode !== 404) {
+                    observer.error({});
+                    return;
+                }
+            }
+            if (!err) {
+                console.log(`added document to candidate index ${resp}`);
+                observer.next(true);
+                observer.complete();
+            }
+        });
+
+    }
+
+    private deleteCandidateDocument(record: DBStreamRecord, observer: Observer<boolean>) {
+        this.elasticSearchClient.delete({
+            index: this.CANDIDATE_INDEX,
+            type: this.CANDIDATE_MAPPING,
+            id: record.getKeys()[0].value,
+        }, (err: any, resp: any) => {
+            if (err) {
+                console.error('failed to delete candidate', err);
+                if (err.statusCode !== 404) {
+                    observer.error({});
+                    return;
+                }
+            }
+            if (!err) {
+                console.log(`removed document to candidate index ${resp}`);
+                observer.next(true);
+                observer.complete();
+            }
+        });
+    }
+
     private constructInsertOnlyParams(record: DBStreamRecord): any {
         let uniqueObject = record.getAllUniqueProperties();
         // uniqueObject['fullName'] = 'Kiran Kumar';
