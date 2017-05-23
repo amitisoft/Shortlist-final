@@ -44,9 +44,9 @@ let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceI
     return new CandidateServiceImpl(notificationServiceImpl, kinesis, new DocumentClient());
 };
 
-let bookingServiceImplFactory = () => {
+let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => {
     console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
-    return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient());
+    return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl);
 };
 export const appProviders = [
     CandidateFacade,
@@ -54,7 +54,7 @@ export const appProviders = [
     {
         provide: BookingServiceImpl,
         useFactory: bookingServiceImplFactory,
-        deps: []
+        deps: [CandidateServiceImpl]
     },
     {
         provide: CandidateServiceImpl,
@@ -94,5 +94,9 @@ exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBSt
 exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
 exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
 exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
-exports.gettestStausInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetBookingHandler.isActiveLink);
+// exports.gettestStausInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetBookingHandler.isActiveLink);
 exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNamesByCategory);
+exports.getESTestNotTakenResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestNotTakenResults);
+exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestInProgressResults);
+exports.findESBookingSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.findESBookingSearchResult);
+

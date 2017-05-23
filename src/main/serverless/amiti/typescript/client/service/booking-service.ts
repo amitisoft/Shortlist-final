@@ -6,21 +6,35 @@ import { Candidate } from '../domain/candidate';
 import { DynamoDB } from 'aws-sdk';
 import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
 import { UtilHelper } from '../../api/util/util-helper';
-
+import { CandidateServiceImpl } from './candidate-service';
+import moment = require('moment');
+const bodybuilder = require('bodybuilder');
 const AWS = require('aws-sdk');
 const format = require('string-template');
 const _ = require('lodash');
 
 
+export interface BookingSearchParams {
+    testStatus?: string;
+    fullName?: string;
+    paperType?: string;
+    category?: string;
+    email?: string;
+    dateOfExamRange?: string;
+    from: number;
+    size: number;
+}
+
+
 @Injectable()
 export class BookingServiceImpl {
 
-    private elasticSearchClient: Client;
-    private BOOKING_INDEX = 'booking_index';
-    private BOOKING_MAPPING = 'booking';
+    elasticSearchClient: Client;
+    BOOKING_INDEX = 'booking_index';
+    BOOKING_MAPPING = 'booking';
 
 
-    constructor(private elasticSearchEndPoint: string, private region: string, private documentClient: DynamoDB.DocumentClient) {
+    constructor(private elasticSearchEndPoint: string, private region: string, private documentClient: DynamoDB.DocumentClient, private candidateServiceImpl: CandidateServiceImpl) {
         console.log(`calling booking constructor with search end point ${elasticSearchEndPoint}`);
         console.log(`calling booking constructor with region ${region}`);
         this.elasticSearchClient = new Client({
@@ -382,6 +396,23 @@ export class BookingServiceImpl {
         return Observable.create((observer: Observer<boolean>) => {
             let bookingIndexMappingFlow = UtilHelper.waterfall([
                 function () {
+                    let candidateId = record.getValueByKey('candidateId');
+                    console.log(`candidateId ${candidateId}`);
+                    return that.candidateServiceImpl.findById(candidateId);
+                },
+                function (candidate: Candidate) {
+                    record.addToNewImage('fullName', {
+                        'S': `${candidate.firstName} ${candidate.lastName}`
+                    });
+
+                    record.addToNewImage('email', {
+                        'S': `${candidate.email}`
+                    });
+
+                    return candidate != null ? Observable.from([true]) :
+                        Observable.throw(new Error('Candidate does not exist.'));
+                },
+                function (dependecySatisfied) {
                     return that.checkIfBookingIndexExists();
                 },
                 function (isBookingExists) {
@@ -414,7 +445,7 @@ export class BookingServiceImpl {
         });
     }
 
-    private createBookingMapping(bookingExists: boolean): Observable<boolean> {
+    createBookingMapping(bookingExists: boolean): Observable<boolean> {
         console.log('in createBookingMapping');
         return Observable.create((observer: Observer<boolean>) => {
             if (!bookingExists) {
@@ -476,7 +507,7 @@ export class BookingServiceImpl {
         });
     }
 
-    private checkIfBookingIndexExists(): Observable<boolean> {
+    checkIfBookingIndexExists(): Observable<boolean> {
         let that = this;
         return Observable.create((observer: Observer<boolean>) => {
             this.elasticSearchClient.indices.exists({
@@ -499,7 +530,7 @@ export class BookingServiceImpl {
         });
     }
 
-    private upsertBookingIndex(record: DBStreamRecord, observer: Observer<boolean>): void {
+    upsertBookingIndex(record: DBStreamRecord, observer: Observer<boolean>): void {
         let updateParams = this.constructBookingESUpdates(record);
 
         this.elasticSearchClient.update(updateParams, (err: any, resp: any) => {
@@ -519,7 +550,7 @@ export class BookingServiceImpl {
 
     }
 
-    private deleteBookingDocument(record: DBStreamRecord, observer: Observer<boolean>) {
+    deleteBookingDocument(record: DBStreamRecord, observer: Observer<boolean>) {
         this.elasticSearchClient.delete({
             index: this.BOOKING_INDEX,
             type: this.BOOKING_MAPPING,
@@ -541,19 +572,14 @@ export class BookingServiceImpl {
     }
 
 
-    private constructInsertOnlyParams(record: DBStreamRecord): any {
+    constructInsertOnlyParams(record: DBStreamRecord): any {
         let uniqueObject = record.getAllUniqueProperties();
-        // query candiate table based on candidate Id and get results and merge
         uniqueObject['dateOfExam'] = record.convertToDate(uniqueObject['dateOfExam']);
-        uniqueObject['fullName'] = 'Kiran Kumar';
-        uniqueObject['email'] = 'kiran@amitisoft.com';
-        uniqueObject['candidateId'] = '2';
-
         console.log(`uniques ${JSON.stringify(uniqueObject)}`);
         return uniqueObject;
     }
 
-    private constructUpdateOnlyParams(record: DBStreamRecord): any {
+    constructUpdateOnlyParams(record: DBStreamRecord): any {
 
         let updateInputs = _.filter(record.getNewImage(), function (o) {
             return o.key !== record.getKeys()[0].key;
@@ -582,7 +608,7 @@ export class BookingServiceImpl {
         return updateOnly;
     }
 
-    private constructBookingESUpdates(record: DBStreamRecord): any {
+    constructBookingESUpdates(record: DBStreamRecord): any {
         return {
             index: this.BOOKING_INDEX,
             type: this.BOOKING_MAPPING,
@@ -592,6 +618,224 @@ export class BookingServiceImpl {
                 upsert: this.constructInsertOnlyParams(record)
             }
         };
+    }
+
+
+    getESTestNotTakenResults(): Observable<Booking[]> {
+        return Observable.create((observer: any) => {
+            this.elasticSearchClient.search({
+                index: this.BOOKING_INDEX,
+                type: this.BOOKING_MAPPING,
+                body: {
+                    query: {
+                        'bool': {
+                            'must': [
+                                {
+                                    'match': {
+                                        'testStatus': 'not taken'
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+
+            }, (err: any, resp: any) => {
+                if (err) {
+                    console.error(`Failed to read booking not taken information ${err}`);
+                    observer.error(err);
+                    return;
+                }
+                console.log(`search finished for not taken ${resp}`);
+                const bookingWhichNotTaken = resp.hits.hits.map(hit => {
+
+                    const bookingInfo = hit._source;
+                    const result: any = {
+                        candidateId: bookingInfo.candidateId,
+                        bookingId: bookingInfo.bookingId,
+                        category: bookingInfo.category,
+                        jobPosition: bookingInfo.jobPosition,
+                        dateOfExam: bookingInfo.dateOfExam,
+                        paperType: bookingInfo.paperType,
+                        testStatus: bookingInfo.testStatus,
+                        fullName: bookingInfo.fullName
+                    };
+                    return result;
+                });
+                observer.next(bookingWhichNotTaken);
+                observer.complete();
+            });
+
+        });
+    }
+
+    getESTestInProgressResults(): Observable<Booking[]> {
+        return Observable.create((observer: any) => {
+            this.elasticSearchClient.search({
+                index: this.BOOKING_INDEX,
+                type: this.BOOKING_MAPPING,
+                body: {
+                    query: {
+                        'bool': {
+                            'must': [
+                                {
+                                    'match': {
+                                        'testStatus': 'progress'
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+
+            }, (err: any, resp: any) => {
+                if (err) {
+                    console.error(`Failed to read booking progress information ${err}`);
+                    observer.error(err);
+                    return;
+                }
+                console.log(`search finished for progress ${resp}`);
+                const bookingWhichNotTaken = resp.hits.hits.map(hit => {
+
+                    const bookingInfo = hit._source;
+                    const result: any = {
+                        candidateId: bookingInfo.candidateId,
+                        bookingId: bookingInfo.bookingId,
+                        category: bookingInfo.category,
+                        jobPosition: bookingInfo.jobPosition,
+                        dateOfExam: bookingInfo.dateOfExam,
+                        paperType: bookingInfo.paperType,
+                        testStatus: bookingInfo.testStatus,
+                        fullName: bookingInfo.fullName,
+                        email: bookingInfo.email
+                    };
+                    return result;
+                });
+                observer.next(bookingWhichNotTaken);
+                observer.complete();
+            });
+
+        });
+    }
+
+    findESBookingSearchResult(params: BookingSearchParams): Observable<Booking[]> {
+        let email = format('{0}', params.email);
+        let emailCondition: any = params.email ? {
+            'term': {
+                email
+            }
+        } : undefined;
+
+
+        let testStatus = format('{0}', params.testStatus);
+        let testStatusCondition: any = params.testStatus ? {
+            'term': {
+                testStatus
+            }
+        } : undefined;
+
+        let paperType = format('{0}', params.paperType);
+        let paperTypeCondition: any = params.paperType ? {
+            'term': {
+                paperType
+            }
+        } : undefined;
+
+        let fullName = format('{0}', params.fullName);
+        let fullNameCondition: any = params.fullName ? {
+            'match': {
+                fullName
+            }
+        } : undefined;
+
+        let category = format('{0}', params.category);
+        let categoryCondition: any = params.category ? {
+            'match': {
+                fullName
+            }
+        } : undefined;
+
+        let dateOfExamCondition: any;
+        if (params.dateOfExamRange) {
+            let dateRange = params.dateOfExamRange.split('-');
+            let fromDate = format('{0}', dateRange[0]);
+            let toDate = format('{0}', dateRange[1]);
+
+            dateOfExamCondition = params.dateOfExamRange ?
+                {
+                    'range': {
+                        'dateOfExam': {
+                            'lte': toDate,
+                            'gte': fromDate
+                        }
+                    }
+                } : '';
+        } else {
+            let toDefaultDate = format('{0}', moment().format('DD/MM/YYYY'));
+            let fromDefaultDate = format('{0}', moment().subtract(30, 'days').format('DD/MM/YYYY'));
+
+            dateOfExamCondition = {
+                'range': {
+                    'dateOfExam': {
+                        'lte': toDefaultDate
+                    }
+                }
+            };
+        }
+
+        let mustConditions = [
+            emailCondition,
+            testStatusCondition,
+            paperTypeCondition,
+            fullNameCondition,
+            categoryCondition
+        ];
+
+
+        const filteredMustConditions = _.without(mustConditions, undefined);
+
+        return Observable.create((observer: any) => {
+            this.elasticSearchClient.search({
+                from: params.from,
+                size: params.size,
+                index: this.BOOKING_INDEX,
+                type: this.BOOKING_MAPPING,
+                body: {
+                    query: {
+                        'bool': {
+                            'must': filteredMustConditions,
+                            'filter': dateOfExamCondition
+                        }
+                    }
+                }
+            }, (err: any, resp: any) => {
+                if (err) {
+                    console.error(`Failed to read booking progress information ${err}`);
+                    observer.error(err);
+                    return;
+                }
+                console.log(`search finished for progress ${resp}`);
+                const bookingWhichNotTaken = resp.hits.hits.map(hit => {
+
+                    const bookingInfo = hit._source;
+                    const result: any = {
+                        candidateId: bookingInfo.candidateId,
+                        bookingId: bookingInfo.bookingId,
+                        category: bookingInfo.category,
+                        jobPosition: bookingInfo.jobPosition,
+                        dateOfExam: bookingInfo.dateOfExam,
+                        paperType: bookingInfo.paperType,
+                        testStatus: bookingInfo.testStatus,
+                        fullName: bookingInfo.fullName,
+                        email: bookingInfo.email
+                    };
+                    return result;
+                });
+                observer.next(bookingWhichNotTaken);
+                observer.complete();
+            });
+
+        });
     }
 }
 
