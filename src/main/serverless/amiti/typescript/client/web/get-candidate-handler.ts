@@ -5,6 +5,7 @@ import {HttpContextImpl} from "../../api/http/http-context-impl";
 import {RegisterCandidateInputParams} from "../service/candidate-service";
 import {LambdaContextImpl} from "../../api/lambda/lambda-context-impl";
 import {StreamContextImpl} from "../../api/stream/stream-context-impl";
+import { DBStreamContextImpl } from '../../api/stream/stream-context-impl';
 
 export class GetCandidateHandler {
 
@@ -185,6 +186,15 @@ export class GetCandidateHandler {
                 httpContext.ok(200, result);
             }, err => {
                 httpContext.fail(err, 500);
+            });
+    }
+    static updateCandidateTOElasticSearch(streamContext: DBStreamContextImpl, injector: Injector): void {
+        injector.get(CandidateFacade).updateCandidateTOElasticSearch(streamContext.getRecord())
+            .subscribe(result => {
+                console.log(`result ${result}`);
+                streamContext.ok();
+            }, err => {
+                streamContext.fail(err);
             });
     }
 }

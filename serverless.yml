@@ -22,7 +22,7 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    ACCOUNT_ID: 667361566775 
+    ACCOUNT_ID: 151610303354 
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
@@ -31,6 +31,7 @@ provider:
     QSNID_TABLE: questionPaper
     QUESTION_PAPER_NAMES : questionPaperNames
     RESULT_TABLE: result
+    CATEGORY_TABLE: category
     KINESIS_STREAM_REGION: us-east-1
     REGION: us-east-1
     ELASTICSEARCH_ENDPOINT: http://localhost:9200
@@ -55,6 +56,9 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:BatchGetItem
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}/*"
     - Effect: Allow
       Action:
@@ -65,6 +69,9 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:BatchGetItem
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}"
     - Effect: Allow
       Action:
@@ -322,6 +329,17 @@ functions:
           method: post
           cors: true
 
+  updateCandidateTOElasticSearch:
+    handler: handler.updateCandidateTOElasticSearch
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 100
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - ${self:provider.environment.CANDIDATE_TABLE}
+              - StreamArn
 
   performESUpdateForBooking:
     handler: handler.performESUpdateForBooking
@@ -382,6 +400,9 @@ resources:
                       - dynamodb:UpdateItem
                       - dynamodb:DeleteItem
                       - dynamodb:BatchGetItem
+                      - dynamodb:GetShardIterator
+                      - dynamodb:DescribeStream
+                      - dynamodb:ListStreams
                     Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}/*"
                   - Effect: Allow
                     Action:
@@ -392,6 +413,9 @@ resources:
                       - dynamodb:UpdateItem
                       - dynamodb:DeleteItem
                       - dynamodb:BatchGetItem
+                      - dynamodb:GetShardIterator
+                      - dynamodb:DescribeStream
+                      - dynamodb:ListStreams
                     Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}"
                   - Effect: Allow
                     Action:
@@ -519,6 +543,8 @@ resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
+          StreamSpecification:
+            StreamViewType: NEW_IMAGE
           GlobalSecondaryIndexes:
             -
               IndexName: "emailIndex"
@@ -617,6 +643,21 @@ resources:
                 AttributeType: S
             KeySchema:
               - AttributeName: questionPaperId
+                KeyType: HASH
+            ProvisionedThroughput:
+              ReadCapacityUnits: 2
+              WriteCapacityUnits: 2
+
+      category:
+          Type: 'AWS::DynamoDB::Table'
+          DeletionPolicy: Retain
+          Properties:
+            TableName: ${self:provider.environment.CATEGORY_TABLE}
+            AttributeDefinitions:
+              - AttributeName: category_Id
+                AttributeType: S
+            KeySchema:
+              - AttributeName: category_Id
                 KeyType: HASH
             ProvisionedThroughput:
               ReadCapacityUnits: 2
