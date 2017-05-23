@@ -1,0 +1,37 @@
+{
+  "Records": [
+    {
+      "eventID": "5fddcb117a736fe8f1bfee2c1e7605aa",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "us-east-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1495092660,
+        "Keys": {
+          "candidateId": {
+            "S": "2"
+          }
+        },
+        "NewImage": {
+          "firstName": {
+            "S": "kiran"
+          },
+          "lastName": {
+            "S": "kumar"
+          },
+          "phoneNumber": {
+            "S": "1234567890"
+          },
+          "email": {
+            "S": "kiran@amitisoft.com"
+          }
+        },
+        "SequenceNumber": "100000000004112069037",
+        "SizeBytes": 58,
+        "StreamViewType": "NEW_IMAGE"
+      },
+      "eventSourceARN": "arn:aws:dynamodb:us-east-1:667361566775:table/booking/stream/2017-05-18T07:21:58.820"
+    }
+  ]
+}
