@@ -185,6 +185,15 @@ functions:
          # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
           cors: true
 
+  startTestInProgressDashboard:
+    handler: handler.startTestInProgressDashboard
+    events:
+      - http:
+          path: api/startTestInProgressDashboard
+          method: get
+         # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
+          cors: true
+
   updateBookingAfterStartTest:
     handler: handler.updateBookingAfterStartTest
     events:

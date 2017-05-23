@@ -358,7 +358,10 @@ export class CandidateServiceImpl {
                         return;
 
                     } else {
-                        observer.next('Successfully inserted data');
+                        console.log(`water fall output = ${x}`);
+                        console.log('x = ', x.toString());
+                        observer.next(x.toString());
+                        // observer.next('Successfully inserted data');
                         observer.complete();
                         return;
                     }
@@ -456,10 +459,14 @@ export class CandidateServiceImpl {
                     console.error(err);
                     observer.error(err);
                     return;
+                } else if (data.candidateId === undefined) {
+                         observer.next('Successfully inserted data');
+                        observer.complete();
+                } else {
+                     console.log(`result ${JSON.stringify(result)}`);
+                    observer.next('Successfully updated data');
+                    observer.complete();
                 }
-                console.log(`result ${JSON.stringify(result)}`);
-                observer.next('Successfully inserted data');
-                observer.complete();
             });
         });
     }
