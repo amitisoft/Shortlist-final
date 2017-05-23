@@ -41,7 +41,7 @@ let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceI
     let kinesis = new Kinesis({
         region: process.env.KINESIS_STREAM_REGION
     });
-    return new CandidateServiceImpl(notificationServiceImpl, kinesis, new DocumentClient());
+    return new CandidateServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, notificationServiceImpl, kinesis, new DocumentClient());
 };
 
 let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => {
@@ -99,4 +99,4 @@ exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHtt
 exports.getESTestNotTakenResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestNotTakenResults);
 exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestInProgressResults);
 exports.findESBookingSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.findESBookingSearchResult);
-
+exports.updateCandidateTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetCandidateHandler.updateCandidateTOElasticSearch);
