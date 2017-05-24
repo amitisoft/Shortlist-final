@@ -32,7 +32,6 @@ provider:
     CATEGORY_TABLE: category
     QUESTION_PAPER_NAMES : questionPaperNames
     RESULT_TABLE: result
-    CATEGORY_TABLE: category
     KINESIS_STREAM_REGION: us-east-1
     REGION: us-east-1
     ELASTICSEARCH_ENDPOINT: http://localhost:9200

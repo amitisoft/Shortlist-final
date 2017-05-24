@@ -527,8 +527,6 @@ export class BookingServiceImpl {
         });
 
     }
->>>>>>> refs/remotes/origin/master
-
     updateBookingToElasticSearch(record: DBStreamRecord): Observable<boolean> {
         let that = this;
         return Observable.create((observer: Observer<boolean>) => {
