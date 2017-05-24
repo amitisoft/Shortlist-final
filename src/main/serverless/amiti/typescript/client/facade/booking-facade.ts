@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { BookingServiceImpl } from '../service/booking-service';
+import { BookingSearchParams, BookingServiceImpl } from '../service/booking-service';
 import { BookingDto } from '../dto/booking-dto';
 import { BookingsDto } from '../dto/bookings-dto';
 import { Booking } from '../domain/booking';
@@ -77,16 +77,46 @@ export class BookingFacade {
         return this.bookingService.getCandidatesListFile(data);
     }
 
+    getESTestNotTakenResults(): Observable<BookingsDto> {
+        return this.bookingService.getESTestNotTakenResults()
+            .map((bookings) => {
+                console.log('map = ', bookings);
+                return {
+                    bookings: bookings.map(this.mapBookingToDto)
+                };
+            });
+    }
+
+    getESTestInProgressResults(): Observable<BookingsDto> {
+        return this.bookingService.getESTestInProgressResults()
+            .map((bookings) => {
+                console.log('map = ', bookings);
+                return {
+                    bookings: bookings.map(this.mapBookingToDto)
+                };
+            });
+    }
+
+    findESBookingSearchResult(searchParams: BookingSearchParams): Observable<BookingsDto> {
+        return this.bookingService.findESBookingSearchResult(searchParams)
+            .map((bookings) => {
+                console.log('map = ', bookings);
+                return {
+                    bookings: bookings.map(this.mapBookingToDto)
+                };
+            });
+    }
+
+
     private mapBookingToDto(booking: Booking): BookingDto {
         console.log('in mapBookingToDto', booking);
         return {
             candidateId: booking.candidateId,
             category: booking.category,
             jobPosition: booking.jobPosition,
-            dateOfExam: new Date().toDateString(),
+            dateOfExam: booking.dateOfExam,
             testStatus: booking.testStatus,
-            startTime: 5,
-            paperType: '',
+            paperType: booking.paperType,
             candidateFullName: booking.fullName,
             candidateMailId: booking.email,
             bookingId: booking.bookingId

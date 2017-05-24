@@ -2,7 +2,7 @@
   "Records": [
     {
       "eventID": "5fddcb117a736fe8f1bfee2c1e7605aa",
-      "eventName": "DELETE",
+      "eventName": "INSERT",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
       "awsRegion": "us-east-1",
