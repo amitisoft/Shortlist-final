@@ -9,16 +9,7 @@ export class CreateQuestionFacade {
         console.log(`in CreateQuestionFacade constructor()`);
     }
     createQuestion(data: any): Observable<Question> {
-    //     let dataConversion:any;
-    //     console.log("data before type of----",typeof data);
-    //   if (typeof data == 'string'){
-    //     dataConversion = JSON.parse(data);
-    //   }
-    //   else{
-    //     dataConversion = data;
-    //   }
-    //     console.log("data After type of----",typeof dataConversion);
-        return this.createQuestionservice.create(data);
+      return this.createQuestionservice.create(data);
     }
 
      findbyCategory(categoryId: string, lastqsnid: string): Observable<Question[]> {

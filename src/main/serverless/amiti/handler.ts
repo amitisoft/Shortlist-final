@@ -27,15 +27,14 @@ import { CreateQuestionPaperserviceImpl } from './typescript/client/service/crea
 import { Kinesis, DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
 
-const fs = require('fs');
-const dotenv = require('dotenv');
-const envConfig = dotenv.parse(fs.readFileSync('.env'));
-
-for (let k in envConfig) {
-    if (envConfig.hasOwnProperty(k)) {
-        process.env[k] = envConfig[k];
-    }
-}
+//   const fs = require('fs')
+//       const dotenv = require('dotenv');
+//     const envConfig = dotenv.parse(fs.readFileSync('.env'));
+//     for (let k in envConfig) {
+//         if (envConfig.hasOwnProperty(k)) {
+//             process.env[k] = envConfig[k];
+//         }
+//     }
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
     let kinesis = new Kinesis({
@@ -75,6 +74,7 @@ export const appProviders = [
 ];
 
 
+
 exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getAllCandidates);
 exports.registerCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidate);
 exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
@@ -100,3 +100,6 @@ exports.getESTestNotTakenResults = ExecutionContextImpl.createHttpHandler(appPro
 exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestInProgressResults);
 exports.findESBookingSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.findESBookingSearchResult);
 exports.updateCandidateTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetCandidateHandler.updateCandidateTOElasticSearch);
+exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
+exports.updateExamBookingTimings =ExecutionContextImpl.createHttpHandler(appProviders,GetBookingHandler.updateExamTimingSlots);
+
