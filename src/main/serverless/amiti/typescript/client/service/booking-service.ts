@@ -401,11 +401,11 @@ export class BookingServiceImpl {
                     return that.candidateServiceImpl.findById(candidateId);
                 },
                 function (candidate: Candidate) {
-                    record.addToNewImage('fullName', {
+                    record.addToNewImageAttributes('fullName', {
                         'S': `${candidate.firstName} ${candidate.lastName}`
                     });
 
-                    record.addToNewImage('email', {
+                    record.addToNewImageAttributes('email', {
                         'S': `${candidate.email}`
                     });
 
@@ -462,7 +462,8 @@ export class BookingServiceImpl {
                                         'type': 'long'
                                     },
                                     'category': {
-                                        'type': 'text'
+                                        'type': 'text',
+                                        'index': 'true'
                                     },
                                     'dateOfExam': {
                                         'type': 'date',
@@ -751,7 +752,7 @@ export class BookingServiceImpl {
         let category = format('{0}', params.category);
         let categoryCondition: any = params.category ? {
             'match': {
-                fullName
+                category
             }
         } : undefined;
 
