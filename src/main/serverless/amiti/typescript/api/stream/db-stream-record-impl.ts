@@ -13,7 +13,7 @@ export interface DBStreamRecord {
     getAllUniqueProperties(): any;
     convertToDate(time: number): any;
     getValueByKey(key: string): any;
-    addToNewImage(key: string, value: any): void;
+    addToNewImageAttributes(key: string, value: any): void;
 }
 
 export class DBStreamRecordImpl implements DBStreamRecord {
@@ -31,7 +31,7 @@ export class DBStreamRecordImpl implements DBStreamRecord {
         return this.record.eventName;
     }
 
-    addToNewImage(key, value): void {
+    addToNewImageAttributes(key, value): void {
         let newImageObject = this.record.dynamodb.NewImage;
         newImageObject[key] = value;
     }
