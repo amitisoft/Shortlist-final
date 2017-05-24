@@ -1,12 +1,8 @@
 import { BookingFacade } from '../facade/booking-facade';
 import { Injector } from '@angular/core';
 import { DBStreamContextImpl } from '../../api/stream/stream-context-impl';
-<<<<<<< HEAD
-import { HttpContextImpl } from "../../api/http/http-context-impl";
-=======
 import { HttpContextImpl } from '../../api/http/http-context-impl';
 import { BookingSearchParams } from '../service/booking-service';
->>>>>>> refs/remotes/origin/master
 
 export class GetBookingHandler {
 
