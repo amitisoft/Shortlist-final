@@ -48,6 +48,11 @@ let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => 
     console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
     return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl);
 };
+
+let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => {
+    console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
+    return new ResultServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl);
+};
 export const appProviders = [
     CandidateFacade,
     BookingFacade,
@@ -61,12 +66,16 @@ export const appProviders = [
         useFactory: candidateServiceImplFactory,
         deps: [NotificationServiceImpl]
     },
+    {
+        provide:  ResultServiceImpl,
+        useFactory: resultServiceImplFactory,
+        deps: [CandidateServiceImpl]
+    },
     NotificationServiceImpl,
     QsnIdsServiceImpl,
     QsnIdsFacade,
     QuestionServiceImpl,
     QuestionFacade,
-    ResultServiceImpl,
     ResultFacade,
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
@@ -94,9 +103,9 @@ exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBSt
 exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
 exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
 exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
-// exports.gettestStausInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetBookingHandler.isActiveLink);
 exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNamesByCategory);
 exports.getESTestNotTakenResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestNotTakenResults);
 exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestInProgressResults);
 exports.findESBookingSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.findESBookingSearchResult);
 exports.updateCandidateTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetCandidateHandler.updateCandidateTOElasticSearch);
+exports.updateResultTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, UpdateResultHandler.updateResultTOElasticSearch);

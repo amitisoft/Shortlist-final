@@ -3,7 +3,7 @@ import { Observable, Observer } from 'rxjs';
 import { ResultServiceImpl } from '../service/Result-service';
 import { ResultDto } from '../dto/Result-dto';
 import { Result } from '../domain/Result';
-
+import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
 
 @Injectable()
 export class ResultFacade {
@@ -23,4 +23,8 @@ export class ResultFacade {
             // });
     }
 
+ updateResultTOElasticSearch(record: DBStreamRecord): Observable<boolean> {
+       // console.log(`update Result in elastic search index by pushing to stream ${JSON.stringify(record)}`);
+        return this.resultService.updateResultToElasticSearch(record);
+    }
 }
