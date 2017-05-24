@@ -11,13 +11,14 @@ export class GetQsnHandler {
         let pathParameters = httpContext.getPathParameters();
         console.log(JSON.stringify(pathParameters));
 
-        injector.get(QsnIdsFacade).getQsnId(pathParameters['Qsn_Ppr_Id'])
+        injector.get(QsnIdsFacade).getQsnId(pathParameters['questionPaperId'])
             .subscribe(result => {
 
                 // httpContext.ok(200, result);
-                console.log(`result= ${result[0].QsnId}`);
-                // injector.get(QuestionFacade).getQsn(result[data["QsnNo"]].QsnId, data["Category"])
-                injector.get(QuestionFacade).getQsn(result[pathParameters['QsnNo']].QsnId, pathParameters['Category'])
+                console.log(`result= ${result[1].questionId}`);
+                console.log(`result= ${result[pathParameters['questionNo']].questionId}`);
+               // injector.get(QuestionFacade).getQsn(result[data["QsnNo"]].QsnId, data["Category"])
+                injector.get(QuestionFacade).getQsn(result[pathParameters['questionNo']].questionId, pathParameters['category'])
                     .subscribe(result1 => {
                         console.log(`Qsn = ${result1}`);
                         httpContext.ok(200, result1);

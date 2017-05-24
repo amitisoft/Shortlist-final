@@ -32,6 +32,7 @@ provider:
     CATEGORY_TABLE: category
     QUESTION_PAPER_NAMES : questionPaperNames
     RESULT_TABLE: result
+    CATEGORY_TABLE: category
     KINESIS_STREAM_REGION: us-east-1
     REGION: us-east-1
     ELASTICSEARCH_ENDPOINT: http://localhost:9200
@@ -56,6 +57,9 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:BatchGetItem
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}/*"
     - Effect: Allow
       Action:
@@ -66,6 +70,9 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:BatchGetItem
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}"
     - Effect: Allow
       Action:
@@ -110,6 +117,7 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
+        - dynamodb:BatchGetItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QUESTION_PAPER_NAMES}"  
     - Effect: Allow
@@ -120,6 +128,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:BatchGetItem
         - dynamodb:BatchWriteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QSNID_TABLE}"
     - Effect: Allow
@@ -130,6 +139,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:BatchGetItem
         - dynamodb:BatchWriteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QSNID_TABLE}/*"      
     - Effect: Allow
@@ -258,7 +268,7 @@ functions:
     handler: handler.getQuestionPaperNamesByCategoryFunction
     events:
       - http:
-          path: api/getquestionpapernamesbycategory
+          path: api/getquestionpapernamesbycategory/category/{category}
           method: get
           cors: true                 
 
@@ -326,6 +336,17 @@ functions:
           method: post
           cors: true
 
+  updateCandidateTOElasticSearch:
+    handler: handler.updateCandidateTOElasticSearch
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 100
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - ${self:provider.environment.CANDIDATE_TABLE}
+              - StreamArn
 
   performESUpdateForBooking:
     handler: handler.performESUpdateForBooking
@@ -386,6 +407,9 @@ resources:
                       - dynamodb:UpdateItem
                       - dynamodb:DeleteItem
                       - dynamodb:BatchGetItem
+                      - dynamodb:GetShardIterator
+                      - dynamodb:DescribeStream
+                      - dynamodb:ListStreams
                     Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}/*"
                   - Effect: Allow
                     Action:
@@ -396,6 +420,9 @@ resources:
                       - dynamodb:UpdateItem
                       - dynamodb:DeleteItem
                       - dynamodb:BatchGetItem
+                      - dynamodb:GetShardIterator
+                      - dynamodb:DescribeStream
+                      - dynamodb:ListStreams
                     Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CANDIDATE_TABLE}"
                   - Effect: Allow
                     Action:
@@ -523,6 +550,8 @@ resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
+          StreamSpecification:
+            StreamViewType: NEW_IMAGE
           GlobalSecondaryIndexes:
             -
               IndexName: "emailIndex"
@@ -562,14 +591,14 @@ resources:
         Properties:
           TableName: ${self:provider.environment.QUESTION_LIST_TABLE}
           AttributeDefinitions:
-            - AttributeName: Category
+            - AttributeName: category
               AttributeType: S
-            - AttributeName: Qsn_id
+            - AttributeName: questionId
               AttributeType: S
           KeySchema:
-            - AttributeName: Category
+            - AttributeName: category
               KeyType: HASH
-            - AttributeName: Qsn_id
+            - AttributeName: questionId
               KeyType: RANGE
           ProvisionedThroughput:
             ReadCapacityUnits: 2
@@ -626,19 +655,17 @@ resources:
               ReadCapacityUnits: 2
               WriteCapacityUnits: 2
 
-
-
       category:
-        Type: 'AWS::DynamoDB::Table'
-        DeletionPolicy: Retain
-        Properties:
-          TableName: ${self:provider.environment.CATEGORY_TABLE}
-          AttributeDefinitions:
-            - AttributeName: category_Id
-              AttributeType: S
-          KeySchema:
-            - AttributeName: category_Id
-              KeyType: HASH
-          ProvisionedThroughput:
-            ReadCapacityUnits: 2
-            WriteCapacityUnits: 2
+          Type: 'AWS::DynamoDB::Table'
+          DeletionPolicy: Retain
+          Properties:
+            TableName: ${self:provider.environment.CATEGORY_TABLE}
+            AttributeDefinitions:
+              - AttributeName: category_Id
+                AttributeType: S
+            KeySchema:
+              - AttributeName: category_Id
+                KeyType: HASH
+            ProvisionedThroughput:
+              ReadCapacityUnits: 2
+              WriteCapacityUnits: 2

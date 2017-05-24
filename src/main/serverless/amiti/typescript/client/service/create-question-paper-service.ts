@@ -185,12 +185,12 @@ export class CreateQuestionPaperserviceImpl {
     }
 
     getPaperNamesByCategory(qsnId: any): Observable<QuestionPaper[]> {
-        console.log('in getQuestionPaperId');
+        console.log('in getPaperNamesByCategory');
         let params = {
             RequestItems: {
                 'questionPaperNames': {
                     Keys: qsnId,
-                    ProjectionExpression: 'questionPaperName'
+                    ProjectionExpression: 'questionPaperName,questionPaperId'
                 }
             }
         };
@@ -215,12 +215,12 @@ export class CreateQuestionPaperserviceImpl {
                     throw err;
                 }
                 console.log('data...', data);
-                if (data.Items.length === 0) {
+                if (data.Responses.length === 0) {
                     console.log('no data received for this category');
                     observer.complete();
                     return;
                 }
-                observer.next(data.Items);
+                observer.next(data.Responses);
                 observer.complete();
 
             });

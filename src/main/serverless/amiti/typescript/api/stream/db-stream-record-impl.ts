@@ -1,4 +1,5 @@
-const _ = require('lodash');
+import _ = require('lodash');
+import moment = require('moment');
 
 export interface StreamObject {
     key: string;
@@ -10,6 +11,9 @@ export interface DBStreamRecord {
     getEventName(): string;
     getNewImage(): StreamObject[];
     getAllUniqueProperties(): any;
+    convertToDate(time: number): any;
+    getValueByKey(key: string): any;
+    addToNewImageAttributes(key: string, value: any): void;
 }
 
 export class DBStreamRecordImpl implements DBStreamRecord {
@@ -27,9 +31,19 @@ export class DBStreamRecordImpl implements DBStreamRecord {
         return this.record.eventName;
     }
 
+    addToNewImageAttributes(key, value): void {
+        let newImageObject = this.record.dynamodb.NewImage;
+        newImageObject[key] = value;
+    }
+
     getNewImage(): any {
         let newImageObject = this.record.dynamodb.NewImage;
         return this.construct(newImageObject);
+    }
+
+    getValueByKey(key: string): any {
+        let allProperties = this.getAllUniqueProperties();
+        return _.pick(allProperties, [key])[key];
     }
 
     getAllUniqueProperties(): any {
@@ -44,6 +58,14 @@ export class DBStreamRecordImpl implements DBStreamRecord {
         });
         return params;
     }
+
+    convertToDate(time: any): any {
+        console.log(`time for date ${time}`);
+        let dateNow = new Date();
+        console.log(`CONVERTED DATE ${moment(dateNow).format('DD/MM/YYYY')}`);
+        return moment(dateNow).format('DD/MM/YYYY');
+    }
+
 
     private construct(obj): any {
         let returnObj = [];

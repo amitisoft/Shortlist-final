@@ -18,19 +18,19 @@ export class QuestionServiceImpl {
         console.log('in QsnPaperServiceImpl constructor()');
     }
 
-    getQsn(qsnId: string, category: string): Observable<Question> {
+    getQsn(questionId: string, category: string): Observable<Question> {
         console.log('in QsnPaperServiceImpl get()');
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'question',
-            ProjectionExpression: 'Category,Qsn_id, Qsn, Crct_ans, Option1,Option2, Option3, Option4,Multi_flag',
-            KeyConditionExpression: '#Category = :Category and #QsnId = :QsnId',
+            ProjectionExpression: 'category,questionId, question, correctAns, option1, option2, option3, option4, multiFlag',
+            KeyConditionExpression: '#category = :category and #questionId = :questionId',
             ExpressionAttributeNames: {
-                '#Category': 'Category',
-                '#QsnId': 'Qsn_id'
+                '#category': 'category',
+                '#questionId': 'questionId'
             },
             ExpressionAttributeValues: {
-                ':Category': category,
-                ':QsnId': qsnId
+                ':category': category,
+                ':questionId': questionId
             },
         };
 
@@ -50,10 +50,10 @@ export class QuestionServiceImpl {
                     return;
                 }
                 data.Items.forEach((item) => {
-                    console.log(`Category ${ item.Category }`);
-                    console.log(`Qsn ${ item.Qsn }`);
-                    console.log(`Curct_ans ${ item.curct_ans }`);
-                    console.log(`Opt1 ${ item.Opt1 }`);
+                    console.log(`category ${ item.category }`);
+                    console.log(`question ${ item.question }`);
+                    console.log(`correctAns ${ item.correctAns }`);
+                    console.log(`option1 ${ item.option1 }`);
                 });
                 observer.next(data.Items);
                 observer.complete();

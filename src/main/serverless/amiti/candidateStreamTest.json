@@ -7,33 +7,24 @@
       "eventSource": "aws:dynamodb",
       "awsRegion": "us-east-1",
       "dynamodb": {
-        "ApproximateCreationDateTime": 1495530403857,
+        "ApproximateCreationDateTime": 1495092660,
         "Keys": {
-          "bookingId": {
-            "S": "1"
-          },
           "candidateId": {
             "S": "1"
           }
         },
         "NewImage": {
-          "testStatus": {
-            "S": "testDONE"
+          "firstName": {
+            "S": "kiran"
           },
-          "candidateId": {
-            "S": "1"
+          "lastName": {
+            "S": "kumar"
           },
-          "category": {
-            "S": "java"
+          "phoneNumber": {
+            "S": "1234567890"
           },
-          "bookingId": {
-            "S": "1"
-          },
-          "paperType": {
-            "S": "QA"
-          },
-          "dateOfExam": {
-            "S":"1495531172026"
+          "email": {
+            "S": "kiran@amitisoft.com"
           }
         },
         "SequenceNumber": "100000000004112069037",
