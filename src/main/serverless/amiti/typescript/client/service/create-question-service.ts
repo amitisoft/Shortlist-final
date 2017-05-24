@@ -63,12 +63,9 @@ export class CreateQuestionServiceImpl {
             };
 
         }
-        console.log('parammmmmmmmmmmmmmmmmmmm00000000000000------------', data['Qsn']);
         return Observable.create((observer: Observer<Question>) => {
-            console.log('param------------', params);
             documentClient.put(params, (err, result1: any) => {
-                console.log('eeeeeeeeeeeeee', err);
-                if (err) {
+                   if (err) {
                     console.log('ifffffffffffffffffffffff');
                     if (err.code === 'ConditionalCheckFailedException') {
                         observer.error(err);
@@ -76,7 +73,7 @@ export class CreateQuestionServiceImpl {
                     }
                 }
 
-                data = 'success';
+                let  data = 'success';
                 // console.log(data.Item[0]);
                 observer.next(result1);
                 observer.complete();

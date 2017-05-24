@@ -27,15 +27,14 @@ import { CreateQuestionPaperserviceImpl } from './typescript/client/service/crea
 import { Kinesis, DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
 
-const fs = require('fs');
-const dotenv = require('dotenv');
-const envConfig = dotenv.parse(fs.readFileSync('.env'));
-
-for (let k in envConfig) {
-    if (envConfig.hasOwnProperty(k)) {
-        process.env[k] = envConfig[k];
-    }
-}
+//   const fs = require('fs')
+//       const dotenv = require('dotenv');
+//     const envConfig = dotenv.parse(fs.readFileSync('.env'));
+//     for (let k in envConfig) {
+//         if (envConfig.hasOwnProperty(k)) {
+//             process.env[k] = envConfig[k];
+//         }
+//     }
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
     let kinesis = new Kinesis({
@@ -75,24 +74,25 @@ export const appProviders = [
 ];
 
 
-exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getAllCandidates);
-exports.registerCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidate);
-exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
-exports.processRegistrationStream = StreamExecutionContextImpl.createMergedStreamHandler(appProviders, GetCandidateHandler.processRegistrationStream);
-exports.startTestDashboard = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.startTestDashboard);
-exports.startTestInProgressDashboard = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.startTestInProgressDashboard);
-exports.getCandidateHomePageInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateHomePageInfo);
-exports.updateBookingAfterStartTest = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.updateBookingAfterStartTest);
-exports.getAllQsnIdsFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetQsnHandler.getQsn);
-exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(appProviders, UpdateResultHandler.updateResult);
-exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.createQuestionPaper);
-exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.createQuestion);
-exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getQuestionByCategory);
-exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
-exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
-exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
-exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
-exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
-exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
-exports.gettestStausInfo = ExecutionContextImpl.createHttpHandler(AppProviders, GetBookingHandler.isActiveLink);
-exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNamesByCategory);
+// exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getAllCandidates);
+// exports.registerCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidate);
+// exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
+// exports.processRegistrationStream = StreamExecutionContextImpl.createMergedStreamHandler(appProviders, GetCandidateHandler.processRegistrationStream);
+// exports.startTestDashboard = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.startTestDashboard);
+// exports.startTestInProgressDashboard = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.startTestInProgressDashboard);
+// exports.getCandidateHomePageInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateHomePageInfo);
+// exports.updateBookingAfterStartTest = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.updateBookingAfterStartTest);
+//  exports.getAllQsnIdsFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetQsnHandler.getQsn);
+// exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(appProviders, UpdateResultHandler.updateResult);
+//  exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.createQuestionPaper);
+//  exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.createQuestion);
+// exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getQuestionByCategory);
+// exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
+// exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
+// exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
+// exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
+// exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
+// exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
+exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
+exports.updateExamBookingTimings =ExecutionContextImpl.createHttpHandler(appProviders,GetBookingHandler.updateExamTimingSlots)
+//exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNamesByCategory);

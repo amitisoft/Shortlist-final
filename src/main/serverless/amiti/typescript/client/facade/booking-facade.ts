@@ -66,6 +66,8 @@ export class BookingFacade {
     }
 
 
+    
+
     findByCandidateId(candidateId: string, data: any): Observable<Booking[]> {
         console.log('in BookingFacade findByCandidateId()');
         // return this.bookingService.findByCandidateId(candidateId, data);
@@ -91,5 +93,15 @@ export class BookingFacade {
             candidateMailId: booking.email,
             bookingId: booking.bookingId
         };
+    }
+
+
+    isTestLinkStatusInfo(data: any): Observable<Booking> {
+        console.log('in BookingFacade isTestLinkStatusInfo()');
+        return this.bookingService.isTestLinkStatusInfo(data);
+    }
+
+    updateExamTimingSlots(data: any):Observable<string>{
+        return this.bookingService.updateExamTimingSlots(data);
     }
 }

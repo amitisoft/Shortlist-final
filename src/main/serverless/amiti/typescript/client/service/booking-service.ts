@@ -5,11 +5,21 @@ import { Client } from 'elasticsearch';
 import { Candidate } from '../domain/candidate';
 import { DynamoDB } from 'aws-sdk';
 import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
+import { UtilHelper } from '../../api/util/util-helper';
+
 
 const AWS = require('aws-sdk');
 const format = require('string-template');
 const _ = require('lodash');
 
+export interface URIInputPahtParams {
+    testLinkInfo: string;
+}
+
+export interface TimeSlotParams {
+    bookingId: string;
+    startingTime:string
+}
 
 @Injectable()
 export class BookingServiceImpl {
@@ -33,43 +43,172 @@ export class BookingServiceImpl {
 
     }
 
+
     /**
-     * isLinkActive()
+     * isTestLinkStatusInfo()
      * Candidate click on TestLink Before test
+     * testStatus is " progress" send Booking Information
      * @param pathParameter
      */
-    // isLinkActive(pathParameter: any): Observable<boolean> {
-    //     let decodedData = JSON.parse(new Buffer(pathParameter.testLinkinfo, 'base64').toString('ascii'));
-    //     console.log('in is active method', decodedData.bookingId);
-    //     const queryParams: DynamoDB.Types.QueryInput = {
-    //         TableName: 'booking',
-    //         KeyConditionExpression: '#bookingId = :bookingIdData',
-    //         ExpressionAttributeNames: {
-    //             '#bookingId': 'bookingId',
-    //         },
-    //         ExpressionAttributeValues: {
-    //             ':bookingIdData': decodedData.bookingId,
-    //         },
-    //         ProjectionExpression: 'candidateId,bookingId,testStatus',
-    //         ScanIndexForward: false
-    //     };
-    //     const documentClient = new DocumentClient();
-    //     return Observable.create((observer: Observer<boolean>) => {
-    //         documentClient.query(queryParams, (err, data: any) => {
-    //             if (err) {
-    //                 observer.error(err);
-    //                 throw err;
-    //             }
-    //             // check testStatus
-    //             console.log('testStatus', data);
-    //             if (data.Items[0].testStatus === 'NotTaken') {
-    //                 observer.next(false);
-    //                 observer.complete();
-    //                 return;
-    //             }
-    //         });
-    //     });
-    // }
+
+      isTestLinkStatusInfo(pathParameter:URIInputPahtParams): Observable<Booking> {
+        let that = this;
+        return Observable.create((observer: Observer<Booking>) => {
+            const registrationWaterFall = UtilHelper.waterfall([
+                function () {
+                return that.bookingTestStatusInfo(pathParameter.testLinkInfo);
+                    },
+                function (bookingData: Booking) {
+                    return that.candidateTokenChecking(bookingData,pathParameter.testLinkInfo)
+                }
+            ]);
+        registrationWaterFall.subscribe(
+                function (x) {
+                let temp = JSON.parse(JSON.stringify(x));
+                //console.log("Booking values = ",x);
+                  observer.next(temp);
+                  observer.complete();  
+                },
+                function (err) {
+                    console.log(`error message ${err}`);
+                    observer.error(err);
+                    return;
+                }
+            );
+        });
+    }
+
+     /**
+     *  bookingTestStatusInfo
+     */
+   
+     bookingTestStatusInfo(pathParameter: string): Observable<Booking> {
+        let decodedData = JSON.parse(new Buffer(pathParameter, 'base64').toString('ascii'));
+         console.log('in is active method', decodedData.bookingId);
+         const queryParams: DynamoDB.Types.QueryInput = {
+             TableName: 'booking',
+             KeyConditionExpression: '#bookingId = :bookingIdData',
+             ExpressionAttributeNames: {
+                 '#bookingId': 'bookingId',
+             },
+             ExpressionAttributeValues: {
+                 ':bookingIdData': decodedData.bookingId,
+             },
+             ProjectionExpression: 'candidateId,bookingId,testStatus,paperType,category',
+             ScanIndexForward: false
+         };
+             return Observable.create((observer: Observer<Booking>) => {
+             this.documentClient.query(queryParams, (err, data: any) => {
+                 if (err) {
+                     observer.error(err);
+                     throw err;
+                 }
+                 if (data.Items.length === 0) {
+                    observer.complete();
+                    return;
+                }
+                 // check testStatus
+                 console.log('testStatus', data);
+                 if (data.Items[0].testStatus === 'NotTaken') {
+                     observer.next(data.Items[0]);
+                     observer.complete();
+                     return;
+                 }else
+                 {
+                     observer.next(data.Items[0]);
+                     observer.complete();
+                     return;
+                 }
+             });
+         });
+     }
+
+
+       /**
+     *  checking candidate Token
+     */
+    candidateTokenChecking(data, pathParameter): Observable<Booking> {
+        let decodedData = JSON.parse(new Buffer(pathParameter, 'base64').toString('ascii'));
+        const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: 'candidate',
+            KeyConditionExpression: '#candidateId = :candidateId',
+            ExpressionAttributeNames: {
+                '#candidateId': 'candidateId'
+            },
+            ExpressionAttributeValues: {
+                ':candidateId': data.candidateId
+            },
+            ProjectionExpression: 'candidateId, tokenId',
+            ScanIndexForward: false
+        };
+
+        return Observable.create((observer: Observer<any>) => {
+            this.documentClient.query(queryParams, (err, data1: any) => {
+                if (err) {
+                    observer.error(err);
+                    throw err;
+                }
+                // check token
+                console.log('token data', data1.Items);
+                if (data1.Items[0].tokenId === decodedData.tokenId) {
+                    observer.next(data);
+                    observer.complete();
+                    return;
+                }
+                else
+                {
+                    let msg="Candidate token miss matched";
+                   observer.next(msg);
+                    observer.complete();
+                    return;
+                }
+                //observer.error('Candidate token miss matched');
+                //observer.complete();
+                //return 'Candidate token miss matched';
+                    
+            });
+        });
+    }
+
+   
+      updateExamTimingSlots(data:TimeSlotParams):Observable<string>{
+        console.log('in BookingServiceImpl updateExamTimingSlots()');
+        console.log(`data received ${ data.bookingId }`);
+        console.log(`data received ${ data.startingTime}`);
+        //let finishedTime = new Date ( data.startingTime );
+        //finishedTime.setMinutes ( finishedTime.getMinutes() + 30 );
+         let etime= new Date (data.startingTime).getTime()+(30*60*1000);
+            const params = {
+            TableName: 'booking',
+            Key: {
+                bookingId: data.bookingId,
+                 },
+            ExpressionAttributeNames: {
+                '#stime': 'startingTime',
+                '#etime': 'endingTime'
+            },                
+            ExpressionAttributeValues: {
+                ':stime': data.startingTime,
+                ':etime':  etime             //finishedTime.toISOString()
+                },
+            UpdateExpression: 'SET #stime = :stime,#etime=:etime',
+            ReturnValues: 'ALL_NEW',
+        };
+        return Observable.create((observer: Observer<string>) => {
+            this.documentClient.update(params, (err, result: any) => {
+                if (err) {
+                    console.error(err);
+                    observer.error(err);
+                    return;
+                }
+                //console.log(`result ${ JSON.stringify(data) }`);
+                observer.next("success");
+                observer.complete();
+            });
+        });
+    }
+
+
 
 
     /**
@@ -322,43 +461,7 @@ export class BookingServiceImpl {
         });
     }
 
-    /**
-     *  checking candidate Token
-     */
-    candidateTokenChecking(data, pathParameter): any {
-        let decodedData = JSON.parse(new Buffer(pathParameter.candidateinfo, 'base64').toString('ascii'));
-        const queryParams: DynamoDB.Types.QueryInput = {
-            TableName: 'candidate',
-            KeyConditionExpression: '#candidateId = :candidateId',
-            ExpressionAttributeNames: {
-                '#candidateId': 'candidateId'
-            },
-            ExpressionAttributeValues: {
-                ':candidateId': data.candidateId
-            },
-            ProjectionExpression: 'candidateId, token',
-            ScanIndexForward: false
-        };
-
-        return Observable.create((observer: Observer<Booking>) => {
-            this.documentClient.query(queryParams, (err, data1: any) => {
-                if (err) {
-                    observer.error(err);
-                    throw err;
-                }
-                // check token
-                console.log('token data', data1.Items);
-                if (data1.Items[0].token === decodedData.token) {
-                    observer.next((data));
-                    observer.complete();
-                    return;
-                }
-                observer.error('Candidate token miss matched');
-                return 'Candidate token miss matched';
-            });
-        });
-    }
-
+  
 
     updateBookingToElasticSearch(record: DBStreamRecord): Observable<boolean> {
         return Observable.create((observer: Observer<boolean>) => {
