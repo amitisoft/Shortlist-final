@@ -15,7 +15,6 @@ export class HttpContextImpl {
     constructor(private lambdaEvent: any, private lambdaCallback: Callback) {
 
     }
-
     ok(httpCode: number = 200, response?: any) {
         const result = {
             statusCode: httpCode,

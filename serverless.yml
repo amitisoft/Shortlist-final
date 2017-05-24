@@ -22,16 +22,16 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    ACCOUNT_ID: 151610303354 
+    ACCOUNT_ID: 675565166163 
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
     SEND_EMAIL_SNS: sendEmail
     QUESTION_LIST_TABLE: question
     QSNID_TABLE: questionPaper
+    CATEGORY_TABLE: category
     QUESTION_PAPER_NAMES : questionPaperNames
     RESULT_TABLE: result
-    CATEGORY_TABLE: category
     KINESIS_STREAM_REGION: us-east-1
     REGION: us-east-1
     ELASTICSEARCH_ENDPOINT: http://localhost:9200
@@ -287,14 +287,20 @@ functions:
           method: get
           cors: true
 
-  gettestStausInfo:
-    handler: handler.gettestStausInfo
+  getTestStausInfo:
+    handler: handler.getTestStausInfo
     events:
       - http:
-          path: api/testLinkinfo/{testLinkinfo}
+          path: api/testLinkInfo/{testLinkInfo}
           method: get
           cors: true
-
+  updateExamBookingTimings:
+    handler: handler.updateExamBookingTimings
+    events:
+      - http:
+          path: api/updateExamTimingSlot
+          method: post
+          cors: true
   updateCandidateInfo:
     handler: handler.updateCandidateInfo
     events:
