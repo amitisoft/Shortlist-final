@@ -83,7 +83,6 @@ export const appProviders = [
 ];
 
 
-
 exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getAllCandidates);
 exports.registerCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidate);
 exports.registerCandidatesAndEmailPostRegistration = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.registerCandidatesAndEmailPostRegistration);
@@ -111,4 +110,6 @@ exports.updateCandidateTOElasticSearch = StreamExecutionContextImpl.createBookin
 exports.updateResultTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, UpdateResultHandler.updateResultTOElasticSearch);
 exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
 exports.updateExamBookingTimings = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.updateExamTimingSlots);
+exports.findESCandidateSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.findESCandidateSearchResult);
+
 

@@ -9,7 +9,7 @@ import { Registration } from '../domain/registration';
 import { PutRecordsResultEntry } from 'aws-sdk/clients/kinesis';
 import { Client } from 'elasticsearch';
 import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
-
+import moment = require('moment');
 const AWS = require('aws-sdk');
 const format = require('string-template');
 const _ = require('lodash');
@@ -19,7 +19,14 @@ config.update({
     region: 'us-east-1'
 });
 
-
+export interface CandidateSearchParams {
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    email?: string;
+    from: number;
+    size: number;
+}
 export interface NotificationMessage {
     email: string;
     emailSubject: string;
@@ -518,6 +525,10 @@ export class CandidateServiceImpl {
             });
         });
     }
+    /**
+     * insert or delete or update data to elastic search
+     * @param record
+     */
 
      updateCandidateTOElasticSearch(record: DBStreamRecord): Observable<boolean> {
         let that = this;
@@ -553,6 +564,87 @@ export class CandidateServiceImpl {
                     observer.error(`booking index and mapping failed created ${err.stack}`);
                 }
             );
+        });
+    }
+/**
+ * candidate search by email or firstName or lastName or phone number
+ * @param params
+ */
+findESCandidateSearchResult(params: CandidateSearchParams): Observable<Candidate[]> {
+        let email = format('{0}', params.email);
+        let emailCondition: any = params.email ? {
+            'term': {
+                email
+            }
+        } : undefined;
+
+        let firstName = format('{0}', params.firstName);
+        let firstNameCondition: any = params.firstName ? {
+            'match': {
+                firstName
+            }
+        } : undefined;
+
+        let lastName = format('{0}', params.lastName);
+        let lastNameCondition: any = params.lastName ? {
+            'match': {
+                lastName
+            }
+        } : undefined;
+
+        let phoneNumber = format('{0}', params.phoneNumber);
+        let phoneNumberCondition: any = params.phoneNumber ? {
+              'match': {
+                  phoneNumber
+              }
+        } : undefined;
+
+        let mustConditions = [
+            emailCondition,
+            firstNameCondition,
+            lastNameCondition,
+            phoneNumberCondition
+        ];
+
+
+        const filteredMustConditions = _.without(mustConditions, undefined);
+
+        return Observable.create((observer: any) => {
+            this.elasticSearchClient.search({
+                from: params.from,
+                size: params.size,
+                index: this.CANDIDATE_INDEX,
+                type: this.CANDIDATE_MAPPING,
+                body: {
+                    query: {
+                        'bool': {
+                            'must': filteredMustConditions
+                        }
+                    }
+                }
+            }, (err: any, resp: any) => {
+                if (err) {
+                    console.error(`Failed to read canidate progress information ${err}`);
+                    observer.error(err);
+                    return;
+                }
+                console.log(`search finished for progress ${resp}`);
+                const candidateSearchResult = resp.hits.hits.map(hit => {
+
+                    const candidateInfo = hit._source;
+                    const result: Candidate = {
+                        candidateId: candidateInfo.candidateId,
+                        firstName: candidateInfo.firstName,
+                        email: candidateInfo.email,
+                        lastName: candidateInfo.lastName,
+                        phoneNumber: candidateInfo.phoneNumber
+                    };
+                    return result;
+                });
+                observer.next(candidateSearchResult);
+                observer.complete();
+            });
+
         });
     }
 

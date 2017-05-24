@@ -10,12 +10,12 @@
         "ApproximateCreationDateTime": 1495092660,
         "Keys": {
           "candidateId": {
-            "S": "1"
+            "S": "4"
           }
         },
         "NewImage": {
           "firstName": {
-            "S": "kiran"
+            "S": "ashok"
           },
           "lastName": {
             "S": "kumar"
@@ -24,7 +24,7 @@
             "S": "1234567890"
           },
           "email": {
-            "S": "kiran@amitisoft.com"
+            "S": "ashok@amitisoft.com"
           }
         },
         "SequenceNumber": "100000000004112069037",
@@ -33,5 +33,11 @@
       },
       "eventSourceARN": "arn:aws:dynamodb:us-east-1:667361566775:table/booking/stream/2017-05-18T07:21:58.820"
     }
-  ]
+  ],
+
+  "pathParameters":{
+     "lastNumber": "kumar", 
+             "from": 0,
+             "size": 30
+  }
 }

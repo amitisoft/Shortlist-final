@@ -347,6 +347,14 @@ functions:
               - ${self:provider.environment.CANDIDATE_TABLE}
               - StreamArn
 
+  findESCandidateSearchResult:
+    handler: handler.findESCandidateSearchResult
+    events:
+      - http:
+          path: api/findESCandidateSearchResult/firstName/{firstName}/email/{email}
+          method: get
+          cors: true
+
   updateResultTOElasticSearch:
     handler: handler.updateResultTOElasticSearch
     events:
