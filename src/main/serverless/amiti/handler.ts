@@ -27,6 +27,7 @@ import { CreateQuestionPaperserviceImpl } from './typescript/client/service/crea
 import { Kinesis, DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
 
+<<<<<<< HEAD
     // const fs = require('fs')
     //     const dotenv = require('dotenv');
     //   const envConfig = dotenv.parse(fs.readFileSync('.env'));
@@ -35,6 +36,16 @@ import DocumentClient = DynamoDB.DocumentClient;
     //           process.env[k] = envConfig[k];
     //       }
     //   }
+=======
+  const fs = require('fs');
+      const dotenv = require('dotenv');
+    const envConfig = dotenv.parse(fs.readFileSync('.env'));
+    for (let k in envConfig) {
+        if (envConfig.hasOwnProperty(k)) {
+            process.env[k] = envConfig[k];
+        }
+    }
+>>>>>>> refs/remotes/origin/master
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
     let kinesis = new Kinesis({
@@ -50,10 +61,18 @@ let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => 
 
 let questionServiceImplFactory = (qsnIdsServiceImpl: QsnIdsServiceImpl,bookingServiceImpl:BookingServiceImpl) => {
       return new QuestionServiceImpl(process.env.REGION, new DocumentClient(), qsnIdsServiceImpl,bookingServiceImpl);
+      
+}
+
+let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , bookingServiceImpl: BookingServiceImpl, questionServiceImpl: QuestionServiceImpl) => {
+    console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
+    return new ResultServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl, bookingServiceImpl, questionServiceImpl);
+
 };
 export const appProviders = [
     CandidateFacade,
     BookingFacade,
+    ResultFacade,
     {
         provide: BookingServiceImpl,
         useFactory: bookingServiceImplFactory,
@@ -68,19 +87,21 @@ export const appProviders = [
         provide: QuestionServiceImpl,
         useFactory: questionServiceImplFactory,
         deps: [QsnIdsServiceImpl, BookingServiceImpl]
+     },
+    {
+        provide:  ResultServiceImpl,
+        useFactory: resultServiceImplFactory,
+        deps: [CandidateServiceImpl, BookingServiceImpl, QuestionServiceImpl ]
     },
     NotificationServiceImpl,
     QsnIdsServiceImpl,
     QsnIdsFacade,
     QuestionFacade,
-    ResultServiceImpl,
-    ResultFacade,
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,
     CreateQuestionPaperserviceImpl
 ];
-
 
 
 exports.getAllCandidatesFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getAllCandidates);
@@ -98,7 +119,7 @@ exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProvi
 exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getQuestionByCategory);
 exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
-exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
+ exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
 exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
 exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
 exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
@@ -107,6 +128,9 @@ exports.getESTestNotTakenResults = ExecutionContextImpl.createHttpHandler(appPro
 exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestInProgressResults);
 exports.findESBookingSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.findESBookingSearchResult);
 exports.updateCandidateTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetCandidateHandler.updateCandidateTOElasticSearch);
- exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
- exports.updateExamBookingTimings =ExecutionContextImpl.createHttpHandler(appProviders,GetBookingHandler.updateExamTimingSlots);
+exports.updateResultTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, UpdateResultHandler.updateResultTOElasticSearch);
+exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
+exports.updateExamBookingTimings = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.updateExamTimingSlots);
+exports.findESCandidateSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.findESCandidateSearchResult);
+
 

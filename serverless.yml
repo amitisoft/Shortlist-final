@@ -347,6 +347,34 @@ functions:
               - ${self:provider.environment.CANDIDATE_TABLE}
               - StreamArn
 
+  findESCandidateSearchResult:
+    handler: handler.findESCandidateSearchResult
+    events:
+      - http:
+          path: api/findESCandidateSearchResult
+          method: post
+          cors: true
+
+  findESBookingSearchResult:
+    handler: handler.findESBookingSearchResult
+    events:
+      - http:
+          path: api/findESBookingSearchResult
+          method: post
+          cors: true
+
+  updateResultTOElasticSearch:
+    handler: handler.updateResultTOElasticSearch
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 100
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - ${self:provider.environment.RESULT_TABLE}
+              - StreamArn
+
   performESUpdateForBooking:
     handler: handler.performESUpdateForBooking
     events:
@@ -571,18 +599,20 @@ resources:
         Properties:
             TableName: ${self:provider.environment.RESULT_TABLE}
             AttributeDefinitions:
-              - AttributeName: bookingId
+              - AttributeName: candidateId
                 AttributeType: S
-              - AttributeName: QsnId
+              - AttributeName: questionId
                 AttributeType: S
             KeySchema:
-              - AttributeName: bookingId
+              - AttributeName: candidateId
                 KeyType: HASH
-              - AttributeName: QsnId
+              - AttributeName: questionId
                 KeyType: RANGE
             ProvisionedThroughput:
               ReadCapacityUnits: 2
               WriteCapacityUnits: 2
+            StreamSpecification:
+              StreamViewType: NEW_IMAGE              
 
       question:
         Type: 'AWS::DynamoDB::Table'

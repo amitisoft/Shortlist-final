@@ -440,8 +440,47 @@ export class BookingServiceImpl {
      * progress -----After clicking on start test
      * test taken ---- after test completed
      */
+    getByBookingId(bookingId: string): Observable<Booking> {
+        console.log('in BookingServiceImpl get()');
+        const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: 'booking',
+            ProjectionExpression: 'category,jobPosition, dateOfExam',
+            KeyConditionExpression: '#bookingId = :bookingId',
+            ExpressionAttributeNames: {
+                '#bookingId': 'bookingId'
+            },
+            ExpressionAttributeValues: {
+                ':bookingId': bookingId,
+            },
+        };
 
-      getCandidateHomePageInfo(data: any): any {
+        return Observable.create((observer: Observer<Booking>) => {
+            console.log('Executing query with parameters ' + queryParams);
+            this.documentClient.query(queryParams, (err, data: any) => {
+                console.log(`did we get error ${ err }`);
+                if (err) {
+                    observer.error(err);
+                    throw err;
+                }
+                console.log(`data items receieved ${ data.Items.length }`);
+                if (data.Items.length === 0) {
+                    console.log('no data received for get Qsn');
+                    observer.complete();
+                    return;
+                }
+                data.Items.forEach((item) => {
+                    console.log(`category ${ item.category }`);
+                    console.log(`jobPosition ${ item.jobPosition }`);
+                    console.log(`dateOfExam ${ item.dateOfExam }`);
+                });
+                console.log('data--------------------------------', data);
+                observer.next(data.Items);
+                observer.complete();
+
+            });
+        });
+    }
+    getCandidateHomePageInfo(data: any): any {
         let decodedData = JSON.parse(new Buffer(data.candidateinfo, 'base64').toString('ascii'));
 
         const queryParams: DynamoDB.Types.QueryInput = {

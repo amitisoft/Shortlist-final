@@ -1,11 +1,12 @@
-import {CandidateFacade} from '../facade/candidate-facade';
-import {BookingFacade} from '../facade/booking-facade';
-import {Injector} from '@angular/core';
-import {HttpContextImpl} from "../../api/http/http-context-impl";
-import {RegisterCandidateInputParams} from "../service/candidate-service";
-import {LambdaContextImpl} from "../../api/lambda/lambda-context-impl";
-import {StreamContextImpl} from "../../api/stream/stream-context-impl";
+import { CandidateFacade } from '../facade/candidate-facade';
+import { BookingFacade } from '../facade/booking-facade';
+import { Injector } from '@angular/core';
+import { HttpContextImpl } from '../../api/http/http-context-impl';
+import { RegisterCandidateInputParams } from '../service/candidate-service';
+import { LambdaContextImpl } from '../../api/lambda/lambda-context-impl';
+import { StreamContextImpl } from '../../api/stream/stream-context-impl';
 import { DBStreamContextImpl } from '../../api/stream/stream-context-impl';
+import { CandidateSearchParams } from '../service/candidate-service';
 
 export class GetCandidateHandler {
 
@@ -73,10 +74,10 @@ export class GetCandidateHandler {
 
         injector.get(BookingFacade).getWhoNotTakenTest(pathParameters)
             .subscribe(result => {
-                console.log("myresult = ",result);
+                console.log('myresult = ',result);
                 injector.get(BookingFacade).getAllCandidateInfoWhoNotTakenTest(result)      //getAllBookings
                     .subscribe(result1 => {
-                        console.log("myresult = ",result1);
+                        console.log('myresult = ',result1);
                         httpContext.ok(200, result1);
                     });
                 //  httpContext.ok(200, result);
@@ -195,6 +196,26 @@ export class GetCandidateHandler {
                 streamContext.ok();
             }, err => {
                 streamContext.fail(err);
+            });
+    }
+
+     static findESCandidateSearchResult(httpContext: HttpContextImpl, injector: Injector): void {
+        let body = httpContext.getRequestBody();
+
+        let searchParams: CandidateSearchParams = {
+            firstName: body.firstName,
+            lastName: body.lastName,
+            email: body.email,
+            phoneNumber: body.phoneNumber,
+            from: body.pageNumber || 0,
+            size: 30
+        };
+        console.log('search parameter', searchParams);
+        injector.get(CandidateFacade).findESCandidateSearchResult(searchParams)
+            .subscribe(result => {
+                httpContext.ok(200, result);
+            }, err => {
+                httpContext.fail(err, 500);
             });
     }
 }

@@ -7,24 +7,27 @@
       "eventSource": "aws:dynamodb",
       "awsRegion": "us-east-1",
       "dynamodb": {
-        "ApproximateCreationDateTime": 1495092660,
+        "ApproximateCreationDateTime": 1495530403857,
         "Keys": {
           "candidateId": {
-            "S": "4"
+            "S": "1"
+          },
+          "questionId": {
+            "S": "1"
           }
         },
         "NewImage": {
-          "firstName": {
-            "S": "ashok"
+          "bookingId": {
+            "S": "1"
           },
-          "lastName": {
-            "S": "kumar"
+          "actualAns": {
+            "S": "A"
           },
-          "phoneNumber": {
-            "S": "1234567890"
+          "candidateAns": {
+            "S": "B"
           },
-          "email": {
-            "S": "ashok@amitisoft.com"
+          "score": {
+            "S":"3"
           }
         },
         "SequenceNumber": "100000000004112069037",
@@ -33,11 +36,5 @@
       },
       "eventSourceARN": "arn:aws:dynamodb:us-east-1:667361566775:table/booking/stream/2017-05-18T07:21:58.820"
     }
-  ],
-
-  "body":{
-     "lastName": "kumar",
-     "email":"kiran@amitisoft.com",
-     "pageNumber":0
-  }
+  ]
 }

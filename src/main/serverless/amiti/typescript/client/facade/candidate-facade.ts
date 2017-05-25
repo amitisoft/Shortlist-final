@@ -5,6 +5,7 @@ import { CandidateDto } from '../dto/candidate-dto';
 import { CandidatesDto } from '../dto/candidates-dto';
 import { Candidate } from '../domain/candidate';
 import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
+import { CandidateSearchParams } from '../service/candidate-service';
 
 
 @Injectable()
@@ -54,6 +55,16 @@ export class CandidateFacade {
     updateCandidateTOElasticSearch(record: DBStreamRecord): Observable<boolean> {
         console.log(`update candidate in elastic search index by pushing to stream ${JSON.stringify(record)}`);
         return this.candidateService.updateCandidateTOElasticSearch(record);
+    }
+
+    findESCandidateSearchResult(searchParams: CandidateSearchParams): Observable<CandidatesDto> {
+        return this.candidateService.findESCandidateSearchResult(searchParams)
+        .map((candidate) => {
+                console.log('map = ', candidate);
+                return {
+                    candidates: candidate.map(this.mapCandidateToDto)
+                };
+            });
     }
 
     private mapCandidateToDto(candidate: Candidate): CandidateDto {
