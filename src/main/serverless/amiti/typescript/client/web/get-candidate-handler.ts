@@ -200,15 +200,18 @@ export class GetCandidateHandler {
     }
 
      static findESCandidateSearchResult(httpContext: HttpContextImpl, injector: Injector): void {
-        let pathParameters = httpContext.getPathParameters();
+        let body = httpContext.getRequestBody();
 
-        // let searchParams: CandidateSearchParams = {
-        //     firstName: 'kiran', // pathParameters.firstName,
-        //     // email: '', // pathParameters.email,
-        //     from: 0,
-        //     size: 30
-        // };
-        injector.get(CandidateFacade).findESCandidateSearchResult(pathParameters)
+        let searchParams: CandidateSearchParams = {
+            firstName: body.firstName,
+            lastName: body.lastName,
+            email: body.email,
+            phoneNumber: body.phoneNumber,
+            from: body.pageNumber || 0,
+            size: 30
+        };
+        console.log('search parameter', searchParams);
+        injector.get(CandidateFacade).findESCandidateSearchResult(searchParams)
             .subscribe(result => {
                 httpContext.ok(200, result);
             }, err => {

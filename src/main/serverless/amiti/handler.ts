@@ -27,14 +27,14 @@ import { CreateQuestionPaperserviceImpl } from './typescript/client/service/crea
 import { Kinesis, DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
 
-//   const fs = require('fs')
-//       const dotenv = require('dotenv');
-//     const envConfig = dotenv.parse(fs.readFileSync('.env'));
-//     for (let k in envConfig) {
-//         if (envConfig.hasOwnProperty(k)) {
-//             process.env[k] = envConfig[k];
-//         }
-//     }
+  const fs = require('fs');
+      const dotenv = require('dotenv');
+    const envConfig = dotenv.parse(fs.readFileSync('.env'));
+    for (let k in envConfig) {
+        if (envConfig.hasOwnProperty(k)) {
+            process.env[k] = envConfig[k];
+        }
+    }
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
     let kinesis = new Kinesis({
@@ -98,7 +98,7 @@ exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProvi
 exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getQuestionByCategory);
 exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
-exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
+ exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
 exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
 exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
 exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);

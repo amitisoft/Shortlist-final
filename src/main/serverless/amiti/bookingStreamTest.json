@@ -10,10 +10,10 @@
         "ApproximateCreationDateTime": 1495530403857,
         "Keys": {
           "bookingId": {
-            "S": "1"
+            "S": "3"
           },
           "candidateId": {
-            "S": "1"
+            "S": "3"
           }
         },
         "NewImage": {
@@ -21,13 +21,13 @@
             "S": "testDONE"
           },
           "candidateId": {
-            "S": "1"
+            "S": "3"
           },
           "category": {
             "S": "java"
           },
           "bookingId": {
-            "S": "1"
+            "S": "3"
           },
           "paperType": {
             "S": "QA"
@@ -42,5 +42,10 @@
       },
       "eventSourceARN": "arn:aws:dynamodb:us-east-1:667361566775:table/booking/stream/2017-05-18T07:21:58.820"
     }
-  ]
+  ],
+
+  "body":{
+            "email":"kiran@gmail.com",
+            "pageNumber": 0
+  }
 }
