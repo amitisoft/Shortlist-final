@@ -48,13 +48,14 @@ let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => 
     return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl);
 };
 
-let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => {
+let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , bookingServiceImpl: BookingServiceImpl, questionServiceImpl: QuestionServiceImpl) => {
     console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
-    return new ResultServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl);
+    return new ResultServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl, bookingServiceImpl, questionServiceImpl);
 };
 export const appProviders = [
     CandidateFacade,
     BookingFacade,
+    ResultFacade,
     {
         provide: BookingServiceImpl,
         useFactory: bookingServiceImplFactory,
@@ -68,14 +69,13 @@ export const appProviders = [
     {
         provide:  ResultServiceImpl,
         useFactory: resultServiceImplFactory,
-        deps: [CandidateServiceImpl]
+        deps: [CandidateServiceImpl, BookingServiceImpl, QuestionServiceImpl ]
     },
     NotificationServiceImpl,
     QsnIdsServiceImpl,
     QsnIdsFacade,
     QuestionServiceImpl,
     QuestionFacade,
-    ResultFacade,
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,

@@ -17,17 +17,17 @@
           }
         },
         "NewImage": {
-          "category": {
-            "S": "java"
-          },
           "bookingId": {
             "S": "1"
           },
-          "paperType": {
-            "S": "QA"
+          "actualAns": {
+            "S": "A"
           },
-          "dateOfExam": {
-            "S":"1495531172026"
+          "candidateAns": {
+            "S": "B"
+          },
+          "score": {
+            "S":"3"
           }
         },
         "SequenceNumber": "100000000004112069037",

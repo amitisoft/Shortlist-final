@@ -7,6 +7,13 @@ import { UtilHelper } from '../../api/util/util-helper';
 import { CandidateServiceImpl } from './candidate-service';
 import { Client } from 'elasticsearch';
 import { Candidate } from '../domain/candidate';
+import { Booking } from '../domain/booking';
+import { BookingServiceImpl } from '../service/booking-service';
+import { Question } from '../domain/question';
+import { QuestionServiceImpl } from '../service/Question-service';
+const format = require('string-template');
+const _ = require('lodash');
+
 
 const AWS = require('aws-sdk');
 
@@ -23,7 +30,9 @@ export class ResultServiceImpl {
     RESULT_INDEX = 'result_index';
     RESULT_MAPPING = 'result';
 
-  constructor(private elasticSearchEndPoint: string, private region: string, private documentClient: DynamoDB.DocumentClient, private candidateServiceImpl: CandidateServiceImpl) {
+  constructor(private elasticSearchEndPoint: string, private region: string,
+   private documentClient: DynamoDB.DocumentClient, private candidateServiceImpl: CandidateServiceImpl,
+   private bookingServiceImpl: BookingServiceImpl, private questionServiceImpl: QuestionServiceImpl) {
         console.log(`calling booking constructor with search end point ${elasticSearchEndPoint}`);
         console.log(`calling booking constructor with region ${region}`);
         this.elasticSearchClient = new Client({
@@ -102,15 +111,13 @@ export class ResultServiceImpl {
        updateResultToElasticSearch(record: DBStreamRecord): Observable<boolean> {
            console.log('sevice');
         let that = this;
+        let category: string ;
         return Observable.create((observer: Observer<boolean>) => {
             let resultIndexMappingFlow = UtilHelper.waterfall([
                 function () {
                     let candidateId = record.getValueByKey('candidateId');
                     console.log(`candidateId ${candidateId}`);
                     return that.candidateServiceImpl.findById(candidateId);
-                    // let bookingId = record.getValueByKey('bookingId');
-                    // console.log(`bookingId ${bookingId}`);
-                    // return that.candidateServiceImpl.findById(bookingId);
                 },
                 function (candidate: Candidate) {
                     record.addToNewImageAttributes('fullName', {
@@ -128,6 +135,42 @@ export class ResultServiceImpl {
                     return candidate != null ? Observable.from([true]) :
                         Observable.throw(new Error('Candidate does not exist.'));
                 },
+                function () {
+                    let bookingId = record.getValueByKey('bookingId');
+                    console.log(`bookingId ${bookingId}`);
+                    return that.bookingServiceImpl.getByBookingId(bookingId);
+                },
+                function (booking: Booking) {
+                    category = booking[0].category;
+                    console.log(' BOOKING INFO-----------------', booking);
+                    record.addToNewImageAttributes('category', {
+                        'S': `${booking[0].category}`
+                    });
+
+                    record.addToNewImageAttributes('jobPosition', {
+                        'S': `${booking[0].jobPosition}`
+                    });
+
+                     record.addToNewImageAttributes('dateOfExam', {
+                        'S': `${booking[0].dateOfExam}`
+                    });
+
+                    return booking != null ? Observable.from([true]) :
+                        Observable.throw(new Error('Booking does not exist.'));
+                },
+                function () {
+                    let questionId = record.getValueByKey('questionId');
+                    console.log(`bookingId ${questionId}`);
+                    return that.questionServiceImpl.getQsn(questionId, category);
+                },
+                function (question: Question) {
+                    console.log(' Question INFO-----------------', question);
+                    record.addToNewImageAttributes('question', {
+                        'S': `${question[0].question}`
+                    });
+                    return question != null ? Observable.from([true]) :
+                        Observable.throw(new Error('Question does not exist.'));
+                },
                 function (dependecySatisfied) {
                     return that.checkIfResultIndexExists();
                 },
@@ -141,13 +184,13 @@ export class ResultServiceImpl {
                     console.log('booking index and mapping successfully created');
                     switch (record.getEventName()) {
                         case 'INSERT':
-                          //  that.upsertBookingIndex(record, observer);
+                            that.upsertResultIndex(record, observer);
                             break;
                         case 'UPDATE':
-                         //   that.upsertBookingIndex(record, observer);
+                            that.upsertResultIndex(record, observer);
                             break;
                         case 'DELETE':
-                          //  that.deleteBookingDocument(record, observer);
+                            that.deleteResultDocument(record, observer);
                             break;
                         default:
                             break;
@@ -171,19 +214,8 @@ export class ResultServiceImpl {
                         'mappings': {
                             'result': {
                                 'properties': {
-                                    'bookingId': {
-                                        'type': 'long'
-                                    },
                                     'candidateId': {
                                         'type': 'long'
-                                    },
-                                    'category': {
-                                        'type': 'text',
-                                        'index': 'true'
-                                    },
-                                    'dateOfExam': {
-                                        'type': 'date',
-                                        'format': 'DD/MM/YYYY'
                                     },
                                     'email': {
                                         'type': 'keyword',
@@ -193,12 +225,31 @@ export class ResultServiceImpl {
                                         'type': 'text',
                                         'index': 'true'
                                     },
-                                    'paperType': {
-                                        'type': 'keyword',
+                                    'phoneNumber': {
+                                        'type': 'long',
                                         'index': 'true'
                                     },
-                                    'testStatus': {
-                                        'type': 'keyword',
+                                    'bookingId': {
+                                        'type': 'long'
+                                    },
+                                    'category': {
+                                        'type': 'text',
+                                        'index': 'true'
+                                    },
+                                    'jobPosition': {
+                                        'type': 'text',
+                                        'index': 'true'
+                                    },
+                                    'dateOfExam': {
+                                        'type': 'date',
+                                        'format': 'DD/MM/YYYY'
+                                    },
+                                    'questionId': {
+                                        'type': 'long',
+                                        'index': 'true'
+                                    },
+                                    'question': {
+                                        'type': 'text',
                                         'index': 'true'
                                     }
                                 }
@@ -223,7 +274,8 @@ export class ResultServiceImpl {
 
         });
     }
-     private checkIfResultIndexExists(): Observable<boolean> {
+
+    checkIfResultIndexExists(): Observable<boolean> {
         let that = this;
         return Observable.create((observer: Observer<boolean>) => {
             this.elasticSearchClient.indices.exists({
@@ -245,4 +297,92 @@ export class ResultServiceImpl {
             });
         });
     }
+     upsertResultIndex(record: DBStreamRecord, observer: Observer<boolean>): void {
+        let updateParams = this.constructResultESUpdates(record);
+
+        this.elasticSearchClient.update(updateParams, (err: any, resp: any) => {
+            if (err) {
+                console.error('failed to add/update booking', err);
+                if (err.statusCode !== 404) {
+                    observer.error({});
+                    return;
+                }
+            }
+            if (!err) {
+                console.log(`added document to Result index ${resp}`);
+                observer.next(true);
+                observer.complete();
+            }
+        });
+
+    }
+
+    deleteResultDocument(record: DBStreamRecord, observer: Observer<boolean>) {
+        this.elasticSearchClient.delete({
+            index: this.RESULT_INDEX,
+            type: this.RESULT_MAPPING,
+            id: record.getKeys()[0].value,
+        }, (err: any, resp: any) => {
+            if (err) {
+                console.error('failed to delete Result', err);
+                if (err.statusCode !== 404) {
+                    observer.error({});
+                    return;
+                }
+            }
+            if (!err) {
+                console.log(`removed document to Result index ${resp}`);
+                observer.next(true);
+                observer.complete();
+            }
+        });
+    }
+
+ constructInsertOnlyParams(record: DBStreamRecord): any {
+        let uniqueObject = record.getAllUniqueProperties();
+        uniqueObject['dateOfExam'] = record.convertToDate(uniqueObject['dateOfExam']);
+        console.log(`uniques ${JSON.stringify(uniqueObject)}`);
+        return uniqueObject;
+    }
+
+    constructUpdateOnlyParams(record: DBStreamRecord): any {
+
+        let updateInputs = _.filter(record.getNewImage(), function (o) {
+            return o.key !== record.getKeys()[0].key;
+        });
+
+
+        console.log(`record new ${JSON.stringify(updateInputs)}`);
+        let queries = _.reduce(_.map(updateInputs, 'key'), (inlineQueries, value) => {
+            return inlineQueries = inlineQueries + format('ctx._source.{0} = params.{1};', value, value);
+        }, '');
+
+        let params = {};
+        updateInputs.forEach((obj) => {
+            if (obj['key'] === 'dateOfExam') {
+                obj['value'] = record.convertToDate(obj['value']);
+            }
+            params[obj['key']] = obj['value'];
+        });
+
+        let updateOnly = {
+            inline: queries,
+            params: params
+        };
+
+        console.log(`updateOnly ${JSON.stringify(updateOnly)}`);
+        return updateOnly;
+    }
+        constructResultESUpdates(record: DBStreamRecord): any {
+        return {
+            index: this.RESULT_INDEX,
+            type: this.RESULT_MAPPING,
+            id: record.getKeys()[0].value,
+            body: {
+                script: this.constructUpdateOnlyParams(record),
+                upsert: this.constructInsertOnlyParams(record)
+            }
+        };
+    }
+
 }

@@ -61,7 +61,8 @@ export class DBStreamRecordImpl implements DBStreamRecord {
 
     convertToDate(time: any): any {
         console.log(`time for date ${time}`);
-        let dateNow = new Date();
+        console.log('date==================', new Date(parseInt(time, 10)));
+        let dateNow = new Date(parseInt(time, 10));
         console.log(`CONVERTED DATE ${moment(dateNow).format('DD/MM/YYYY')}`);
         return moment(dateNow).format('DD/MM/YYYY');
     }
