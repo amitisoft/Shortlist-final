@@ -6,8 +6,6 @@ import { BookingSearchParams } from '../service/booking-service';
 
 export class GetBookingHandler {
 
-
-   
     static performElasticSearchUpdate(streamContext: DBStreamContextImpl, injector: Injector): void {
         injector.get(BookingFacade).updateBookingInElasticSearch(streamContext.getRecord())
             .subscribe(result => {
@@ -61,14 +59,19 @@ export class GetBookingHandler {
     }
 
     static findESBookingSearchResult(httpContext: HttpContextImpl, injector: Injector): void {
-        let pathParameters = httpContext.getPathParameters();
-
+        let body = httpContext.getRequestBody();
+        console.log('req body', body);
         let searchParams: BookingSearchParams = {
-            testStatus: 'not taken',
-            fullName: 'A',
-            from: 0,
+            testStatus: body.testStatus,
+            fullName: body.fullName,
+            category: body.category,
+            dateOfExamRange: body.dateOfExamRange,
+            paperType: body.paperType,
+            email: body.email,
+            from: body.pageNumber || 0,
             size: 30
         };
+        console.log('search params', searchParams);
         injector.get(BookingFacade).findESBookingSearchResult(searchParams)
             .subscribe(result => {
                 httpContext.ok(200, result);

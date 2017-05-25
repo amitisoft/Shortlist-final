@@ -35,9 +35,9 @@
     }
   ],
 
-  "pathParameters":{
-     "lastNumber": "kumar", 
-             "from": 0,
-             "size": 30
+  "body":{
+     "lastName": "kumar",
+     "email":"kiran@amitisoft.com",
+     "pageNumber":0
   }
 }
