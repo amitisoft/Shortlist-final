@@ -15,11 +15,7 @@ export class ResultFacade {
         console.log('in Results Facade: Update Results');
         return this.resultService.update(data);
            }
-            // .map((candidates) => {
-            //     return
-            //         candidates: candidates.map(this.mapCandidateToDto)
-            //     }
-            // });
+           
 
  updateResultTOElasticSearch(record: DBStreamRecord): Observable<boolean> {
        // console.log(`update Result in elastic search index by pushing to stream ${JSON.stringify(record)}`);
