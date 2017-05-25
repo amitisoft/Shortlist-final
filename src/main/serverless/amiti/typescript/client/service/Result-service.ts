@@ -17,11 +17,10 @@ export class ResultServiceImpl {
     constructor() {
         console.log('in ResultServiceImpl constructor()');
     }
-
     update(dataa: any): Observable<Result> {
-        let dataConversion: any;
-        console.log('data before type of----', typeof dataa);
-    //   if (typeof dataa == 'string'){
+    //     let dataConversion: any;
+    //     console.log('data before type of----', typeof dataa);
+    //    if (typeof dataa == 'string'){
     //     dataConversion = JSON.parse(dataa);
     //   }
     //   else{
@@ -60,7 +59,6 @@ export class ResultServiceImpl {
         };
 
         return Observable.create((observer: Observer<Result>) => {
-
             documentClient.update(params, (err, result: any) => {
                 if (err) {
                     console.error(err);

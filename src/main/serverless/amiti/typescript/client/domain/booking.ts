@@ -6,8 +6,8 @@ export class Booking {
     dateOfExam: string;
     paperType: string;
     testStatus: string;
-    startingTime: string;
     fullName: string;
     email: string;
+    startingTime: string;
     endingTime:string;
 }

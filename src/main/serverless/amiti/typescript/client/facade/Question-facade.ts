@@ -12,17 +12,19 @@ export class QuestionFacade {
         console.log('in QsnPaperFacade constructor()');
     }
 
-    getQsn(questionId: string, category: string): Observable<QuestionDto> {
-        console.log('in QsnPaperFacade getAll()', questionId);
-         console.log('in QsnPaperFacade getAll()', category);
+    // getQsn(questionId: string,category:string,total_No_of_Qsns:number,bookingId:string): Observable<QuestionDto> {
+    //      console.log('in QsnPaperFacade getAll()', questionId);
+    //      console.log('in QsnPaperFacade getAll()', category);
+    //      console.log('inQsnPaperFacade getAll()', bookingId);
+    //      console.log('QsnPaperFacade getAll()', total_No_of_Qsns);
+    //      return this.questionService.getQsn(questionId,category,total_No_of_Qsns,bookingId);
+            
+    // }
 
-        return this.questionService.getQsn(questionId, category);
-            // .map((candidates) => {
-            //     return {
-            //         candidates: candidates.map(this.mapCandidateToDto)
-            //     }
-            // });
-    }
+
+    getNextQuestion(data:any): Observable<QuestionDto> {
+        return this.questionService.getNextQuestion(data);
+      }
 
     // findbyId(candidateId: string): Observable<QsnPaper> {
     //     console.log('in CandidateFacade findById()');
