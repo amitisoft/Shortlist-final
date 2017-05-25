@@ -6,17 +6,14 @@ import { DBStreamContextImpl } from '../../api/stream/stream-context-impl';
 
 export class UpdateResultHandler {
 
-    static updateResult (httpContext: HttpContextImpl, injector: Injector): void {
-
-        let pathParameters = httpContext.getPathParameters();
-        console.log(JSON.stringify(pathParameters));
-
-        let data = httpContext.getRequestBody();
-        console.log(`data = ${data} `);
+    static updateResult (httpContext:HttpContextImpl,injector:Injector) : void {
+       let data = httpContext.getRequestBody();
+        console.log("data = ",data);
         injector.get(ResultFacade).update(data)
             .subscribe(result => {
                 httpContext.ok(200, result);
-            },  err => {
+               },  err => {
+
                 httpContext.fail(err, 500);
         });
     }

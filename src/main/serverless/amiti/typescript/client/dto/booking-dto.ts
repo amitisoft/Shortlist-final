@@ -8,4 +8,6 @@ export class BookingDto {
     testStatus: string;
     candidateFullName: string;
     candidateMailId: string;
+    startingTime?: string;
+    endingTime?:string;
 }

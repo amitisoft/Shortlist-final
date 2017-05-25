@@ -14,13 +14,7 @@ export class QsnIdsFacade {
 
     getQsnId(questionPaperId: string): Observable<QsnIdsDto[]> {
         console.log('in QsnPaperFacade getAll()');
-
         return this.qsnIdsService.getQsnId(questionPaperId);
-            // .map((candidates) => {
-            //     return {
-            //         candidates: candidates.map(this.mapCandidateToDto)
-            //     }
-            // });
-    }
+              }
 
 }

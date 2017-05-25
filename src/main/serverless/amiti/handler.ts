@@ -27,6 +27,16 @@ import { CreateQuestionPaperserviceImpl } from './typescript/client/service/crea
 import { Kinesis, DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
 
+<<<<<<< HEAD
+    // const fs = require('fs')
+    //     const dotenv = require('dotenv');
+    //   const envConfig = dotenv.parse(fs.readFileSync('.env'));
+    //   for (let k in envConfig) {
+    //       if (envConfig.hasOwnProperty(k)) {
+    //           process.env[k] = envConfig[k];
+    //       }
+    //   }
+=======
   const fs = require('fs');
       const dotenv = require('dotenv');
     const envConfig = dotenv.parse(fs.readFileSync('.env'));
@@ -35,6 +45,7 @@ import DocumentClient = DynamoDB.DocumentClient;
             process.env[k] = envConfig[k];
         }
     }
+>>>>>>> refs/remotes/origin/master
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
     let kinesis = new Kinesis({
@@ -48,9 +59,15 @@ let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => 
     return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl);
 };
 
+let questionServiceImplFactory = (qsnIdsServiceImpl: QsnIdsServiceImpl,bookingServiceImpl:BookingServiceImpl) => {
+      return new QuestionServiceImpl(process.env.REGION, new DocumentClient(), qsnIdsServiceImpl,bookingServiceImpl);
+      
+}
+
 let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , bookingServiceImpl: BookingServiceImpl, questionServiceImpl: QuestionServiceImpl) => {
     console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
     return new ResultServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl, bookingServiceImpl, questionServiceImpl);
+
 };
 export const appProviders = [
     CandidateFacade,
@@ -66,6 +83,11 @@ export const appProviders = [
         useFactory: candidateServiceImplFactory,
         deps: [NotificationServiceImpl]
     },
+     {
+        provide: QuestionServiceImpl,
+        useFactory: questionServiceImplFactory,
+        deps: [QsnIdsServiceImpl, BookingServiceImpl]
+     },
     {
         provide:  ResultServiceImpl,
         useFactory: resultServiceImplFactory,
@@ -74,7 +96,6 @@ export const appProviders = [
     NotificationServiceImpl,
     QsnIdsServiceImpl,
     QsnIdsFacade,
-    QuestionServiceImpl,
     QuestionFacade,
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
@@ -91,7 +112,7 @@ exports.startTestDashboard = ExecutionContextImpl.createHttpHandler(appProviders
 exports.startTestInProgressDashboard = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.startTestInProgressDashboard);
 exports.getCandidateHomePageInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateHomePageInfo);
 exports.updateBookingAfterStartTest = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.updateBookingAfterStartTest);
-exports.getAllQsnIdsFunction = ExecutionContextImpl.createHttpHandler(appProviders, GetQsnHandler.getQsn);
+exports.getAllQsnIdsByQuestionPaperId = ExecutionContextImpl.createHttpHandler(appProviders, GetQsnHandler.getQuestion);
 exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(appProviders, UpdateResultHandler.updateResult);
 exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.createQuestionPaper);
 exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.createQuestion);

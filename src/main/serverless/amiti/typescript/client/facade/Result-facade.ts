@@ -11,17 +11,15 @@ export class ResultFacade {
     constructor(private resultService: ResultServiceImpl) {
         console.log('in QsnPaperFacade constructor()');
     }
-
     update(data: any): Observable<ResultDto> {
-        console.log('in QsnPaperFacade getAll()');
-
+        console.log('in Results Facade: Update Results');
         return this.resultService.update(data);
+           }
             // .map((candidates) => {
             //     return
             //         candidates: candidates.map(this.mapCandidateToDto)
             //     }
             // });
-    }
 
  updateResultTOElasticSearch(record: DBStreamRecord): Observable<boolean> {
        // console.log(`update Result in elastic search index by pushing to stream ${JSON.stringify(record)}`);

@@ -18,9 +18,10 @@ export interface URIInputPahtParams {
 }
 
 export interface TimeSlotParams {
-    bookingId: string;
-    startingTime:string
-}
+    bookingId:string;
+    startingTime:string;
+   }
+
 
 export interface BookingSearchParams {
     testStatus?: string;
@@ -110,7 +111,7 @@ export class BookingServiceImpl {
              ProjectionExpression: 'candidateId,bookingId,testStatus,paperType,category',
              ScanIndexForward: false
          };
-             return Observable.create((observer: Observer<Booking>) => {
+             return Observable.create((observer: Observer<any>) => {
              this.documentClient.query(queryParams, (err, data: any) => {
                  if (err) {
                      observer.error(err);
@@ -122,11 +123,17 @@ export class BookingServiceImpl {
                 }
                  // check testStatus
                  console.log('testStatus', data);
-                 if (data.Items[0].testStatus === 'NotTaken') {
+                 if(data.Items[0].testStatus === 'NotTaken') {
                      observer.next(data.Items[0]);
                      observer.complete();
                      return;
-                 }else
+                 }else if(data.Items[0].testStatus === 'Completed'){
+                   let msg="Exam Already Done";
+                   observer.next(msg);
+                   observer.complete();
+                    return;
+                   }
+                 else
                  {
                      observer.next(data.Items[0]);
                      observer.complete();
@@ -170,7 +177,7 @@ export class BookingServiceImpl {
                 }
                 else
                 {
-                    let msg="Candidate token miss matched";
+                   let msg="Candidate token miss matched";
                    observer.next(msg);
                     observer.complete();
                     return;
@@ -723,7 +730,6 @@ export class BookingServiceImpl {
                 observer.complete();
             }
         });
-
     }
 
     deleteBookingDocument(record: DBStreamRecord, observer: Observer<boolean>) {
@@ -1011,6 +1017,37 @@ export class BookingServiceImpl {
                 observer.complete();
             });
 
+        });
+    }
+     getFinsihExamTimeByBookingId(bId:string): any {
+         console.log("bookingId",bId);
+        const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: 'booking',
+            KeyConditionExpression: '#bookingId = :bookingId',
+            ExpressionAttributeNames: {
+                '#bookingId': 'bookingId'
+            },
+            ExpressionAttributeValues: {
+                ':bookingId':bId
+            },
+            ProjectionExpression: 'endingTime,startingTime',
+            ScanIndexForward: false
+        };
+
+        return Observable.create((observer: Observer<Booking>) => {
+            this.documentClient.query(queryParams, (err, result: any) => {
+                if (err) {
+                    observer.error(err);
+                    throw err;
+                }
+                if (result.Items.length === 0) {
+                    observer.complete();
+                    return;
+                }
+                 observer.next((result.Items[0]));
+                 observer.complete();
+                    return;
+               });
         });
     }
 }

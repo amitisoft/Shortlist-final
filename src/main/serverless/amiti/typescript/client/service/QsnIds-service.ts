@@ -19,9 +19,8 @@ export class QsnIdsServiceImpl {
         console.log('in QsnIdsServiceImpl constructor()');
     }
 
-    getQsnId(questionPaperId: string): Observable<QsnIds[]> {
+        getQsnId(questionPaperId: string): Observable<QsnIds[]> {
         console.log('in QsnIdsServiceImpl get()');
-
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'questionPaper',
             ProjectionExpression: 'questionId',
@@ -35,7 +34,6 @@ export class QsnIdsServiceImpl {
             },
 
         };
-
         const documentClient = new DocumentClient();
         return Observable.create((observer: Observer<QsnIds[]>) => {
             console.log('Executing query with parameters ' + queryParams);
@@ -51,13 +49,12 @@ export class QsnIdsServiceImpl {
                     observer.complete();
                     return;
                 }
-                data.Items.forEach((item) => {
-                    console.log(`Qsn Id ${item.questionId}`);
-
-                });
+                // data.Items.forEach((item) => {
+                //     console.log(`Qsn Id ${item.questionId}`);
+                // });
+                console.log(data);
                 observer.next(data.Items);
                 observer.complete();
-
             });
 
         });
