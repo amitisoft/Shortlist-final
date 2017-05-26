@@ -25,16 +25,19 @@ import { CreateQuestionServiceImpl } from './typescript/client/service/create-qu
 import { CreateQuestionPaperFacade } from './typescript/client/facade/create-question-paper-facade';
 import { CreateQuestionPaperserviceImpl } from './typescript/client/service/create-question-paper-service';
 import { Kinesis, DynamoDB } from 'aws-sdk';
+import { CategoryHandler } from './typescript/client/web/Category-Handler';
+import { CategoryFacade } from './typescript/client/facade/Category-facade';
+import{ CategoryServiceImpl } from './typescript/client/service/Category-Service';
 import DocumentClient = DynamoDB.DocumentClient;
 
-  const fs = require('fs');
-      const dotenv = require('dotenv');
-    const envConfig = dotenv.parse(fs.readFileSync('.env'));
-    for (let k in envConfig) {
-        if (envConfig.hasOwnProperty(k)) {
-            process.env[k] = envConfig[k];
-        }
-    }
+//   const fs = require('fs');
+//       const dotenv = require('dotenv');
+//     const envConfig = dotenv.parse(fs.readFileSync('.env'));
+//     for (let k in envConfig) {
+//         if (envConfig.hasOwnProperty(k)) {
+//             process.env[k] = envConfig[k];
+//         }
+//     }
 
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
@@ -90,7 +93,9 @@ export const appProviders = [
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,
-    CreateQuestionPaperserviceImpl
+    CreateQuestionPaperserviceImpl,
+    CategoryFacade,
+    CategoryServiceImpl
 ];
 
 
@@ -123,5 +128,8 @@ exports.findESResultSearch = ExecutionContextImpl.createHttpHandler(appProviders
 exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
 exports.updateExamBookingTimings = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.updateExamTimingSlots);
 exports.findESCandidateSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.findESCandidateSearchResult);
+ exports.createCategory = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.createCategory);
+ exports.getAllCategories = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getAllCategories);
+ exports.getCategoryById = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getCategoryById);
 
 
