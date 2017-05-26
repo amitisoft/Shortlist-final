@@ -7,10 +7,30 @@ import { UtilHelper } from '../../api/util/util-helper';
 import { CandidateServiceImpl } from './candidate-service';
 import { Client } from 'elasticsearch';
 import { Candidate } from '../domain/candidate';
+import { Booking } from '../domain/booking';
+import { BookingServiceImpl } from '../service/booking-service';
+import { Question } from '../domain/question';
+import { QuestionServiceImpl } from '../service/Question-service';
+import { ResultSearch } from '../domain/resultSearch';
+import moment = require('moment');
+const format = require('string-template');
+const _ = require('lodash');
+
 
 const AWS = require('aws-sdk');
 
 import DocumentClient = DynamoDB.DocumentClient;
+
+export interface ResultSearchParams {
+    fullName?: string;
+    email?: string;
+    phoneNumber?: number;
+    jobPosition?: string;
+    dateOfExamRange?: string;
+    scoreRange?: string;
+    from: number;
+    size: number;
+}
 
 AWS.config.update({
     region: 'us-east-1'
@@ -23,7 +43,9 @@ export class ResultServiceImpl {
     RESULT_INDEX = 'result_index';
     RESULT_MAPPING = 'result';
 
-  constructor(private elasticSearchEndPoint: string, private region: string, private documentClient: DynamoDB.DocumentClient, private candidateServiceImpl: CandidateServiceImpl) {
+  constructor(private elasticSearchEndPoint: string, private region: string,
+   private documentClient: DynamoDB.DocumentClient, private candidateServiceImpl: CandidateServiceImpl,
+   private bookingServiceImpl: BookingServiceImpl, private questionServiceImpl: QuestionServiceImpl) {
         console.log(`calling booking constructor with search end point ${elasticSearchEndPoint}`);
         console.log(`calling booking constructor with region ${region}`);
         this.elasticSearchClient = new Client({
@@ -36,15 +58,10 @@ export class ResultServiceImpl {
         });
 
     }
-
-    // constructor() {
-    //     console.log('in ResultServiceImpl constructor()');
-    // }
-
     update(dataa: any): Observable<Result> {
-        let dataConversion: any;
-        console.log('data before type of----', typeof dataa);
-    //   if (typeof dataa == 'string'){
+    //     let dataConversion: any;
+    //     console.log('data before type of----', typeof dataa);
+    //    if (typeof dataa == 'string'){
     //     dataConversion = JSON.parse(dataa);
     //   }
     //   else{
@@ -83,7 +100,6 @@ export class ResultServiceImpl {
         };
 
         return Observable.create((observer: Observer<Result>) => {
-
             documentClient.update(params, (err, result: any) => {
                 if (err) {
                     console.error(err);
@@ -102,15 +118,13 @@ export class ResultServiceImpl {
        updateResultToElasticSearch(record: DBStreamRecord): Observable<boolean> {
            console.log('sevice');
         let that = this;
+        let category: string ;
         return Observable.create((observer: Observer<boolean>) => {
             let resultIndexMappingFlow = UtilHelper.waterfall([
                 function () {
                     let candidateId = record.getValueByKey('candidateId');
                     console.log(`candidateId ${candidateId}`);
                     return that.candidateServiceImpl.findById(candidateId);
-                    // let bookingId = record.getValueByKey('bookingId');
-                    // console.log(`bookingId ${bookingId}`);
-                    // return that.candidateServiceImpl.findById(bookingId);
                 },
                 function (candidate: Candidate) {
                     record.addToNewImageAttributes('fullName', {
@@ -128,6 +142,42 @@ export class ResultServiceImpl {
                     return candidate != null ? Observable.from([true]) :
                         Observable.throw(new Error('Candidate does not exist.'));
                 },
+                function () {
+                    let bookingId = record.getValueByKey('bookingId');
+                    console.log(`bookingId ${bookingId}`);
+                    return that.bookingServiceImpl.getByBookingId(bookingId);
+                },
+                function (booking: Booking) {
+                    category = booking[0].category;
+                    console.log(' BOOKING INFO-----------------', booking);
+                    record.addToNewImageAttributes('category', {
+                        'S': `${booking[0].category}`
+                    });
+
+                    record.addToNewImageAttributes('jobPosition', {
+                        'S': `${booking[0].jobPosition}`
+                    });
+
+                     record.addToNewImageAttributes('dateOfExam', {
+                        'S': `${booking[0].dateOfExam}`
+                    });
+
+                    return booking != null ? Observable.from([true]) :
+                        Observable.throw(new Error('Booking does not exist.'));
+                },
+                function () {
+                    let questionId = record.getValueByKey('questionId');
+                    console.log(`bookingId ${questionId}`);
+                    return that.questionServiceImpl.getQuestion(questionId, category);
+                },
+                function (question: Question) {
+                    console.log(' Question INFO-----------------', question);
+                    record.addToNewImageAttributes('question', {
+                        'S': `${question[0].question}`
+                    });
+                    return question != null ? Observable.from([true]) :
+                        Observable.throw(new Error('Question does not exist.'));
+                },
                 function (dependecySatisfied) {
                     return that.checkIfResultIndexExists();
                 },
@@ -141,13 +191,19 @@ export class ResultServiceImpl {
                     console.log('booking index and mapping successfully created');
                     switch (record.getEventName()) {
                         case 'INSERT':
-                          //  that.upsertBookingIndex(record, observer);
+                            that.upsertResultIndex(record, observer);
                             break;
                         case 'UPDATE':
-                         //   that.upsertBookingIndex(record, observer);
+                            that.upsertResultIndex(record, observer);
                             break;
                         case 'DELETE':
-                          //  that.deleteBookingDocument(record, observer);
+                            that.deleteResultDocument(record, observer);
+                            break;
+                        case 'MODIFY':
+                            that.upsertResultIndex(record, observer);
+                            break;
+                        case 'REMOVE':
+                            that.deleteResultDocument(record, observer);
                             break;
                         default:
                             break;
@@ -171,19 +227,8 @@ export class ResultServiceImpl {
                         'mappings': {
                             'result': {
                                 'properties': {
-                                    'bookingId': {
-                                        'type': 'long'
-                                    },
                                     'candidateId': {
-                                        'type': 'long'
-                                    },
-                                    'category': {
-                                        'type': 'text',
-                                        'index': 'true'
-                                    },
-                                    'dateOfExam': {
-                                        'type': 'date',
-                                        'format': 'DD/MM/YYYY'
+                                        'type': 'keyword'
                                     },
                                     'email': {
                                         'type': 'keyword',
@@ -193,12 +238,31 @@ export class ResultServiceImpl {
                                         'type': 'text',
                                         'index': 'true'
                                     },
-                                    'paperType': {
+                                    'phoneNumber': {
+                                        'type': 'long',
+                                        'index': 'true'
+                                    },
+                                    'bookingId': {
+                                        'type': 'keyword'
+                                    },
+                                    'category': {
+                                        'type': 'text',
+                                        'index': 'true'
+                                    },
+                                    'jobPosition': {
+                                        'type': 'text',
+                                        'index': 'true'
+                                    },
+                                    'dateOfExam': {
+                                        'type': 'date',
+                                        'format': 'DD/MM/YYYY'
+                                    },
+                                    'questionId': {
                                         'type': 'keyword',
                                         'index': 'true'
                                     },
-                                    'testStatus': {
-                                        'type': 'keyword',
+                                    'question': {
+                                        'type': 'text',
                                         'index': 'true'
                                     }
                                 }
@@ -223,7 +287,8 @@ export class ResultServiceImpl {
 
         });
     }
-     private checkIfResultIndexExists(): Observable<boolean> {
+
+    checkIfResultIndexExists(): Observable<boolean> {
         let that = this;
         return Observable.create((observer: Observer<boolean>) => {
             this.elasticSearchClient.indices.exists({
@@ -245,4 +310,210 @@ export class ResultServiceImpl {
             });
         });
     }
+     upsertResultIndex(record: DBStreamRecord, observer: Observer<boolean>): void {
+        let updateParams = this.constructResultESUpdates(record);
+
+        this.elasticSearchClient.update(updateParams, (err: any, resp: any) => {
+            if (err) {
+                console.error('failed to add/update booking', err);
+                if (err.statusCode !== 404) {
+                    observer.error({});
+                    return;
+                }
+            }
+            if (!err) {
+                console.log(`added document to Result index ${resp}`);
+                observer.next(true);
+                observer.complete();
+            }
+        });
+
+    }
+
+    deleteResultDocument(record: DBStreamRecord, observer: Observer<boolean>) {
+        this.elasticSearchClient.delete({
+            index: this.RESULT_INDEX,
+            type: this.RESULT_MAPPING,
+            id: record.getKeys()[0].value,
+        }, (err: any, resp: any) => {
+            if (err) {
+                console.error('failed to delete Result', err);
+                if (err.statusCode !== 404) {
+                    observer.error({});
+                    return;
+                }
+            }
+            if (!err) {
+                console.log(`removed document to Result index ${resp}`);
+                observer.next(true);
+                observer.complete();
+            }
+        });
+    }
+
+ constructInsertOnlyParams(record: DBStreamRecord): any {
+        let uniqueObject = record.getAllUniqueProperties();
+        uniqueObject['dateOfExam'] = record.convertToDate(uniqueObject['dateOfExam']);
+        console.log(`uniques ${JSON.stringify(uniqueObject)}`);
+        return uniqueObject;
+    }
+
+    constructUpdateOnlyParams(record: DBStreamRecord): any {
+
+        let updateInputs = _.filter(record.getNewImage(), function (o) {
+            return o.key !== record.getKeys()[0].key;
+        });
+
+
+        console.log(`record new ${JSON.stringify(updateInputs)}`);
+        let queries = _.reduce(_.map(updateInputs, 'key'), (inlineQueries, value) => {
+            return inlineQueries = inlineQueries + format('ctx._source.{0} = params.{1};', value, value);
+        }, '');
+
+        let params = {};
+        updateInputs.forEach((obj) => {
+            if (obj['key'] === 'dateOfExam') {
+                obj['value'] = record.convertToDate(obj['value']);
+            }
+            params[obj['key']] = obj['value'];
+        });
+
+        let updateOnly = {
+            inline: queries,
+            params: params
+        };
+
+        console.log(`updateOnly ${JSON.stringify(updateOnly)}`);
+        return updateOnly;
+    }
+        constructResultESUpdates(record: DBStreamRecord): any {
+        return {
+            index: this.RESULT_INDEX,
+            type: this.RESULT_MAPPING,
+            id: record.getKeys()[0].value,
+            body: {
+                script: this.constructUpdateOnlyParams(record),
+                upsert: this.constructInsertOnlyParams(record)
+            }
+        };
+    }
+
+        findESResultSearch(params: ResultSearchParams): Observable<ResultSearch[]> {
+        let email = format('{0}', params.email);
+        let emailCondition: any = params.email ? {
+            'term': {
+                email
+            }
+        } : undefined;
+
+
+        let scoreRange = format('{0}', params.scoreRange);
+        let scoreRangeCondition: any = params.scoreRange ? {
+            'term': {
+                scoreRange
+            }
+        } : undefined;
+
+        let phoneNumber = format('{0}', params.phoneNumber);
+        let phoneNumberCondition: any = params.phoneNumber ? {
+            'term': {
+                phoneNumber
+            }
+        } : undefined;
+
+        let fullName = format('{0}', params.fullName);
+        let fullNameCondition: any = params.fullName ? {
+            'match': {
+                fullName
+            }
+        } : undefined;
+
+        let jobPosition = format('{0}', params.jobPosition);
+        let jobPositionCondition: any = params.jobPosition ? {
+            'match': {
+                jobPosition
+            }
+        } : undefined;
+
+        let dateOfExamCondition: any;
+        if (params.dateOfExamRange) {
+            let dateRange = params.dateOfExamRange.split('-');
+            let fromDate = format('{0}', dateRange[0]);
+            let toDate = format('{0}', dateRange[1]);
+
+            dateOfExamCondition = params.dateOfExamRange ?
+                {
+                    'range': {
+                        'dateOfExam': {
+                            'lte': toDate,
+                            'gte': fromDate
+                        }
+                    }
+                } : '';
+        } else {
+            let toDefaultDate = format('{0}', moment().format('DD/MM/YYYY'));
+            let fromDefaultDate = format('{0}', moment().subtract(30, 'days').format('DD/MM/YYYY'));
+
+            dateOfExamCondition = {
+                'range': {
+                    'dateOfExam': {
+                        'lte': toDefaultDate
+                    }
+                }
+            };
+        }
+
+        let mustConditions = [
+            emailCondition,
+            scoreRangeCondition,
+            phoneNumberCondition,
+            fullNameCondition,
+            jobPositionCondition
+        ];
+
+
+        const filteredMustConditions = _.without(mustConditions, undefined);
+
+        return Observable.create((observer: any) => {
+            this.elasticSearchClient.search({
+                from: params.from,
+                size: params.size,
+                index: this.RESULT_INDEX,
+                type: this.RESULT_MAPPING,
+                body: {
+                    query: {
+                        'bool': {
+                            'must': filteredMustConditions,
+                            'filter': dateOfExamCondition
+                        }
+                    }
+                }
+            }, (err: any, resp: any) => {
+                if (err) {
+                    console.error(`Failed to read result information ${err}`);
+                    observer.error(err);
+                    return;
+                }
+                console.log(`search finished for result ${resp}`);
+                const resultOfSearch = resp.hits.hits.map(hit => {
+
+                    const resultInfo = hit._source;
+                    const result: any = {
+                        candidateId: resultInfo.candidateId,
+                        bookingId: resultInfo.bookingId,
+                        category: resultInfo.category,
+                        jobPosition: resultInfo.jobPosition,
+                        dateOfExam: resultInfo.dateOfExam,
+                        fullName: resultInfo.fullName,
+                        email: resultInfo.email
+                    };
+                    return result;
+                });
+                observer.next(resultOfSearch);
+                observer.complete();
+            });
+
+        });
+    }
+
 }

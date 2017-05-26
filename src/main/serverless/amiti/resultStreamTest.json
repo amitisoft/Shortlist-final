@@ -17,17 +17,17 @@
           }
         },
         "NewImage": {
-          "category": {
-            "S": "java"
-          },
           "bookingId": {
             "S": "1"
           },
-          "paperType": {
-            "S": "QA"
+          "actualAns": {
+            "S": "A"
           },
-          "dateOfExam": {
-            "S":"1495531172026"
+          "candidateAns": {
+            "S": "B"
+          },
+          "score": {
+            "S":"30"
           }
         },
         "SequenceNumber": "100000000004112069037",
@@ -36,5 +36,8 @@
       },
       "eventSourceARN": "arn:aws:dynamodb:us-east-1:667361566775:table/booking/stream/2017-05-18T07:21:58.820"
     }
-  ]
+  ],
+  "body":{
+    "fullName":"aaa"
+  }
 }

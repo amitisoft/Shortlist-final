@@ -9,7 +9,7 @@ export class QuestionPaperHandler {
         let body = httpContext.getRequestBody();
         let qsns = body.qsns;
         let qsnPaperName = body.papername;
-        injector.get(CreateQuestionPaperFacade).createQuestionPaper(qsns, qsnPaperName)
+        injector.get(CreateQuestionPaperFacade).createQuestionPaper(qsns,qsnPaperName)
             .subscribe(result => {
                 httpContext.ok(200, result);
             }, err => {

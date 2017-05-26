@@ -20,10 +20,7 @@ export class CreateQuestionPaperserviceImpl {
 
     createQuestionPaper(data: any, qsnPaperName: any): Observable<Question> {
         const documentClient = new DocumentClient();
-
-
-        console.log('qsnPaperName[[[[[[[[[[[[[[[', qsnPaperName);
-
+       console.log('qsnPaperName[[[[[[[[[[[[[[[', qsnPaperName);
         const qsnppr = [];
         let params: any = {};
         let uuid = v4();
@@ -35,12 +32,9 @@ export class CreateQuestionPaperserviceImpl {
             }
 
         };
-
-
         if (typeof data === 'string') {
             data = JSON.parse(data);
             for (let item = 0; item < data.length; item++) {
-
                 let myObj = {
                     PutRequest: {
                         Item: {

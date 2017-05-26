@@ -108,7 +108,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QUESTION_LIST_TABLE}/*"
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.QUESTION_LIST_TABLE}"
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -213,11 +213,11 @@ functions:
   #        # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
   #         cors: true
 
-  getAllQsnIdsFunction:
-    handler: handler.getAllQsnIdsFunction
+  getAllQsnIdsByQuestionPaperId:
+    handler: handler.getAllQsnIdsByQuestionPaperId
     events:
       - http:
-          path: api/allQsnIds/PaperId/{PaperId}/QsnNo/{QsnNo}/Category/{Category}
+          path: api/getAllQsnIds/BookingId/{bookingId}/QuestionPaperId/{questionPaperId}/CurtQsnNo/{currentQsnNo}/Category/{category}
           method: get
 #          authorizer: arn:aws:lambda: us-east-1:917291829364:function:hr-auth-master-dev-authorize
           cors: true
@@ -386,6 +386,14 @@ functions:
       - http:
           path: api/getESBookingInformation
           method: get
+          cors: true
+
+  findESResultSearch:
+    handler: handler.findESResultSearch
+    events:
+      - http:
+          path: api/findESResultSearch
+          method: post
           cors: true
 
   updateResultTOElasticSearch:

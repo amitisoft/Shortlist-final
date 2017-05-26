@@ -1,11 +1,8 @@
 {
-	"body": {
-		"emails": [
-		"kiran@amitisoft.com"
-		],
-	"emailSubject": "Interview for Java developer",
-	"jobPosition": "Java developer",
-	"emailBody": " TestLink",
-	"category": "Java"
+	"pathParameters": {
+	"currentQsnNo":"0",
+	"questionPaperId":"JA",
+	"category": "Java",
+	"bookingId": "b2"
 	}
 }
