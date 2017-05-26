@@ -152,6 +152,16 @@ provider:
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.RESULT_TABLE}/*"
     - Effect: Allow
       Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:Delete
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CATEGORY_TABLE}"
+    - Effect: Allow
+      Action:
         - sns:Publish
         - sns:Subscribe
       Resource: "arn:aws:sns:${opt:region, self:provider.region}:${self:provider.environment.ACCOUNT_ID}:${self:provider.environment.SEND_EMAIL_SNS}"
@@ -334,7 +344,7 @@ functions:
           cors: true
 
   # registerCandidate:
-  #   handler: handler.registerCandidate
+   # handler: handler.registerCandidate
 
   registerCandidatesAndEmailPostRegistration:
     handler: handler.registerCandidatesAndEmailPostRegistration
@@ -395,6 +405,33 @@ functions:
           path: api/findESResultSearch
           method: post
           cors: true
+  
+  createCategory:
+    handler: handler.createCategory
+    events:
+      - http:
+          path: api/createCategory
+          method: post
+          cors: true
+   
+  getAllCategories:
+    handler: handler.getAllCategories
+    events:
+      - http:
+          path: api/getAllCategories
+          method: get
+          cors: true
+
+  getCategoryById:
+    handler: handler.getCategoryById
+    events:
+      - http:
+          path: api/getCategoryById/{category}
+          method: get
+          cors: true
+
+
+
 
   updateResultTOElasticSearch:
     handler: handler.updateResultTOElasticSearch
@@ -718,16 +755,16 @@ resources:
               WriteCapacityUnits: 2
 
       category:
-          Type: 'AWS::DynamoDB::Table'
-          DeletionPolicy: Retain
-          Properties:
-            TableName: ${self:provider.environment.CATEGORY_TABLE}
-            AttributeDefinitions:
-              - AttributeName: category_Id
-                AttributeType: S
-            KeySchema:
-              - AttributeName: category_Id
-                KeyType: HASH
-            ProvisionedThroughput:
+        Type: 'AWS::DynamoDB::Table'
+        DeletionPolicy: Retain
+        Properties:
+          TableName: ${self:provider.environment.CATEGORY_TABLE}
+          AttributeDefinitions:
+            - AttributeName: categoryId
+              AttributeType: S
+          KeySchema:
+            - AttributeName: categoryId
+              KeyType: HASH
+          ProvisionedThroughput:
               ReadCapacityUnits: 2
               WriteCapacityUnits: 2
