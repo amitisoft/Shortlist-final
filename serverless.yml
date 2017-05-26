@@ -363,6 +363,14 @@ functions:
           method: post
           cors: true
 
+  findESResultSearch:
+    handler: handler.findESResultSearch
+    events:
+      - http:
+          path: api/findESResultSearch
+          method: post
+          cors: true
+
   updateResultTOElasticSearch:
     handler: handler.updateResultTOElasticSearch
     events:
