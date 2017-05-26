@@ -59,7 +59,7 @@ export class GetBookingHandler {
     }
 
     static findESBookingSearchResult(httpContext: HttpContextImpl, injector: Injector): void {
-        let body = httpContext.getRequestBody();
+        let body = httpContext.getRequestBody() || { pageNumber: 0};
         console.log('req body', body);
         let searchParams: BookingSearchParams = {
             testStatus: body.testStatus,

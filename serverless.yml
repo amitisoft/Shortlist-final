@@ -22,7 +22,7 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    ACCOUNT_ID: 675565166163 
+    ACCOUNT_ID: 151610303354 
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
@@ -34,7 +34,7 @@ provider:
     RESULT_TABLE: result
     KINESIS_STREAM_REGION: us-east-1
     REGION: us-east-1
-    ELASTICSEARCH_ENDPOINT: http://localhost:9200
+    ELASTICSEARCH_ENDPOINT: https://search-amititest-online1-l5sfmiq7t2kxfmoirkdo22gyf4.us-east-1.es.amazonaws.com/
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -186,32 +186,32 @@ functions:
           method: get
          # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
           cors: true
-  startTestDashboard:
-    handler: handler.startTestDashboard
-    events:
-      - http:
-          path: api/starttestdashboard/candidateId/{candidateId}/bookingId/{bookingId}/testStatus/{testStatus}
-          method: get
-         # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
-          cors: true
+  # startTestDashboard:
+  #   handler: handler.startTestDashboard
+  #   events:
+  #     - http:
+  #         path: api/starttestdashboard/candidateId/{candidateId}/bookingId/{bookingId}/testStatus/{testStatus}
+  #         method: get
+  #        # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
+  #         cors: true
 
-  startTestInProgressDashboard:
-    handler: handler.startTestInProgressDashboard
-    events:
-      - http:
-          path: api/startTestInProgressDashboard
-          method: get
-         # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
-          cors: true
+  # startTestInProgressDashboard:
+  #   handler: handler.startTestInProgressDashboard
+  #   events:
+  #     - http:
+  #         path: api/startTestInProgressDashboard
+  #         method: get
+  #        # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
+  #         cors: true
 
-  updateBookingAfterStartTest:
-    handler: handler.updateBookingAfterStartTest
-    events:
-      - http:
-          path: api/updateBookingAfterStartTest
-          method: post
-         # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
-          cors: true
+  # updateBookingAfterStartTest:
+  #   handler: handler.updateBookingAfterStartTest
+  #   events:
+  #     - http:
+  #         path: api/updateBookingAfterStartTest
+  #         method: post
+  #        # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
+  #         cors: true
 
   getAllQsnIdsFunction:
     handler: handler.getAllQsnIdsFunction
@@ -271,13 +271,6 @@ functions:
           method: get
           cors: true                 
 
-  createTestLinkFunction:
-    handler: handler.createTestLinkFunction
-    events:
-      - http:
-          path: api/testlink
-          method: post
-          cors: true
 
   getCandidateHomePageInfo:
     handler: handler.getCandidateHomePageInfo
@@ -324,6 +317,22 @@ functions:
           method: get
           cors: true
 
+  getESTestNotTakenResults:
+    handler: handler.getESTestNotTakenResults
+    events:
+      - http:
+          path: api/getESTestNotTakenResults
+          method: get
+          cors: true
+
+  getESTestInProgressResults:
+    handler: handler.getESTestInProgressResults
+    events:
+      - http:
+          path: api/getESTestInProgressResults
+          method: get
+          cors: true
+
   # registerCandidate:
   #   handler: handler.registerCandidate
 
@@ -361,6 +370,22 @@ functions:
       - http:
           path: api/findESBookingSearchResult
           method: post
+          cors: true
+
+  getESCandidateInformation:
+    handler: handler.findESCandidateSearchResult
+    events:
+      - http:
+          path: api/getESCandidateInformation
+          method: get
+          cors: true
+
+  getESBookingInformation:
+    handler: handler.findESBookingSearchResult
+    events:
+      - http:
+          path: api/getESBookingInformation
+          method: get
           cors: true
 
   updateResultTOElasticSearch:
