@@ -199,6 +199,12 @@ export class ResultServiceImpl {
                         case 'DELETE':
                             that.deleteResultDocument(record, observer);
                             break;
+                        case 'MODIFY':
+                            that.upsertResultIndex(record, observer);
+                            break;
+                        case 'REMOVE':
+                            that.deleteResultDocument(record, observer);
+                            break;
                         default:
                             break;
                     }
@@ -222,7 +228,7 @@ export class ResultServiceImpl {
                             'result': {
                                 'properties': {
                                     'candidateId': {
-                                        'type': 'long'
+                                        'type': 'keyword'
                                     },
                                     'email': {
                                         'type': 'keyword',
@@ -237,7 +243,7 @@ export class ResultServiceImpl {
                                         'index': 'true'
                                     },
                                     'bookingId': {
-                                        'type': 'long'
+                                        'type': 'keyword'
                                     },
                                     'category': {
                                         'type': 'text',
@@ -252,7 +258,7 @@ export class ResultServiceImpl {
                                         'format': 'DD/MM/YYYY'
                                     },
                                     'questionId': {
-                                        'type': 'long',
+                                        'type': 'keyword',
                                         'index': 'true'
                                     },
                                     'question': {
