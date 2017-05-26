@@ -27,14 +27,14 @@ import { CreateQuestionPaperserviceImpl } from './typescript/client/service/crea
 import { Kinesis, DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
 
-  const fs = require('fs');
-      const dotenv = require('dotenv');
-    const envConfig = dotenv.parse(fs.readFileSync('.env'));
-    for (let k in envConfig) {
-        if (envConfig.hasOwnProperty(k)) {
-            process.env[k] = envConfig[k];
-        }
-    }
+//   const fs = require('fs');
+//       const dotenv = require('dotenv');
+//     const envConfig = dotenv.parse(fs.readFileSync('.env'));
+//     for (let k in envConfig) {
+//         if (envConfig.hasOwnProperty(k)) {
+//             process.env[k] = envConfig[k];
+//         }
+//     }
 
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
