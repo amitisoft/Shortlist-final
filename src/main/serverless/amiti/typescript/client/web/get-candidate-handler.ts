@@ -157,8 +157,8 @@ export class GetCandidateHandler {
 
     static insertCandidate(httpContext: HttpContextImpl, injector: Injector): void {
 
-        let pathParameters = httpContext.getPathParameters();
-        console.log(JSON.stringify(pathParameters));
+        // let pathParameters = httpContext.getPathParameters();
+        // console.log(JSON.stringify(pathParameters));
 
         let data = httpContext.getRequestBody();
         console.log('pathParameters = ', data);
@@ -200,8 +200,8 @@ export class GetCandidateHandler {
     }
 
      static findESCandidateSearchResult(httpContext: HttpContextImpl, injector: Injector): void {
-        let body = httpContext.getRequestBody();
-
+        let body = httpContext.getRequestBody() || { pageNumber: 0};
+        console.log('body =======', body);
         let searchParams: CandidateSearchParams = {
             firstName: body.firstName,
             lastName: body.lastName,
