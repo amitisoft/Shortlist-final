@@ -1,8 +1,8 @@
 export class Result {
-    BookingId: string;
-    CandidateId: string;
-    QsnId: string;
-    curct_ans: string;
-    cand_ans: string;
+    bookingId: string;
+    candidateId: string;
+    questionId: string;
+    correctAns: string;
+    candidateAns: string[];
     score: string;
    }

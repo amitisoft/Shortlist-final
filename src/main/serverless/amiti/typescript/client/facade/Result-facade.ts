@@ -11,7 +11,7 @@ export class ResultFacade {
     constructor(private resultService: ResultServiceImpl) {
         console.log('in QsnPaperFacade constructor()');
     }
-    update(data: any): Observable<ResultDto> {
+       update(data: any): Observable<ResultDto> {
         console.log('in Results Facade: Update Results');
         return this.resultService.update(data);
            }

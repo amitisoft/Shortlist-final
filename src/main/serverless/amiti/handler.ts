@@ -6,9 +6,7 @@ import { GetQsnHandler } from './typescript/client/web/get-Question-handler';
 import { UpdateResultHandler } from './typescript/client/web/update-Result-handler';
 import { CreateQuestionHandler } from './typescript/client/web/create-question-handler';
 import { QuestionPaperHandler } from './typescript/client/web/question-paper-handler';
-import { TestLinkHandler } from './typescript/client/web/test-link-handler';
 import { GetBookingHandler } from './typescript/client/web/get-booking-handler';
-
 import { CandidateServiceImpl } from './typescript/client/service/candidate-service';
 import { CandidateFacade } from './typescript/client/facade/candidate-facade';
 import { BookingServiceImpl } from './typescript/client/service/booking-service';
@@ -27,14 +25,14 @@ import { CreateQuestionPaperserviceImpl } from './typescript/client/service/crea
 import { Kinesis, DynamoDB } from 'aws-sdk';
 import DocumentClient = DynamoDB.DocumentClient;
 
-  const fs = require('fs');
-      const dotenv = require('dotenv');
-    const envConfig = dotenv.parse(fs.readFileSync('.env'));
-    for (let k in envConfig) {
-        if (envConfig.hasOwnProperty(k)) {
-            process.env[k] = envConfig[k];
-        }
-    }
+//    const fs = require('fs');
+//        const dotenv = require('dotenv');
+//      const envConfig = dotenv.parse(fs.readFileSync('.env'));
+//      for (let k in envConfig) {
+//          if (envConfig.hasOwnProperty(k)) {
+//              process.env[k] = envConfig[k];
+//          }
+//     }
 
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
@@ -62,6 +60,7 @@ let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , boo
 export const appProviders = [
     CandidateFacade,
     BookingFacade,
+    QuestionFacade,
     ResultFacade,
     {
         provide: BookingServiceImpl,
@@ -84,9 +83,8 @@ export const appProviders = [
         deps: [CandidateServiceImpl, BookingServiceImpl, QuestionServiceImpl ]
     },
     NotificationServiceImpl,
-    QsnIdsServiceImpl,
     QsnIdsFacade,
-    QuestionFacade,
+    QsnIdsServiceImpl,
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,
@@ -107,12 +105,10 @@ exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(appProvide
 exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.createQuestionPaper);
 exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.createQuestion);
 exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getQuestionByCategory);
-exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
  exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
 exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
 exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
-exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNamesByCategory);
 exports.getESTestNotTakenResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestNotTakenResults);
 exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestInProgressResults);

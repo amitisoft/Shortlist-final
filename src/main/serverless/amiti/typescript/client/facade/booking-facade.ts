@@ -68,11 +68,11 @@ export class BookingFacade {
 
     
 
-    findByCandidateId(candidateId: string, data: any): Observable<Booking[]> {
-        console.log('in BookingFacade findByCandidateId()');
-        // return this.bookingService.findByCandidateId(candidateId, data);
-        return null;
-    }
+    // findByCandidateId(candidateId: string, data: any): Observable<Booking[]> {
+    //     console.log('in BookingFacade findByCandidateId()');
+    //     // return this.bookingService.findByCandidateId(candidateId, data);
+    //     return null;
+    // }
 
     getCandidatesListFile(data: any): Observable<Candidate[]> {
         console.log('in reading candidateList file');

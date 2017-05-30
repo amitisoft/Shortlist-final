@@ -7,6 +7,7 @@ import { DynamoDB } from 'aws-sdk';
 import { DBStreamRecord } from '../../api/stream/db-stream-record-impl';
 import { UtilHelper } from '../../api/util/util-helper';
 import { CandidateServiceImpl } from './candidate-service';
+import { questionsArray } from './Question-service';
 import moment = require('moment');
 const bodybuilder = require('bodybuilder');
 const AWS = require('aws-sdk');
@@ -66,38 +67,37 @@ export class BookingServiceImpl {
      */
 
       isTestLinkStatusInfo(pathParameter:URIInputPahtParams): Observable<Booking> {
-        let that = this;
-        return Observable.create((observer: Observer<Booking>) => {
-            const registrationWaterFall = UtilHelper.waterfall([
-                function () {
-                return that.bookingTestStatusInfo(pathParameter.testLinkInfo);
-                    },
-                function (bookingData: Booking) {
-                    return that.candidateTokenChecking(bookingData,pathParameter.testLinkInfo)
-                }
-            ]);
-        registrationWaterFall.subscribe(
-                function (x) {
-                let temp = JSON.parse(JSON.stringify(x));
-                //console.log("Booking values = ",x);
-                  observer.next(temp);
-                  observer.complete();  
-                },
-                function (err) {
-                    console.log(`error message ${err}`);
-                    observer.error(err);
-                    return;
-                }
-            );
-        });
-    }
+             let that = this;
+                    return Observable.create((observer: Observer<Booking>) => {
+                        const registrationWaterFall = UtilHelper.waterfall([
+                            function () {
+                                        return that.bookingTestStatusInfo(pathParameter.testLinkInfo);
+                                        },
+                            function (bookingData: Booking) {
+                                    return that.candidateTokenChecking(bookingData,pathParameter.testLinkInfo)
+                                         }
+                                    ]);
+                     registrationWaterFall.subscribe(
+                                     function (x) {
+                                                let temp = JSON.parse(JSON.stringify(x));
+                                                  observer.next(temp);
+                                                  observer.complete();  
+                                                 },
+                                    function (err) {
+                                                console.log(`error message ${err}`);
+                                                observer.error(err);
+                                                return;
+                                                     }
+                                                    );
+                                                                            });
+                                                                                         }
 
      /**
      *  bookingTestStatusInfo
      */
    
      bookingTestStatusInfo(pathParameter: string): Observable<Booking> {
-        let decodedData = JSON.parse(new Buffer(pathParameter, 'base64').toString('ascii'));
+         let decodedData = JSON.parse(new Buffer(pathParameter, 'base64').toString('ascii'));
          console.log('in is active method', decodedData.bookingId);
          const queryParams: DynamoDB.Types.QueryInput = {
              TableName: 'booking',
@@ -144,7 +144,7 @@ export class BookingServiceImpl {
      }
 
 
-       /**
+     /**
      *  checking candidate Token
      */
     candidateTokenChecking(data, pathParameter): Observable<Booking> {
@@ -190,15 +190,23 @@ export class BookingServiceImpl {
         });
     }
 
+    /**
+     * Input is Browser Starting Time
+     * Update Server Start & Ending Timings in  Booking Table
+     */   
    
       updateExamTimingSlots(data:TimeSlotParams):Observable<string>{
         console.log('in BookingServiceImpl updateExamTimingSlots()');
         console.log(`data received ${ data.bookingId }`);
         console.log(`data received ${ data.startingTime}`);
-        //let finishedTime = new Date ( data.startingTime );
-        //finishedTime.setMinutes ( finishedTime.getMinutes() + 30 );
-         let etime= new Date (data.startingTime).getTime()+(30*60*1000);
-            const params = {
+      
+         // Convert Browser Start time to  Local Server Exam Starting time 
+         let  diff_timeZone =new Date().getTimezoneOffset();
+         let server_Examstarting_time=diff_timeZone+data.startingTime;
+         // Calculate Local Server Exam Ending time - Add 30 Mintues
+         let server_Examending_time =server_Examstarting_time+(30*60*1000);
+        
+          const params = {
             TableName: 'booking',
             Key: {
                 bookingId: data.bookingId,
@@ -208,8 +216,8 @@ export class BookingServiceImpl {
                 '#etime': 'endingTime'
             },                
             ExpressionAttributeValues: {
-                ':stime': data.startingTime,
-                ':etime':  etime             //finishedTime.toISOString()
+                ':stime': server_Examstarting_time,
+                ':etime':  server_Examending_time            
                 },
             UpdateExpression: 'SET #stime = :stime,#etime=:etime',
             ReturnValues: 'ALL_NEW',
@@ -228,7 +236,42 @@ export class BookingServiceImpl {
         });
     }
 
-
+     /**
+     * updateTestStausAfterCompleteExam
+     * click on Submit button & Time Over
+     * @param data
+     */
+      updateTestStausAfterCompleteExam(bookingId:string):Observable<questionsArray>{
+        console.log('in BookingServiceImpl updateTestStausAfterCompleteExam()');
+        console.log(`data received ${ bookingId }`);
+            const params = {
+            TableName: 'booking',
+            Key: {
+                bookingId: bookingId,
+                 },
+            ExpressionAttributeNames: {
+                '#tstatus': 'testStatus'
+                },                
+            ExpressionAttributeValues: {
+                ':tstatus': 'Completed'
+                                        },
+            UpdateExpression: 'SET #tstatus = :tstatus',
+            ReturnValues: 'ALL_NEW',
+        };
+        return Observable.create((observer: Observer<questionsArray>) => {
+            this.documentClient.update(params, (err, result: any) => {
+                if (err) {
+                    console.error(err);
+                    observer.error(err);
+                    return;
+                }
+               let msg:any={};
+               msg.message="Exam Time is Over ";
+                observer.next(msg);
+                observer.complete();
+            });
+        });
+    }
 
 
     /**
@@ -1019,8 +1062,10 @@ export class BookingServiceImpl {
 
         });
     }
-     getFinsihExamTimeByBookingId(bId:string): any {
+     getExamTimingsByBookingId(bId:string): any {
          console.log("bookingId",bId);
+       // timing conversion part
+
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'booking',
             KeyConditionExpression: '#bookingId = :bookingId',
