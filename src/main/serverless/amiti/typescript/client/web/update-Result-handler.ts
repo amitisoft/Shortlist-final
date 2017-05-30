@@ -14,7 +14,6 @@ export class UpdateResultHandler {
             .subscribe(result => {
                 httpContext.ok(200, result);
                },  err => {
-
                 httpContext.fail(err, 500);
         });
     }

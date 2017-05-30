@@ -15,8 +15,6 @@ import { ResultSearch } from '../domain/resultSearch';
 import moment = require('moment');
 const format = require('string-template');
 const _ = require('lodash');
-
-
 const AWS = require('aws-sdk');
 
 import DocumentClient = DynamoDB.DocumentClient;
@@ -35,6 +33,15 @@ export interface ResultSearchParams {
 AWS.config.update({
     region: 'us-east-1'
 });
+
+export interface updateResultsParams {
+    candidateId: string;
+    bookingId:string;
+    questionId:string;
+    candidateAns:string[];
+    correctAns:string;
+    score:string;
+}
 
 @Injectable()
 export class ResultServiceImpl {
@@ -58,49 +65,59 @@ export class ResultServiceImpl {
         });
 
     }
-    update(dataa: any): Observable<Result> {
-    //     let dataConversion: any;
-    //     console.log('data before type of----', typeof dataa);
-    //    if (typeof dataa == 'string'){
-    //     dataConversion = JSON.parse(dataa);
-    //   }
-    //   else{
-    //     dataConversion = dataa;
-    //   }
-        console.log('data After type of----', typeof dataa);
-        console.log('in ResultServiceImpl get()');
-        const documentClient = new DocumentClient();
+    
+    update(dataa:updateResultsParams): Observable<Result> {
+        console.log('in ResultServiceImpl get()',dataa);
         let data = dataa;
-        console.log('dataconversion = ', data);
-        let score;
-        if (data.curct_ans === data.cand_ans)
-            score = 1;
-        else
-            score = 0;
-        const params = {
+        let that=this;
+                  
+          let decodedData = new Buffer(data.correctAns, 'base64').toString('ascii');
+           let crct_ans=JSON.parse(decodedData);
+           console.log("corrected Ans",JSON.parse(decodedData));
+           console.log("candidate Ans",data.candidateAns);
+           let score;
+           
+           let multi_answer=0;
+
+     crct_ans.forEach((item) =>
+     {
+         let array= data.candidateAns.filter((id) =>
+         {
+             if(id === item)
+            multi_answer++;
+         })
+     })
+            if(crct_ans.length === multi_answer )
+                      score =1;
+                      else
+                     score =0;
+   
+    
+           const params = {
             TableName: 'result',
             Key: {
-                CandidateId: data.CandidateId,
-                QsnId: data.QsnId
+               candidateId: data.candidateId,
+                questionId: data.questionId
+                //questionId: JSON.stringify(data.questionId)
             },
             ExpressionAttributeNames: {
-                '#bi': 'BookingId',
-                '#a' : 'curct_ans',
-                '#ca': 'cand_ans',
+                '#bi': 'bookingId',
+                '#a' : 'correctAns',
+                '#ca': 'candidateAns',
                 '#s' : 'score'
             },
             ExpressionAttributeValues: {
-                ':bi': data.BookingId,
-                ':a' : data.curct_ans,
-                ':ca': data.cand_ans,
+                ':bi': data.bookingId,
+                ':a' : data.correctAns,
+                ':ca': data.candidateAns,
                 ':s' : score
             },
             UpdateExpression: 'SET #bi = :bi,  #a=:a , #ca = :ca , #s =:s',
             ReturnValues: 'ALL_NEW',
         };
-
+        console.log("params==========",params);
         return Observable.create((observer: Observer<Result>) => {
-            documentClient.update(params, (err, result: any) => {
+            that.documentClient.update(params, (err, result: any) => {
                 if (err) {
                     console.error(err);
                     observer.error(err);
@@ -168,6 +185,7 @@ export class ResultServiceImpl {
                 function () {
                     let questionId = record.getValueByKey('questionId');
                     console.log(`bookingId ${questionId}`);
+
                     return that.questionServiceImpl.getQuestion(questionId, category);
                 },
                 function (question: Question) {

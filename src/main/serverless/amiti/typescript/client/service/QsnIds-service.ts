@@ -3,7 +3,7 @@ import { Observable, Observer } from 'rxjs';
 import { QsnIds } from '../domain/QsnIds';
 import { Question } from '../domain/Question';
 import { DynamoDB } from 'aws-sdk';
-
+import { questionsArray } from './Question-service';
 const AWS = require('aws-sdk');
 
 import DocumentClient = DynamoDB.DocumentClient;
@@ -14,13 +14,14 @@ AWS.config.update({
 
 @Injectable()
 export class QsnIdsServiceImpl {
-
+ 
     constructor() {
         console.log('in QsnIdsServiceImpl constructor()');
     }
 
-        getQsnId(questionPaperId: string): Observable<QsnIds[]> {
+        getQsnId(questionPaperId: string, endTime:string): Observable<questionsArray> { 
         console.log('in QsnIdsServiceImpl get()');
+        console.log(questionPaperId);
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'questionPaper',
             ProjectionExpression: 'questionId',
@@ -32,10 +33,10 @@ export class QsnIdsServiceImpl {
             ExpressionAttributeValues: {
                 ':questionPaperId': questionPaperId,
             },
-
         };
+        console.log(queryParams);
         const documentClient = new DocumentClient();
-        return Observable.create((observer: Observer<QsnIds[]>) => {
+        return Observable.create((observer:Observer<questionsArray>) => {
             console.log('Executing query with parameters ' + queryParams);
             documentClient.query(queryParams, (err, data: any) => {
                 console.log(`did we get error ${err}`);
@@ -49,11 +50,11 @@ export class QsnIdsServiceImpl {
                     observer.complete();
                     return;
                 }
-                // data.Items.forEach((item) => {
-                //     console.log(`Qsn Id ${item.questionId}`);
-                // });
+                let myResult:any = {};
+                myResult.QsnIds = data.Items;
+                myResult.endingTime = endTime;
                 console.log(data);
-                observer.next(data.Items);
+                observer.next(myResult);
                 observer.complete();
             });
 
