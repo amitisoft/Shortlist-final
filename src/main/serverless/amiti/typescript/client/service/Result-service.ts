@@ -25,7 +25,7 @@ export interface ResultSearchParams {
     phoneNumber?: number;
     jobPosition?: string;
     dateOfExamRange?: string;
-    scoreRange?: string;
+    score?: string;
     from: number;
     size: number;
 }
@@ -282,6 +282,18 @@ export class ResultServiceImpl {
                                     'question': {
                                         'type': 'text',
                                         'index': 'true'
+                                    },
+                                    'actualAns': {
+                                       'type': 'text',
+                                       'index': 'true'
+                                    },
+                                    'candidateAns': {
+                                        'type': 'text',
+                                        'index': 'true'
+                                    },
+                                    'score': {
+                                        'type': 'long',
+                                        'index': 'true'
                                     }
                                 }
                             }
@@ -425,10 +437,10 @@ export class ResultServiceImpl {
         } : undefined;
 
 
-        let scoreRange = format('{0}', params.scoreRange);
-        let scoreRangeCondition: any = params.scoreRange ? {
+        let score = format('{0}', params.score);
+        let scoreCondition: any = params.score ? {
             'term': {
-                scoreRange
+                score
             }
         } : undefined;
 
@@ -483,7 +495,7 @@ export class ResultServiceImpl {
 
         let mustConditions = [
             emailCondition,
-            scoreRangeCondition,
+            scoreCondition,
             phoneNumberCondition,
             fullNameCondition,
             jobPositionCondition

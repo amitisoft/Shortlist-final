@@ -38,7 +38,7 @@ export class UpdateResultHandler {
             phoneNumber: body.phoneNumber,
             jobPosition: body.jobPosition,
             dateOfExamRange: body.dateOfExamRange,
-            scoreRange: body.scoreRange,
+            score: body.score,
             from: body.pageNumber || 0,
             size: 30
         };
