@@ -555,6 +555,12 @@ export class CandidateServiceImpl {
                         case 'DELETE':
                             that.deleteCandidateDocument(record, observer);
                             break;
+                        case 'MODIFY':
+                             that.updateCandidateDocument(record, observer);
+                            break;
+                        case 'REMOVE':
+                            that.deleteCandidateDocument(record, observer);
+                            break;
                         default:
                             break;
                     }
@@ -659,10 +665,11 @@ findESCandidateSearchResult(params: CandidateSearchParams): Observable<Candidate
                             'candidate': {
                                 'properties': {
                                     'candidateId': {
-                                        'type': 'long'
+                                        'type': 'keyword'
                                     },
                                     'firstName': {
-                                        'type': 'text'
+                                        'type': 'text',
+                                        'index': 'true'
                                     },
                                     'lastName': {
                                         'type': 'text',

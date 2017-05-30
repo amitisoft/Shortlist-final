@@ -11,9 +11,24 @@ import { Booking } from '../domain/booking';
 import { BookingServiceImpl } from '../service/booking-service';
 import { Question } from '../domain/question';
 import { QuestionServiceImpl } from '../service/Question-service';
+import { ResultSearch } from '../domain/resultSearch';
+import moment = require('moment');
 const format = require('string-template');
 const _ = require('lodash');
 const AWS = require('aws-sdk');
+
+import DocumentClient = DynamoDB.DocumentClient;
+
+export interface ResultSearchParams {
+    fullName?: string;
+    email?: string;
+    phoneNumber?: number;
+    jobPosition?: string;
+    dateOfExamRange?: string;
+    scoreRange?: string;
+    from: number;
+    size: number;
+}
 
 AWS.config.update({
     region: 'us-east-1'
@@ -170,7 +185,8 @@ export class ResultServiceImpl {
                 function () {
                     let questionId = record.getValueByKey('questionId');
                     console.log(`bookingId ${questionId}`);
-                    //return that.questionServiceImpl.getQsn(questionId, category);
+
+                    return that.questionServiceImpl.getQuestion(questionId, category);
                 },
                 function (question: Question) {
                     console.log(' Question INFO-----------------', question);
@@ -201,6 +217,12 @@ export class ResultServiceImpl {
                         case 'DELETE':
                             that.deleteResultDocument(record, observer);
                             break;
+                        case 'MODIFY':
+                            that.upsertResultIndex(record, observer);
+                            break;
+                        case 'REMOVE':
+                            that.deleteResultDocument(record, observer);
+                            break;
                         default:
                             break;
                     }
@@ -224,7 +246,7 @@ export class ResultServiceImpl {
                             'result': {
                                 'properties': {
                                     'candidateId': {
-                                        'type': 'long'
+                                        'type': 'keyword'
                                     },
                                     'email': {
                                         'type': 'keyword',
@@ -239,7 +261,7 @@ export class ResultServiceImpl {
                                         'index': 'true'
                                     },
                                     'bookingId': {
-                                        'type': 'long'
+                                        'type': 'keyword'
                                     },
                                     'category': {
                                         'type': 'text',
@@ -254,7 +276,7 @@ export class ResultServiceImpl {
                                         'format': 'DD/MM/YYYY'
                                     },
                                     'questionId': {
-                                        'type': 'long',
+                                        'type': 'keyword',
                                         'index': 'true'
                                     },
                                     'question': {
@@ -392,6 +414,124 @@ export class ResultServiceImpl {
                 upsert: this.constructInsertOnlyParams(record)
             }
         };
+    }
+
+        findESResultSearch(params: ResultSearchParams): Observable<ResultSearch[]> {
+        let email = format('{0}', params.email);
+        let emailCondition: any = params.email ? {
+            'term': {
+                email
+            }
+        } : undefined;
+
+
+        let scoreRange = format('{0}', params.scoreRange);
+        let scoreRangeCondition: any = params.scoreRange ? {
+            'term': {
+                scoreRange
+            }
+        } : undefined;
+
+        let phoneNumber = format('{0}', params.phoneNumber);
+        let phoneNumberCondition: any = params.phoneNumber ? {
+            'term': {
+                phoneNumber
+            }
+        } : undefined;
+
+        let fullName = format('{0}', params.fullName);
+        let fullNameCondition: any = params.fullName ? {
+            'match': {
+                fullName
+            }
+        } : undefined;
+
+        let jobPosition = format('{0}', params.jobPosition);
+        let jobPositionCondition: any = params.jobPosition ? {
+            'match': {
+                jobPosition
+            }
+        } : undefined;
+
+        let dateOfExamCondition: any;
+        if (params.dateOfExamRange) {
+            let dateRange = params.dateOfExamRange.split('-');
+            let fromDate = format('{0}', dateRange[0]);
+            let toDate = format('{0}', dateRange[1]);
+
+            dateOfExamCondition = params.dateOfExamRange ?
+                {
+                    'range': {
+                        'dateOfExam': {
+                            'lte': toDate,
+                            'gte': fromDate
+                        }
+                    }
+                } : '';
+        } else {
+            let toDefaultDate = format('{0}', moment().format('DD/MM/YYYY'));
+            let fromDefaultDate = format('{0}', moment().subtract(30, 'days').format('DD/MM/YYYY'));
+
+            dateOfExamCondition = {
+                'range': {
+                    'dateOfExam': {
+                        'lte': toDefaultDate
+                    }
+                }
+            };
+        }
+
+        let mustConditions = [
+            emailCondition,
+            scoreRangeCondition,
+            phoneNumberCondition,
+            fullNameCondition,
+            jobPositionCondition
+        ];
+
+
+        const filteredMustConditions = _.without(mustConditions, undefined);
+
+        return Observable.create((observer: any) => {
+            this.elasticSearchClient.search({
+                from: params.from,
+                size: params.size,
+                index: this.RESULT_INDEX,
+                type: this.RESULT_MAPPING,
+                body: {
+                    query: {
+                        'bool': {
+                            'must': filteredMustConditions,
+                            'filter': dateOfExamCondition
+                        }
+                    }
+                }
+            }, (err: any, resp: any) => {
+                if (err) {
+                    console.error(`Failed to read result information ${err}`);
+                    observer.error(err);
+                    return;
+                }
+                console.log(`search finished for result ${resp}`);
+                const resultOfSearch = resp.hits.hits.map(hit => {
+
+                    const resultInfo = hit._source;
+                    const result: any = {
+                        candidateId: resultInfo.candidateId,
+                        bookingId: resultInfo.bookingId,
+                        category: resultInfo.category,
+                        jobPosition: resultInfo.jobPosition,
+                        dateOfExam: resultInfo.dateOfExam,
+                        fullName: resultInfo.fullName,
+                        email: resultInfo.email
+                    };
+                    return result;
+                });
+                observer.next(resultOfSearch);
+                observer.complete();
+            });
+
+        });
     }
 
 }

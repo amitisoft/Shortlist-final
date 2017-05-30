@@ -23,15 +23,19 @@ import { CreateQuestionServiceImpl } from './typescript/client/service/create-qu
 import { CreateQuestionPaperFacade } from './typescript/client/facade/create-question-paper-facade';
 import { CreateQuestionPaperserviceImpl } from './typescript/client/service/create-question-paper-service';
 import { Kinesis, DynamoDB } from 'aws-sdk';
+import { CategoryHandler } from './typescript/client/web/Category-Handler';
+import { CategoryFacade } from './typescript/client/facade/Category-facade';
+import{ CategoryServiceImpl } from './typescript/client/service/Category-Service';
 import DocumentClient = DynamoDB.DocumentClient;
 
-//    const fs = require('fs');
-//        const dotenv = require('dotenv');
-//      const envConfig = dotenv.parse(fs.readFileSync('.env'));
-//      for (let k in envConfig) {
-//          if (envConfig.hasOwnProperty(k)) {
-//              process.env[k] = envConfig[k];
-//          }
+
+//   const fs = require('fs');
+//       const dotenv = require('dotenv');
+//     const envConfig = dotenv.parse(fs.readFileSync('.env'));
+//     for (let k in envConfig) {
+//         if (envConfig.hasOwnProperty(k)) {
+//             process.env[k] = envConfig[k];
+//         }
 //     }
 
 
@@ -88,7 +92,9 @@ export const appProviders = [
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,
-    CreateQuestionPaperserviceImpl
+    CreateQuestionPaperserviceImpl,
+    CategoryFacade,
+    CategoryServiceImpl
 ];
 
 
@@ -106,7 +112,7 @@ exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(app
 exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.createQuestion);
 exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getQuestionByCategory);
 exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
- exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
+exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
 exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
 exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
 exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNamesByCategory);
@@ -115,8 +121,12 @@ exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appP
 exports.findESBookingSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.findESBookingSearchResult);
 exports.updateCandidateTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetCandidateHandler.updateCandidateTOElasticSearch);
 exports.updateResultTOElasticSearch = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, UpdateResultHandler.updateResultTOElasticSearch);
+exports.findESResultSearch = ExecutionContextImpl.createHttpHandler(appProviders, UpdateResultHandler.findESResultSearch);
 exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
 exports.updateExamBookingTimings = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.updateExamTimingSlots);
 exports.findESCandidateSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.findESCandidateSearchResult);
+ exports.createCategory = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.createCategory);
+ exports.getAllCategories = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getAllCategories);
+ exports.getCategoryById = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getCategoryById);
 
 

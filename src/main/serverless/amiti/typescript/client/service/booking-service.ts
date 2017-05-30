@@ -658,6 +658,12 @@ export class BookingServiceImpl {
                         case 'DELETE':
                             that.deleteBookingDocument(record, observer);
                             break;
+                         case 'MODIFY':
+                             that.upsertBookingIndex(record, observer);
+                            break;
+                        case 'REMOVE':
+                            that.deleteBookingDocument(record, observer);
+                            break;
                         default:
                             break;
                     }
@@ -681,10 +687,10 @@ export class BookingServiceImpl {
                             'booking': {
                                 'properties': {
                                     'bookingId': {
-                                        'type': 'long'
+                                        'type': 'keyword'
                                     },
                                     'candidateId': {
-                                        'type': 'long'
+                                        'type': 'keyword'
                                     },
                                     'category': {
                                         'type': 'text',
@@ -857,7 +863,7 @@ export class BookingServiceImpl {
                             'must': [
                                 {
                                     'match': {
-                                        'testStatus': 'not taken'
+                                        'testStatus': 'NotTaken'
                                     }
                                 }
                             ]
