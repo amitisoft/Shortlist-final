@@ -51,9 +51,8 @@ let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => 
     return new BookingServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl);
 };
 
-let questionServiceImplFactory = (qsnIdsServiceImpl: QsnIdsServiceImpl,bookingServiceImpl:BookingServiceImpl) => {
+let questionServiceImplFactory = (qsnIdsServiceImpl: QsnIdsServiceImpl,bookingServiceImpl: BookingServiceImpl) => {
       return new QuestionServiceImpl(process.env.REGION, new DocumentClient(), qsnIdsServiceImpl,bookingServiceImpl);
-      
 }
 
 let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , bookingServiceImpl: BookingServiceImpl, questionServiceImpl: QuestionServiceImpl) => {
@@ -61,6 +60,13 @@ let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , boo
     return new ResultServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl, bookingServiceImpl, questionServiceImpl);
 
 };
+
+let notificationImplFactory = () => {
+    console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
+    return new NotificationServiceImpl(process.env.CANDIDATE_HOME_PAGE_URL);
+
+};
+
 export const appProviders = [
     CandidateFacade,
     BookingFacade,
@@ -86,7 +92,11 @@ export const appProviders = [
         useFactory: resultServiceImplFactory,
         deps: [CandidateServiceImpl, BookingServiceImpl, QuestionServiceImpl ]
     },
-    NotificationServiceImpl,
+    {
+        provide: NotificationServiceImpl,
+        useFactory: notificationImplFactory,
+        deps: []
+    },
     QsnIdsFacade,
     QsnIdsServiceImpl,
     CreateQuestionFacade,
@@ -125,8 +135,8 @@ exports.findESResultSearch = ExecutionContextImpl.createHttpHandler(appProviders
 exports.getTestStausInfo = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.isTestLinkStatusInfo);
 exports.updateExamBookingTimings = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.updateExamTimingSlots);
 exports.findESCandidateSearchResult = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.findESCandidateSearchResult);
- exports.createCategory = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.createCategory);
- exports.getAllCategories = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getAllCategories);
- exports.getCategoryById = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getCategoryById);
+exports.createCategory = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.createCategory);
+exports.getAllCategories = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getAllCategories);
+exports.getCategoryById = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getCategoryById);
 
 

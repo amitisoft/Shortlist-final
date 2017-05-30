@@ -1,8 +1,13 @@
 {
-	"pathParameters": {
-	"currentQsnNo":"0",
-	"questionPaperId":"JA",
-	"category": "Java",
-	"bookingId": "b1"
+	"body": {
+		"emails": [
+		"kiranagre111@gmail.com",
+		"kiran.a@amitisoft.com",
+		"a.kiran029@gmail.com"
+		],
+	"emailSubject": "Interview for Java developer",
+	"jobPosition": "Java developer",
+	"emailBody": " TestLink",
+	"category": "Java"
 	}
 }
