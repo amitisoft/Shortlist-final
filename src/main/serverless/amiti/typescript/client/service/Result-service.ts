@@ -39,7 +39,7 @@ export interface updateResultsParams {
     bookingId:string;
     questionId:string;
     candidateAns:string[];
-    correctAns:string;
+    correctAns:string[];
     score:string;
 }
 
@@ -68,26 +68,26 @@ export class ResultServiceImpl {
     
     update(dataa:updateResultsParams): Observable<Result> {
         console.log('in ResultServiceImpl get()',dataa);
-        let data = dataa;
+        let data = JSON.parse(JSON.stringify(dataa));
         let that=this;
                   
           let decodedData = new Buffer(data.correctAns, 'base64').toString('ascii');
-           let crct_ans=JSON.parse(decodedData);
+           let crctAns = JSON.parse(decodedData);
            console.log("corrected Ans",JSON.parse(decodedData));
            console.log("candidate Ans",data.candidateAns);
            let score;
            
-           let multi_answer=0;
+           let multiAnswer = 0;
 
-     crct_ans.forEach((item) =>
+     crctAns.forEach((item) =>
      {
          let array= data.candidateAns.filter((id) =>
          {
              if(id === item)
-            multi_answer++;
+            multiAnswer++;
          })
      })
-            if(crct_ans.length === multi_answer )
+            if(crctAns.length === multiAnswer )
                       score =1;
                       else
                      score =0;
