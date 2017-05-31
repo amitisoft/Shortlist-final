@@ -7,5 +7,8 @@ export class ResultSearch {
     jobPosition: string;
     dateOfExam: String;
     score: string;
+    totalNoOfQsnsPerQsnPaperId: number;
+    correctlyAnsweredQsn: number;
+    percentage: number;
 }
 

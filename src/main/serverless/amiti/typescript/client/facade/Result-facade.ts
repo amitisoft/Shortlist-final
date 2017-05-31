@@ -35,6 +35,9 @@ export class ResultFacade {
 
        private mapResultSearchToDto(resultSearch: ResultSearch): ResultSearchDto {
         console.log('in mapBookingToDto', resultSearch);
+        let correctlyAnsweredQsn = 25 ;
+        let percentage = (correctlyAnsweredQsn / resultSearch.totalNoOfQsnsPerQsnPaperId) * 100 ;
+
         return {
             candidateId: resultSearch.candidateId,
             fullName: resultSearch.fullName,
@@ -43,7 +46,10 @@ export class ResultFacade {
             bookingId: resultSearch.bookingId,
             jobPosition: resultSearch.jobPosition,
             dateOfExam: resultSearch.dateOfExam,
-            score: resultSearch.score
+            score: resultSearch.score,
+            totalNoOfQsnsPerQsnPaperId: resultSearch.totalNoOfQsnsPerQsnPaperId,
+            correctlyAnsweredQsn: correctlyAnsweredQsn,
+            percentage: percentage,
         };
     }
 
