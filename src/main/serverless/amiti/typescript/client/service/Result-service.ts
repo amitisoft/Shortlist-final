@@ -65,12 +65,12 @@ export class ResultServiceImpl {
         });
 
     }
-    
-    update(dataa:updateResultsParams): Observable<Result> {
+
+    update(dataa: updateResultsParams): Observable<Result> {
         console.log('in ResultServiceImpl get()',dataa);
         let data = dataa;
         let that=this;
-                  
+
           let decodedData = new Buffer(data.correctAns, 'base64').toString('ascii');
            let crct_ans=JSON.parse(decodedData);
            console.log("corrected Ans",JSON.parse(decodedData));
