@@ -30,13 +30,13 @@ AWS.config.update({
     questionId: string;
     question: string;
     category: string;
-    correctAns: string;
+    correctAns: string[];
     option1: string;
     option2: string;
     option3: string;
     option4: string;
     endingTime: string;
-    total_No_of_Qsns_Per_QsnPaperId:number;
+    totalNoOfQsnsPerQsnPaperId:number;
 }
 
 export interface timeSlot
@@ -88,11 +88,11 @@ export class QuestionServiceImpl {
                           }
                           console.log(questionPaperData);
                           let timeZoneOffset=new Date().getTimezoneOffset();
-                          let bros_etime=new Date(parseInt(questionPaperData.endingTime)-timeZoneOffset).getTime();
-                          let total_No_of_Qsns_Per_QsnPaperId=questionPaperData.QsnIds.length;
+                          let bEndingtime=new Date(parseInt(questionPaperData.endingTime)-timeZoneOffset).getTime();
+                          let totalNoOfQsnsPerQsnPaperId=questionPaperData.QsnIds.length;
                          console.log(params['currentQsnNo']);
                          console.log(questionPaperData.QsnIds[params['currentQsnNo']].questionId);
-                     return that.getQsn(questionPaperData.QsnIds[params['currentQsnNo']].questionId,params['category'],total_No_of_Qsns_Per_QsnPaperId,bros_etime.toString(),params['currentQsnNo']);
+                     return that.getQsn(questionPaperData.QsnIds[params['currentQsnNo']].questionId,params['category'],totalNoOfQsnsPerQsnPaperId,bEndingtime.toString(),params['currentQsnNo']);
                      },
                    ]);
          registrationWaterFall.subscribe(
@@ -112,10 +112,10 @@ export class QuestionServiceImpl {
      });
      }
 
-     getQsn(questionId: string, category: string,total_No_of_Qsns:number,endingTime:string,currentQsno:string): Observable<Question> {
+     getQsn(questionId: string, category: string,totalNoOfQsns:number,endingTime:string,currentQsno:string): Observable<Question> {
         console.log('in QsnPaperServiceImpl get()');
         console.log(`Question ID: ${questionId}`);
-        console.log(` Total No of Qns ${total_No_of_Qsns}`);
+        console.log(` Total No of Qns ${totalNoOfQsns}`);
         console.log(`Category ${category}`);
         console.log(`endTime${endingTime}`);
         console.log(`currentQsno${currentQsno}`);
@@ -150,17 +150,17 @@ export class QuestionServiceImpl {
                 }
                   console.log(JSON.stringify(data.Items[0].correctAns));
                   let qusn: any = {};
-                  qusn.category=data.Items[0].category;
-                  qusn.correctAns=new Buffer(JSON.stringify(data.Items[0].correctAns)).toString('base64');
-                  qusn.question=data.Items[0].question;
-                  qusn.option1=data.Items[0].option1;
-                  qusn.option2=data.Items[0].option2;
-                  qusn.option3=data.Items[0].option3;
-                  qusn.option4=data.Items[0].option4;
-                  qusn.total_No_of_Qsns_Per_QsnPaperId=total_No_of_Qsns;
-                  qusn.endTime=endingTime;
-                  qusn.questionNo=parseInt(currentQsno)+1; 
-                  qusn.questionId=questionId;
+                  qusn.category = data.Items[0].category;
+                  qusn.correctAns = new Buffer(JSON.stringify(data.Items[0].correctAns)).toString('base64');
+                  qusn.question = data.Items[0].question;
+                  qusn.option1 = data.Items[0].option1;
+                  qusn.option2 = data.Items[0].option2;
+                  qusn.option3 = data.Items[0].option3;
+                  qusn.option4 = data.Items[0].option4;
+                  qusn.totalNoOfQsnsPerQsnPaperId = totalNoOfQsns;
+                  qusn.endTime = endingTime;
+                  qusn.questionNo = parseInt(currentQsno)+1; 
+                  qusn.questionId = questionId;
                   observer.next(qusn);                  
                   observer.complete();
             });
