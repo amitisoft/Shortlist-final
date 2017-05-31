@@ -32,6 +32,9 @@ export interface NotificationMessage {
     emailSubject: string;
     emailBody: string;
     token: string;
+    emailTemplate: string;
+    category: string;
+    jobPosition: string;
 }
 
 export interface RegisterCandidates {
@@ -40,10 +43,12 @@ export interface RegisterCandidates {
     jobPosition: string;
     emailBody: string;
     category: string;
+    candidate: Candidate;
 }
 
 
 export interface RegisterCandidateInputParams {
+    emailTemplate: string;
     email: string;
     emailSubject: string;
     jobPosition: string;
@@ -51,6 +56,7 @@ export interface RegisterCandidateInputParams {
     category: string;
     candidate: Candidate;
     token: string;
+     emails: string[];
 }
 
 
@@ -75,9 +81,9 @@ export class CandidateServiceImpl {
         });
     }
 
-    registerCandidatesAndEmailPostRegistration(params: RegisterCandidates): Observable<boolean> {
-        console.log(`registerCandidatesAndEmailPostRegistration ${JSON.stringify(params)}`);
+    registerCandidatesAndEmailPostRegistration(params: RegisterCandidateInputParams): Observable<any> {
 
+        let that = this;
         let registrations = params.emails.map((email) => {
             let registation = new Registration();
             registation.email = email;
@@ -85,6 +91,7 @@ export class CandidateServiceImpl {
             registation.emailSubject = params.emailSubject;
             registation.category = params.category;
             registation.jobPosition = params.jobPosition;
+            registation.emailTemplate = params.emailTemplate;
             return registation;
         });
 
@@ -96,7 +103,8 @@ export class CandidateServiceImpl {
                     emailSubject: registration.emailSubject,
                     emailBody: registration.emailBody,
                     jobPosition: registration.jobPosition,
-                    category: registration.category
+                    category: registration.category,
+                    emailTemplate:registration.emailTemplate
                 }
             );
 
@@ -139,7 +147,7 @@ export class CandidateServiceImpl {
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'candidate',
             IndexName: 'emailIndex',
-            ProjectionExpression: 'candidateId',
+            ProjectionExpression: 'candidateId, email ',
             KeyConditionExpression: '#emailId = :emailIdFilter',
             ExpressionAttributeNames: {
                 '#emailId': 'email'
@@ -176,7 +184,7 @@ export class CandidateServiceImpl {
             IndexName: 'candidateId-category-index',
             ProjectionExpression: 'bookingId,candidateId,category,dateOfExam',
             KeyConditionExpression: '#candidateId = :candidateIdFilter AND #category = :categoryFilter',
-            FilterExpression: '#date < :dateFilter AND #testStatus <> :testStatusFilter',
+            FilterExpression: '#date > :dateFilter AND #testStatus = :testStatusFilter',
             ExpressionAttributeNames: {
                 '#candidateId': 'candidateId',
                 '#category': 'category',
@@ -186,18 +194,20 @@ export class CandidateServiceImpl {
             ExpressionAttributeValues: {
                 ':candidateIdFilter': params.candidate.candidateId,
                 ':categoryFilter': params.category,
-                ':dateFilter': 30,
-                ':testStatusFilter': 'Taken'
+                ':dateFilter': new Date().getTime() - (30 * 24 * 60 * 60 * 1000),
+                ':testStatusFilter' : 'Taken'
             }
         };
 
+            console.log('queryParams....', params.candidate.candidateId);
         return Observable.create((observer: any) => {
                 const queryCallBack$ = Observable.bindCallback(this.documentClient.query).bind(this.documentClient);
                 const result = queryCallBack$(queryParams);
                 result.subscribe(
                     (x: DynamoDB.Types.QueryOutput) => {
+                         console.log('x[1].Items[0].candidateId.....', x[1].Items[0]);
                         console.log(`validateBookingForCandidate ${JSON.stringify(x)}`);
-                        if (x.Items && x.Items.length > 0) {
+                        if (x[1].Items && x[1].Items.length  > 0) {
                             console.log(`validateBookingForCandidate failed ${x}`);
                             observer.next(false);
                         } else {
@@ -242,19 +252,27 @@ export class CandidateServiceImpl {
                     };
                     console.log(`calling updateCandidateInfo with ${JSON.stringify(uInput)}`);
                     return that.updateCandidateInfo(uInput);
+                }else {
+                   return Observable.create((observer) => {
+                     observer.error('Candidate taken exam in last 30 days');
+                   });
                 }
             },
             function (updatedCandidateSuccessfully: boolean) {
                 if (updatedCandidateSuccessfully) {
                     console.log(`calling updateBookingInfo with ${JSON.stringify(inputParams)}`);
                     return that.updatedBookingInfo(inputParams);
+                }else {
+                   return Observable.create((observer) => {
+                     observer.error('Candidate taken exam in last 30 days');
+                   });
                 }
             }
         ]);
         registrationWaterFall.subscribe(
             function (x) {
-                console.log(`registrationWaterFall result ${JSON.stringify(x)}`);
-                that.doPostRegistrationTasks(inputParams);
+                console.log('registrationWaterFall result', x);
+                that.doPostRegistrationTasks(inputParams, x);
             },
             function (err) {
                 console.log(`registrationWaterFall failed ${err.stack}`);
@@ -266,7 +284,7 @@ export class CandidateServiceImpl {
     updateCandidateInfo(result: any): Observable<boolean> {
         let that = this;
         return Observable.defer(() => {
-            return Observable.fromPromise(that.updateCandidateInfoPromise(result));
+            return Observable.fromPromise(that.updateCandidateInfoPromise(that,result));
         });
     }
 
@@ -815,19 +833,22 @@ findESCandidateSearchResult(params: CandidateSearchParams): Observable<Candidate
         };
     }
 
-    private doPostRegistrationTasks(inputParams: RegisterCandidateInputParams) {
+    private doPostRegistrationTasks(inputParams: RegisterCandidateInputParams, bookingId: any) {
         let message = {
             email: inputParams.email,
             emailSubject: inputParams.emailSubject,
             emailBody: inputParams.emailBody,
-            token: inputParams.token
+            token: inputParams.token,
+            emailTemplate: inputParams.emailTemplate,
+            jobPosition: inputParams.jobPosition,
+            category: inputParams.category
         };
-        this.publishSendEmailMessage(message);
+        this.publishSendEmailMessage(message, bookingId);
     }
 
-    private publishSendEmailMessage(message: NotificationMessage) {
+    private publishSendEmailMessage(message: NotificationMessage, bookingId: any) {
         try {
-            this.notificationServiceImpl.sendRegistrationEmail(message)
+            this.notificationServiceImpl.sendRegistrationEmail(message, bookingId)
                 .subscribe(
                     function (x) {
                         console.log(`email result ${JSON.stringify(x)}`);
@@ -853,15 +874,17 @@ findESCandidateSearchResult(params: CandidateSearchParams): Observable<Candidate
                     '#cid': 'candidateId',
                     '#ct': 'category',
                     '#jp': 'jobPosition',
-                    '#ts': 'testStatus'
+                    '#ts': 'testStatus',
+                    '#doe': 'dateOfExam'
                 },
                 ExpressionAttributeValues: {
                     ':cid': inputParams.candidate.candidateId,
                     ':ct': inputParams.category,
                     ':jp': inputParams.jobPosition,
-                    ':ts': testStatus
+                    ':ts': testStatus,
+                    ':doe': new Date().getTime()
                 },
-                UpdateExpression: 'SET #cid=:cid,#ct=:ct,#jp=:jp, #ts=:ts',
+                UpdateExpression: 'SET #cid=:cid,#ct=:ct,#jp=:jp, #ts=:ts, #doe=:doe',
                 ReturnValues: 'ALL_NEW'
             };
             this.documentClient.update(params, (err, data: any) => {
@@ -870,14 +893,14 @@ findESCandidateSearchResult(params: CandidateSearchParams): Observable<Candidate
                     observer.error(err);
                     return;
                 }
-                console.log(`Created Booking for Candidate ${inputParams.candidate.candidateId}`);
-                observer.next(true);
+                console.log('Created Booking for Candidate', data.Attributes.bookingId);
+                observer.next(data.Attributes.bookingId);
                 observer.complete();
             });
         });
     }
 
-    private updateCandidateInfoPromise(result: any) {
+    private updateCandidateInfoPromise(context: any, result: any) {
         return new Promise(function (resolve, reject) {
             const params = {
                 TableName: 'candidate',
@@ -892,7 +915,8 @@ findESCandidateSearchResult(params: CandidateSearchParams): Observable<Candidate
                 },
                 UpdateExpression: 'SET #tok=:tok'
             };
-            this.documentClient.update(params, (err, data: any) => {
+
+            context.documentClient.update(params, (err, data: any) => {
                 if (err) {
                     console.error(err);
                     reject(err);

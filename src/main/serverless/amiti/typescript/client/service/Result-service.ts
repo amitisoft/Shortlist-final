@@ -25,7 +25,7 @@ export interface ResultSearchParams {
     phoneNumber?: number;
     jobPosition?: string;
     dateOfExamRange?: string;
-    scoreRange?: string;
+    score?: string;
     from: number;
     size: number;
 }
@@ -65,12 +65,12 @@ export class ResultServiceImpl {
         });
 
     }
-    
-    update(dataa:updateResultsParams): Observable<Result> {
+
+    update(dataa: updateResultsParams): Observable<Result> {
         console.log('in ResultServiceImpl get()',dataa);
         let data = JSON.parse(JSON.stringify(dataa));
         let that=this;
-                  
+
           let decodedData = new Buffer(data.correctAns, 'base64').toString('ascii');
            let crctAns = JSON.parse(decodedData);
            console.log("corrected Ans",JSON.parse(decodedData));
@@ -282,6 +282,18 @@ export class ResultServiceImpl {
                                     'question': {
                                         'type': 'text',
                                         'index': 'true'
+                                    },
+                                    'actualAns': {
+                                       'type': 'text',
+                                       'index': 'true'
+                                    },
+                                    'candidateAns': {
+                                        'type': 'text',
+                                        'index': 'true'
+                                    },
+                                    'score': {
+                                        'type': 'long',
+                                        'index': 'true'
                                     }
                                 }
                             }
@@ -425,10 +437,10 @@ export class ResultServiceImpl {
         } : undefined;
 
 
-        let scoreRange = format('{0}', params.scoreRange);
-        let scoreRangeCondition: any = params.scoreRange ? {
+        let score = format('{0}', params.score);
+        let scoreCondition: any = params.score ? {
             'term': {
-                scoreRange
+                score
             }
         } : undefined;
 
@@ -483,7 +495,7 @@ export class ResultServiceImpl {
 
         let mustConditions = [
             emailCondition,
-            scoreRangeCondition,
+            scoreCondition,
             phoneNumberCondition,
             fullNameCondition,
             jobPositionCondition
@@ -519,6 +531,8 @@ export class ResultServiceImpl {
                     const result: any = {
                         candidateId: resultInfo.candidateId,
                         bookingId: resultInfo.bookingId,
+                        phoneNumber: resultInfo.phoneNumber,
+                        score: resultInfo.score,
                         category: resultInfo.category,
                         jobPosition: resultInfo.jobPosition,
                         dateOfExam: resultInfo.dateOfExam,

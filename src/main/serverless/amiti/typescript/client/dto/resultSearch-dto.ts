@@ -2,7 +2,7 @@ export class ResultSearchDto {
     candidateId: string;
     fullName: string;
     email: string;
-    phoneNumer: number;
+    phoneNumber: number;
     bookingId: string;
     jobPosition: string;
     dateOfExam: String;

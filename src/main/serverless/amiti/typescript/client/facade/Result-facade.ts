@@ -39,7 +39,7 @@ export class ResultFacade {
             candidateId: resultSearch.candidateId,
             fullName: resultSearch.fullName,
             email: resultSearch.email,
-            phoneNumer: resultSearch.phoneNumer,
+            phoneNumber: resultSearch.phoneNumber,
             bookingId: resultSearch.bookingId,
             jobPosition: resultSearch.jobPosition,
             dateOfExam: resultSearch.dateOfExam,

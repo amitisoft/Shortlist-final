@@ -10,15 +10,15 @@
         "ApproximateCreationDateTime": 1495530403857,
         "Keys": {
           "candidateId": {
-            "S": "1"
+            "S": "3"
           },
           "questionId": {
-            "S": "1"
+            "S": "3"
           }
         },
         "NewImage": {
           "bookingId": {
-            "S": "1"
+            "S": "3"
           },
           "actualAns": {
             "S": "A"
@@ -38,6 +38,6 @@
     }
   ],
   "body":{
-    "fullName":"aaa"
+    "jobPosition":"developer3"
   }
 }
