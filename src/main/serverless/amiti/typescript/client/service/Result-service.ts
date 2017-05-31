@@ -531,6 +531,8 @@ export class ResultServiceImpl {
                     const result: any = {
                         candidateId: resultInfo.candidateId,
                         bookingId: resultInfo.bookingId,
+                        phoneNumber: resultInfo.phoneNumber,
+                        score: resultInfo.score,
                         category: resultInfo.category,
                         jobPosition: resultInfo.jobPosition,
                         dateOfExam: resultInfo.dateOfExam,
