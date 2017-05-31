@@ -223,23 +223,23 @@ functions:
   #        # authorizer: arn:aws:lambda: us-east-1:151610303354:function:hr-auth-master-dev-authorize
   #         cors: true
 
-  getAllQsnIdsByQuestionPaperId:
-    handler: handler.getAllQsnIdsByQuestionPaperId
-    events:
-      - http:
-          path: api/getAllQsnIds/BookingId/{bookingId}/QuestionPaperId/{questionPaperId}/CurtQsnNo/{currentQsnNo}/Category/{category}
-          method: get
-#          authorizer: arn:aws:lambda: us-east-1:917291829364:function:hr-auth-master-dev-authorize
-          cors: true
+#   getAllQsnIdsByQuestionPaperId:
+#     handler: handler.getAllQsnIdsByQuestionPaperId
+#     events:
+#       - http:
+#           path: api/getAllQsnIds/BookingId/{bookingId}/QuestionPaperId/{questionPaperId}/CurtQsnNo/{currentQsnNo}/Category/{category}
+#           method: get
+# #          authorizer: arn:aws:lambda: us-east-1:917291829364:function:hr-auth-master-dev-authorize
+#           cors: true
 
-  updateResultFunction:
-    handler: handler.updateResultFunction
-    events:
-      - http:
-          path: api/updateResult
-          method: post
-#          authorizer: arn:aws:lambda: us-east-1:917291829364:function:hr-auth-master-dev-authorize
-          cors: true
+#   updateResultFunction:
+#     handler: handler.updateResultFunction
+#     events:
+#       - http:
+#           path: api/updateResult
+#           method: post
+# #          authorizer: arn:aws:lambda: us-east-1:917291829364:function:hr-auth-master-dev-authorize
+#           cors: true
 
   createQuestionFunction:
     handler: handler.createQuestionFunction
@@ -281,58 +281,67 @@ functions:
           method: get
           cors: true                 
 
-  getCandidateHomePageInfo:
-    handler: handler.getCandidateHomePageInfo
+
+  getAllQuestionsByPaperId:
+    handler: handler.getAllQuestionsByPaperId
     events:
       - http:
-          path: api/candidatehomePage/candidateinfo/{candidateinfo}
+          path: api/getAllQuestionsByPaperId/{qsnPaperId}
           method: get
           cors: true
 
-  getTestStausInfo:
-    handler: handler.getTestStausInfo
-    events:
-      - http:
-          path: api/testLinkInfo/{testLinkInfo}
-          method: get
-          cors: true
-  updateExamBookingTimings:
-    handler: handler.updateExamBookingTimings
-    events:
-      - http:
-          path: api/updateExamTimingSlot
-          method: post
-          cors: true
-  updateCandidateInfo:
-    handler: handler.updateCandidateInfo
-    events:
-      - http:
-          path: api/updateCandidate
-          method: post
-          cors: true
-  insertCandidate:
-    handler: handler.insertCandidate
-    events:
-      - http:
-          path: api/insertCandidate
-          method: post
-          cors: true
+  # getCandidateHomePageInfo:
+  #   handler: handler.getCandidateHomePageInfo
+  #   events:
+  #     - http:
+  #         path: api/candidatehomePage/candidateinfo/{candidateinfo}
+  #         method: get
+  #         cors: true
 
-  getCandidateInfoForView:
-    handler: handler.getCandidateInfoForView
-    events:
-      - http:
-          path: api/getCandidateInfoForView/candidateId/{id}
-          method: get
-          cors: true
+  # getTestStausInfo:
+  #   handler: handler.getTestStausInfo
+  #   events:
+  #     - http:
+  #         path: api/testLinkInfo/{testLinkInfo}
+  #         method: get
+  #         cors: true
+  # updateExamBookingTimings:
+  #   handler: handler.updateExamBookingTimings
+  #   events:
+  #     - http:
+  #         path: api/updateExamTimingSlot
+  #         method: post
+  #         cors: true
+  # updateCandidateInfo:
+  #   handler: handler.updateCandidateInfo
+  #   events:
+  #     - http:
+  #         path: api/updateCandidate
+  #         method: post
+  #         cors: true
+  # insertCandidate:
+  #   handler: handler.insertCandidate
+  #   events:
+  #     - http:
+  #         path: api/insertCandidate
+  #         method: post
+  #         cors: true
 
-  getESTestNotTakenResults:
-    handler: handler.getESTestNotTakenResults
-    events:
-      - http:
-          path: api/getESTestNotTakenResults
-          method: get
-          cors: true
+  # getCandidateInfoForView:
+  #   handler: handler.getCandidateInfoForView
+  #   events:
+  #     - http:
+  #         path: api/getCandidateInfoForView/candidateId/{id}
+  #         method: get
+  #         cors: true
+
+  # getESTestNotTakenResults:
+  #   handler: handler.getESTestNotTakenResults
+  #   events:
+  #     - http:
+  #         path: api/getESTestNotTakenResults
+  #         method: get
+  #         cors: true
 
   getESTestInProgressResults:
     handler: handler.getESTestInProgressResults

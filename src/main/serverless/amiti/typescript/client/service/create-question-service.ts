@@ -30,9 +30,9 @@ export class CreateQuestionServiceImpl {
             params = {
                 TableName: 'question',
                 Item: {
-                    Qsn_id: uuidd,
+                    questionId: uuidd,
                     Qsn: data['Qsn'],
-                    Category: data['Category'],
+                    category: data['Category'],
                     Option1: data['Option1'],
                     Option2: data['Option2'],
                     Option3: data['Option3'],
@@ -48,9 +48,9 @@ export class CreateQuestionServiceImpl {
             params = {
                 TableName: 'question',
                 Item: {
-                    Qsn_id: uuidd,
+                    questionId: uuidd,
                     Qsn: data['Qsn'],
-                    Category: data['Category'],
+                    category: data['Category'],
                     Option1: data['Option1'],
                     Option2: data['Option2'],
                     Option3: data['Option3'],
@@ -73,7 +73,7 @@ export class CreateQuestionServiceImpl {
                     }
                 }
 
-                let  data = 'success';
+                // let  data = 'success';
                 // console.log(data.Item[0]);
                 observer.next(result1);
                 observer.complete();
@@ -138,4 +138,31 @@ export class CreateQuestionServiceImpl {
         });
 
     }
+
+     getAllQuestionsByPaperId(qsnPaperIad: string): Observable<Question[]> {
+
+            const queryParams: DynamoDB.Types.QueryInput = {
+            TableName: 'questionPaper',
+            KeyConditionExpression: '#qsnPaperId = :qsnPaperId',
+            ProjectionExpression: 'category, QsnId, Qsn',
+            ExpressionAttributeNames:{
+                '#qsnPaperId': 'questionPaperId'
+            },
+            ExpressionAttributeValues: {
+                ':qsnPaperId': qsnPaperIad
+            }
+        };
+        const documentClient = new DocumentClient();
+        return Observable.create((observer: Observer<Question[]>) => {
+            documentClient.query(queryParams,(err,data: any) => {
+                if(err) {
+                    observer.error(err);
+                    throw err;
+                }
+                observer.next(data.Items);
+                observer.complete();
+            });
+        });
+ }
+
 }
