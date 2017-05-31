@@ -404,6 +404,14 @@ functions:
           path: api/findESResultSearch
           method: post
           cors: true
+
+  getESResultSearch:
+    handler: handler.findESResultSearch
+    events:
+      - http:
+          path: api/getESResultSearch
+          method: get
+          cors: true
   
   createCategory:
     handler: handler.createCategory

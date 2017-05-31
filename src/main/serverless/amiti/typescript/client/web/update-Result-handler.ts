@@ -30,7 +30,7 @@ export class UpdateResultHandler {
     }
 
   static findESResultSearch(httpContext: HttpContextImpl, injector: Injector): void {
-        let body = httpContext.getRequestBody();
+        let body = httpContext.getRequestBody() || {};
         console.log('req body', body);
         let searchParams: ResultSearchParams = {
             fullName: body.fullName,
