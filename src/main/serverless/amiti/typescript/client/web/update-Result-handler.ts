@@ -33,6 +33,7 @@ export class UpdateResultHandler {
         let body = httpContext.getRequestBody() || {};
         console.log('req body', body);
         let searchParams: ResultSearchParams = {
+            candidateId: body.candidateId,
             fullName: body.fullName,
             email: body.email,
             phoneNumber: body.phoneNumber,

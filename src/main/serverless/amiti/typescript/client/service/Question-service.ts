@@ -171,7 +171,7 @@ export class QuestionServiceImpl {
         console.log('in QsnPaperServiceImpl get()');
         const queryParams: DynamoDB.Types.QueryInput = {
             TableName: 'question',
-            ProjectionExpression: 'category,questionId, question, correctAns, option1, option2, option3, option4, multiFlag',
+            ProjectionExpression: 'category,questionId, question, correctAns, option1, option2, option3, option4,totalNoOfQsnsPerQsnPaperId, multiFlag',
             KeyConditionExpression: '#category = :category and #questionId = :questionId',
             ExpressionAttributeNames: {
                 '#category': 'category',

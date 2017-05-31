@@ -20,6 +20,7 @@ const AWS = require('aws-sdk');
 import DocumentClient = DynamoDB.DocumentClient;
 
 export interface ResultSearchParams {
+    candidateId?: string;
     fullName?: string;
     email?: string;
     phoneNumber?: number;
@@ -190,8 +191,8 @@ export class ResultServiceImpl {
                 },
                 function (question: Question) {
                     console.log(' Question INFO-----------------', question);
-                    record.addToNewImageAttributes('question', {
-                        'S': `${question[0].question}`
+                    record.addToNewImageAttributes('totalNoOfQsnsPerQsnPaperId', {
+                        'S': `${question[0].totalNoOfQsnsPerQsnPaperId}`
                     });
                     return question != null ? Observable.from([true]) :
                         Observable.throw(new Error('Question does not exist.'));
@@ -279,8 +280,8 @@ export class ResultServiceImpl {
                                         'type': 'keyword',
                                         'index': 'true'
                                     },
-                                    'question': {
-                                        'type': 'text',
+                                    'totalNoOfQsnsPerQsnPaperId': {
+                                        'type': 'long',
                                         'index': 'true'
                                     },
                                     'actualAns': {
@@ -429,6 +430,14 @@ export class ResultServiceImpl {
     }
 
         findESResultSearch(params: ResultSearchParams): Observable<ResultSearch[]> {
+
+        let candidateId = format('{0}', params.candidateId);
+        let candidateIdCondition: any = params.candidateId ? {
+            'term': {
+                candidateId
+            }
+        } : undefined;
+
         let email = format('{0}', params.email);
         let emailCondition: any = params.email ? {
             'term': {
@@ -494,6 +503,7 @@ export class ResultServiceImpl {
         }
 
         let mustConditions = [
+            candidateIdCondition,
             emailCondition,
             scoreCondition,
             phoneNumberCondition,
@@ -537,7 +547,10 @@ export class ResultServiceImpl {
                         jobPosition: resultInfo.jobPosition,
                         dateOfExam: resultInfo.dateOfExam,
                         fullName: resultInfo.fullName,
-                        email: resultInfo.email
+                        email: resultInfo.email,
+                        percentage: resultInfo.percentage,
+                        correctlyAnsweredQsn: resultInfo.correctlyAnsweredQsn,
+                        totalNoOfQsnsPerQsnPaperId: resultInfo.totalNoOfQsnsPerQsnPaperId
                     };
                     return result;
                 });
