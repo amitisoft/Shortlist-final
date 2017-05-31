@@ -4,18 +4,19 @@ import { HttpContextImpl } from '../../api/http/http-context-impl';
 
 export class QuestionPaperHandler {
 
-    static createQuestionPaper(httpContext: HttpContextImpl, injector: Injector): void {
-        console.log('CreateQuestionHandler');
+   static createQuestionPaper(httpContext: HttpContextImpl, injector: Injector): void {
+
         let body = httpContext.getRequestBody();
         let qsns = body.qsns;
         let qsnPaperName = body.papername;
-        injector.get(CreateQuestionPaperFacade).createQuestionPaper(qsns,qsnPaperName)
+        let QsnPprId = body.QsnPprId;
+        injector.get(CreateQuestionPaperFacade).createQuestionPaper(qsns,qsnPaperName,QsnPprId)
             .subscribe(result => {
                 httpContext.ok(200, result);
             }, err => {
                 httpContext.fail(err, 500);
             });
-    }
+}
 
     static getQuestionPaperNames(httpContext: HttpContextImpl, injector: Injector): void {
         console.log('CreateQuestionHandler');

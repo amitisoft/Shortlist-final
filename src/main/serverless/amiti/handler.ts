@@ -53,7 +53,9 @@ let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => 
 
 let questionServiceImplFactory = (qsnIdsServiceImpl: QsnIdsServiceImpl,bookingServiceImpl: BookingServiceImpl) => {
       return new QuestionServiceImpl(process.env.REGION, new DocumentClient(), qsnIdsServiceImpl,bookingServiceImpl);
-}
+
+};
+
 
 let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , bookingServiceImpl: BookingServiceImpl, questionServiceImpl: QuestionServiceImpl) => {
     console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
@@ -138,5 +140,7 @@ exports.findESCandidateSearchResult = ExecutionContextImpl.createHttpHandler(app
 exports.createCategory = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.createCategory);
 exports.getAllCategories = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getAllCategories);
 exports.getCategoryById = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getCategoryById);
+exports.getAllQuestionsByPaperId = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getAllQuestionsByPaperId);
+
 
 

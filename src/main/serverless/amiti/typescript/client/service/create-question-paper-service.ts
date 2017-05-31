@@ -5,6 +5,7 @@ import { Question } from '../domain/question';
 import { QuestionPaper } from '../domain/questionPaper';
 import { v4 } from 'node-uuid';
 const AWS = require('aws-sdk');
+let uuid = require('uuid');
 import DocumentClient = DynamoDB.DocumentClient;
 
 AWS.config.update({
@@ -18,32 +19,60 @@ export class CreateQuestionPaperserviceImpl {
         console.log('in createQuestionPaperserviceImpl constructor()');
     }
 
-    createQuestionPaper(data: any, qsnPaperName: any): Observable<Question> {
+    createQuestionPaper(data: any,qsnPaperName: any, qsnPprId: string): Observable<Question> {
         const documentClient = new DocumentClient();
-       console.log('qsnPaperName[[[[[[[[[[[[[[[', qsnPaperName);
+
         const qsnppr = [];
         let params: any = {};
-        let uuid = v4();
-        const qsnPaperNames = {
+        let uuidd = uuid.v4();
+      let qsnpapernames;
+      if(qsnPprId === '' || qsnPprId === 'undefined') {
+              qsnpapernames = {
             TableName: 'questionPaperNames',
             Item: {
-                QsnPaper_id: uuid,
-                Qsn_Paper_name: qsnPaperName,
+                questionPaperId: uuidd,
+                questionPaperName:qsnPaperName,
             }
-
         };
+   }else {
+       qsnpapernames = {
+            TableName: 'questionPaperNames',
+            Item: {
+                questionPaperId: qsnPprId,
+                questionPaperName:qsnPaperName,
+            }
+        };
+   }
         if (typeof data === 'string') {
             data = JSON.parse(data);
             for (let item = 0; item < data.length; item++) {
-                let myObj = {
+                let myObj;
+          if(qsnPprId === '' || qsnPprId === 'undefined') {
+                 myObj = {
                     PutRequest: {
                         Item: {
-                            'questionPaperId': uuid,
-                            'Qsn_Id': data[item].questionId,
-                            'Category': data[item].Category
+                            'questionPaperId': uuidd,
+                            'questionId': data[item].QsnId,
+                            'category': data[item].Category,
+                            'questionPaperName':qsnPaperName,
+                            'Qsn':data[item].Qsn
                         }
                     }
                 };
+          }else {
+
+                myObj = {
+                    PutRequest: {
+                        Item: {
+                            'questionPaperId': qsnPprId,
+                            'questionId': data[item].QsnId,
+                            'category': data[item].Category,
+                            'questionPaperName':qsnPaperName,
+                            'Qsn':data[item].Qsn
+                        }
+                    }
+                };
+          }
                 qsnppr.push(myObj);
             }
 
@@ -56,15 +85,35 @@ export class CreateQuestionPaperserviceImpl {
         } else {
 
             for (let item = 0; item < data.length; item++) {
-                let myObj = {
+            let myObj;
+            if(qsnPprId === '' || qsnPprId === 'undefined') {
+                myObj = {
                     PutRequest: {
                         Item: {
-                            'questionPaperId': uuid,
-                            'QsnId': data[item].questionId,
-                            'Category': data[item].Category
+                            'questionPaperId': uuidd,
+                            'questionId': data[item].QsnId,
+                            'category': data[item].Category,
+                            'questionPaperName' : qsnPaperName,
+                             'Qsn' : data[item].Qsn
+
                         }
                     }
                 };
+            }else {
+
+               myObj = {
+                    PutRequest: {
+                        Item: {
+                            'questionPaperId': qsnPprId,
+                            'questionId': data[item].QsnId,
+                            'category': data[item].Category,
+                            'questionPaperName' : qsnPaperName,
+                             'Qsn' : data[item].Qsn
+
+                        }
+                    }
+                };
+            }
                 qsnppr.push(myObj);
             }
 
@@ -78,15 +127,14 @@ export class CreateQuestionPaperserviceImpl {
 
         return Observable.create((observer: Observer<Question>) => {
 
-            documentClient.put(qsnPaperNames, (err, result: any) => {
-                if (err) {
-                    observer.error(err);
-                    return;
+             documentClient.put(qsnpapernames, (err, result: any) => {
+                           if(err) {
+                        observer.error(err);
+                        return;
                 }
 
-                data = 'success';
                 observer.next(result);
-                // observer.complete();
+                observer.complete();
             });
 
             documentClient.batchWrite(params, (err, result: any) => {
@@ -96,7 +144,7 @@ export class CreateQuestionPaperserviceImpl {
                     observer.error(err);
                     return;
                 }
-                result = 'success';
+
                 observer.next(result);
                 observer.complete();
             });
@@ -179,11 +227,14 @@ export class CreateQuestionPaperserviceImpl {
     }
 
     getPaperNamesByCategory(qsnId: any): Observable<QuestionPaper[]> {
+
+   let  keyItems = Array.from(qsnId.reduce((m, t) => m.set(t.questionPaperId, t), new Map()).values());
+
         console.log('in getPaperNamesByCategory');
         let params = {
             RequestItems: {
                 'questionPaperNames': {
-                    Keys: qsnId,
+                    Keys: keyItems,
                     ProjectionExpression: 'questionPaperName,questionPaperId'
                 }
             }
@@ -214,7 +265,7 @@ export class CreateQuestionPaperserviceImpl {
                     observer.complete();
                     return;
                 }
-                observer.next(data.Responses);
+                observer.next(data.Responses.questionPaperNames);
                 observer.complete();
 
             });

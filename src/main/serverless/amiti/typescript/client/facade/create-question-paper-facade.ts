@@ -10,8 +10,8 @@ export class CreateQuestionPaperFacade {
         console.log('in CreateQuestionFacade constructor()');
     }
 
-    createQuestionPaper(data: any, qsnPaperName: string): Observable<Question> {
-        return this.createQuestionPaperservice.createQuestionPaper(data, qsnPaperName);
+    createQuestionPaper(qsns: any, qsnPaperName: any, qsnPprId: string): Observable<Question> {
+       return this.createQuestionPaperservice.createQuestionPaper(qsns, qsnPaperName, qsnPprId);
     }
 
     getQuestionPapers(): Observable<Question[]> {

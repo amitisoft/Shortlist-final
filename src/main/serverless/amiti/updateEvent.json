@@ -1,13 +1,23 @@
 {
-	"body": {
-		"emails": [
-		"kiranagre111@gmail.com",
-		"kiran.a@amitisoft.com",
-		"a.kiran029@gmail.com"
-		],
-	"emailSubject": "Interview for Java developer",
-	"jobPosition": "Java developer",
-	"emailBody": " TestLink",
-	"category": "Java"
-	}
+	"body": {  
+     "papername":"JavaPaper",
+	 "QsnPprId":"",
+     "qsns":[  
+        {  
+           "QsnId":"3c698406-70ba-4c7e-9631-ac96df23df8d",
+           "Category":"UI",
+		   "Qsn":"Qsn1"
+        },
+        {  
+           "QsnId":"f19bd9a9-153a-456e-9f52-28517cf72ad3",
+           "Category":"Java",
+		   "Qsn":"Qsn4"
+        },
+		{  
+           "QsnId":"67d5e8d1-4be6-4921-865e-4131b55dcecb",
+           "Category":"Java",
+		   "Qsn":"Qsn3"
+        }
+    ]
+  }
 }
