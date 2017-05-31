@@ -14,7 +14,6 @@ export class UpdateResultHandler {
             .subscribe(result => {
                 httpContext.ok(200, result);
                },  err => {
-
                 httpContext.fail(err, 500);
         });
     }
@@ -31,7 +30,7 @@ export class UpdateResultHandler {
     }
 
   static findESResultSearch(httpContext: HttpContextImpl, injector: Injector): void {
-        let body = httpContext.getRequestBody();
+        let body = httpContext.getRequestBody() || {};
         console.log('req body', body);
         let searchParams: ResultSearchParams = {
             fullName: body.fullName,
@@ -39,7 +38,7 @@ export class UpdateResultHandler {
             phoneNumber: body.phoneNumber,
             jobPosition: body.jobPosition,
             dateOfExamRange: body.dateOfExamRange,
-            scoreRange: body.scoreRange,
+            score: body.score,
             from: body.pageNumber || 0,
             size: 30
         };

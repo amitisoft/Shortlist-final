@@ -12,9 +12,9 @@ export class QsnIdsFacade {
         console.log('in QsnPaperFacade constructor()');
     }
 
-    getQsnId(questionPaperId: string): Observable<QsnIdsDto[]> {
-        console.log('in QsnPaperFacade getAll()');
-        return this.qsnIdsService.getQsnId(questionPaperId);
-              }
+    //    getQsnId(questionPaperId: string): Observable<QsnIdsDto[]> {
+    //     console.log('in QsnPaperFacade getAll()');
+    //     return this.qsnIdsService.getQsnId(questionPaperId);
+    //           }
 
 }

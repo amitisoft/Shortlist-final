@@ -29,7 +29,7 @@ export class GetQsnHandler {
 
      static getQuestion(httpContext: HttpContextImpl, injector: Injector): void {
          let pathParameters = httpContext.getPathParameters();
-         console.log(JSON.stringify(pathParameters));
+          console.log(JSON.stringify(pathParameters));
           injector.get(QuestionFacade).getNextQuestion(pathParameters)
              .subscribe(result => {
                          httpContext.ok(200, result);

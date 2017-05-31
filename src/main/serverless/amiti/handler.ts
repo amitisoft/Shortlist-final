@@ -6,9 +6,7 @@ import { GetQsnHandler } from './typescript/client/web/get-Question-handler';
 import { UpdateResultHandler } from './typescript/client/web/update-Result-handler';
 import { CreateQuestionHandler } from './typescript/client/web/create-question-handler';
 import { QuestionPaperHandler } from './typescript/client/web/question-paper-handler';
-import { TestLinkHandler } from './typescript/client/web/test-link-handler';
 import { GetBookingHandler } from './typescript/client/web/get-booking-handler';
-
 import { CandidateServiceImpl } from './typescript/client/service/candidate-service';
 import { CandidateFacade } from './typescript/client/facade/candidate-facade';
 import { BookingServiceImpl } from './typescript/client/service/booking-service';
@@ -30,14 +28,15 @@ import { CategoryFacade } from './typescript/client/facade/Category-facade';
 import{ CategoryServiceImpl } from './typescript/client/service/Category-Service';
 import DocumentClient = DynamoDB.DocumentClient;
 
-//   const fs = require('fs');
-//       const dotenv = require('dotenv');
-//     const envConfig = dotenv.parse(fs.readFileSync('.env'));
-//     for (let k in envConfig) {
-//         if (envConfig.hasOwnProperty(k)) {
-//             process.env[k] = envConfig[k];
-//         }
-//     }
+
+//    const fs = require('fs');
+//        const dotenv = require('dotenv');
+//      const envConfig = dotenv.parse(fs.readFileSync('.env'));
+//      for (let k in envConfig) {
+//          if (envConfig.hasOwnProperty(k)) {
+//              process.env[k] = envConfig[k];
+//          }
+//      }
 
 
 let candidateServiceImplFactory = (notificationServiceImpl: NotificationServiceImpl) => {
@@ -54,16 +53,26 @@ let bookingServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl) => 
 
 let questionServiceImplFactory = (qsnIdsServiceImpl: QsnIdsServiceImpl,bookingServiceImpl: BookingServiceImpl) => {
       return new QuestionServiceImpl(process.env.REGION, new DocumentClient(), qsnIdsServiceImpl,bookingServiceImpl);
+
 };
+
 
 let resultServiceImplFactory = (candidateServiceImpl: CandidateServiceImpl , bookingServiceImpl: BookingServiceImpl, questionServiceImpl: QuestionServiceImpl) => {
     console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
     return new ResultServiceImpl(process.env.ELASTICSEARCH_ENDPOINT, process.env.REGION, new DocumentClient(), candidateServiceImpl, bookingServiceImpl, questionServiceImpl);
 
 };
+
+let notificationImplFactory = () => {
+    console.log(`in process bookingServiceImplFactory ${JSON.stringify(process.env.ELASTICSEARCH_ENDPOINT)}`);
+    return new NotificationServiceImpl(process.env.CANDIDATE_HOME_PAGE_URL);
+
+};
+
 export const appProviders = [
     CandidateFacade,
     BookingFacade,
+    QuestionFacade,
     ResultFacade,
     {
         provide: BookingServiceImpl,
@@ -85,10 +94,13 @@ export const appProviders = [
         useFactory: resultServiceImplFactory,
         deps: [CandidateServiceImpl, BookingServiceImpl, QuestionServiceImpl ]
     },
-    NotificationServiceImpl,
-    QsnIdsServiceImpl,
+    {
+        provide: NotificationServiceImpl,
+        useFactory: notificationImplFactory,
+        deps: []
+    },
     QsnIdsFacade,
-    QuestionFacade,
+    QsnIdsServiceImpl,
     CreateQuestionFacade,
     CreateQuestionServiceImpl,
     CreateQuestionPaperFacade,
@@ -111,12 +123,10 @@ exports.updateResultFunction = ExecutionContextImpl.createHttpHandler(appProvide
 exports.createQuestionPaperFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.createQuestionPaper);
 exports.createQuestionFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.createQuestion);
 exports.getQuestionByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getQuestionByCategory);
-exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 exports.getQuestionPaperNamesFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNames);
 exports.performESUpdateForBooking = StreamExecutionContextImpl.createBookingDBStreamHandler(appProviders, GetBookingHandler.performElasticSearchUpdate);
 exports.insertCandidate = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.insertCandidate);
 exports.getCandidateInfoForView = ExecutionContextImpl.createHttpHandler(appProviders, GetCandidateHandler.getCandidateInfoForView);
-exports.createTestLinkFunction = ExecutionContextImpl.createHttpHandler(appProviders, TestLinkHandler.findCandidateByEmailId);
 exports.getQuestionPaperNamesByCategoryFunction = ExecutionContextImpl.createHttpHandler(appProviders, QuestionPaperHandler.getQuestionPaperNamesByCategory);
 exports.getESTestNotTakenResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestNotTakenResults);
 exports.getESTestInProgressResults = ExecutionContextImpl.createHttpHandler(appProviders, GetBookingHandler.getESTestInProgressResults);
@@ -131,5 +141,6 @@ exports.createCategory = ExecutionContextImpl.createHttpHandler(appProviders, Ca
 exports.getAllCategories = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getAllCategories);
 exports.getCategoryById = ExecutionContextImpl.createHttpHandler(appProviders, CategoryHandler.getCategoryById);
 exports.getAllQuestionsByPaperId = ExecutionContextImpl.createHttpHandler(appProviders, CreateQuestionHandler.getAllQuestionsByPaperId);
+
 
 

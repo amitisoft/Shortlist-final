@@ -22,7 +22,8 @@ export class QuestionFacade {
     // }
 
 
-    getNextQuestion(data:any): Observable<QuestionDto> {
+      getNextQuestion(data:any): Observable<QuestionDto> {
+        console.log('in QuestionFacade getNextQuestion()');
         return this.questionService.getNextQuestion(data);
       }
 

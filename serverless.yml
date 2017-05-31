@@ -1,15 +1,3 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
 
 plugins:
   - serverless-webpack
@@ -22,7 +10,7 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    ACCOUNT_ID: 341254026561 
+    ACCOUNT_ID: 784455347771 
     REGISTER_TEST_STREAM: register-test-stream
     CANDIDATE_TABLE: candidate
     BOOKING_TABLE: booking
@@ -35,6 +23,7 @@ provider:
     KINESIS_STREAM_REGION: us-east-1
     REGION: us-east-1
     ELASTICSEARCH_ENDPOINT: https://search-amititest-online1-l5sfmiq7t2kxfmoirkdo22gyf4.us-east-1.es.amazonaws.com/
+    CANDIDATE_HOME_PAGE_URL: http://localhost:3000/?token=
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -149,7 +138,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.RESULT_TABLE}/*"
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.RESULT_TABLE}"
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -181,6 +170,17 @@ provider:
       Action:
         - execute-api:Invoke
       Resource: "arn:aws:execute-api:us-east-1:*:*"
+    - Effect: Allow
+      Action:
+        - kinesis:DescribeStream
+        - kinesis:GetRecords
+        - kinesis:PutRecords
+        - kinesis:GetShardIterator
+        - kinesis:ListStreams
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: arn:aws:kinesis:${opt:region, self:provider.region}:${self:provider.environment.ACCOUNT_ID}:stream/${self:provider.environment.REGISTER_TEST_STREAM}
 
     - "Effect": "Allow"
       "Action": "SES:SendEmail"
@@ -280,6 +280,7 @@ functions:
           path: api/getquestionpapernamesbycategory/category/{category}
           method: get
           cors: true                 
+
 
   getAllQuestionsByPaperId:
     handler: handler.getAllQuestionsByPaperId
@@ -411,6 +412,14 @@ functions:
       - http:
           path: api/findESResultSearch
           method: post
+          cors: true
+
+  getESResultSearch:
+    handler: handler.findESResultSearch
+    events:
+      - http:
+          path: api/getESResultSearch
+          method: get
           cors: true
   
   createCategory:
@@ -556,6 +565,15 @@ resources:
                     Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BOOKING_TABLE}/*"
                   - Effect: Allow
                     Action:
+                      - dynamodb:Query
+                      - dynamodb:Scan
+                      - dynamodb:GetItem
+                      - dynamodb:PutItem
+                      - dynamodb:UpdateItem
+                      - dynamodb:DeleteItem
+                    Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.BOOKING_TABLE}"
+                  - Effect: Allow
+                    Action:
                       - logs:CreateLogGroup
                       - logs:CreateLogStream
                       - logs:PutLogEvents
@@ -574,7 +592,10 @@ resources:
                       - logs:CreateLogStream
                       - logs:PutLogEvents
                     Resource: arn:aws:kinesis:${opt:region, self:provider.region}:${self:provider.environment.ACCOUNT_ID}:stream/${self:provider.environment.REGISTER_TEST_STREAM}
-
+                
+                  - "Effect": "Allow"
+                    "Action": "SES:SendEmail"
+                    "Resource": "*"
       booking:
         Type: 'AWS::DynamoDB::Table'
         DeletionPolicy: Retain
@@ -632,6 +653,7 @@ resources:
               Projection:
                 NonKeyAttributes:
                   - "dateOfExam"
+                  - "testStatus"
                 ProjectionType: "INCLUDE"
 
               ProvisionedThroughput:

@@ -4,5 +4,6 @@ export class Registration {
     jobPosition: string;
     emailBody: string;
     category: string;
+    emailTemplate: string;
 }
 

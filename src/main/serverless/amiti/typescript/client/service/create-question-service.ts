@@ -38,7 +38,7 @@ export class CreateQuestionServiceImpl {
                     Option3: data['Option3'],
                     Option4: data['Option4'],
                     Crct_ans: data['Crct_ans'],
-                    Multi_flag: true,
+                    Multi_flag: false,
                     Date: new Date().toJSON().slice(0, 10).replace(/-/g, '/')
                 }
 
@@ -56,7 +56,7 @@ export class CreateQuestionServiceImpl {
                     Option3: data['Option3'],
                     Option4: data['Option4'],
                     Crct_ans: data['Crct_ans'],
-                    Multi_flag: true,
+                    Multi_flag: false,
                     Date: new Date().toJSON().slice(0, 10).replace(/-/g, '/')
                 }
 
